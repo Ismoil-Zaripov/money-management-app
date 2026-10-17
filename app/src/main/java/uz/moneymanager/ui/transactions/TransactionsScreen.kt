@@ -76,7 +76,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -677,43 +681,47 @@ fun SummaryReportBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (selectedTab == 0) {
+            // Ikkala tab bitta Box'da o'lchanadi: sheet balandligi tablar orasida sakramaydi
+            Box {
                 // Details (Flat 3-row layout)
-                FlatSummarySection(
-                    title = stringResource(R.string.summary_total_title, totals.display.count),
-                    subtitle = stringResource(R.string.summary_converted_subtitle, displayCode),
-                    totals = totals.display,
-                    currencyCode = displayCode
-                )
-
-                if (showFallback) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                    Spacer(modifier = Modifier.height(16.dp))
+                Column(modifier = Modifier.hiddenUnless(selectedTab == 0)) {
                     FlatSummarySection(
-                        title = stringResource(R.string.summary_fallback_title, totals.fallback.count),
-                        subtitle = null,
-                        totals = totals.fallback,
-                        currencyCode = fallbackCode
+                        title = stringResource(R.string.summary_total_title, totals.display.count),
+                        subtitle = stringResource(R.string.summary_converted_subtitle, displayCode),
+                        totals = totals.display,
+                        currencyCode = displayCode
                     )
-                }
-            } else {
-                // Donut Chart
-                SummaryDonutChartView(
-                    totals = totals.display,
-                    currencyCode = displayCode,
-                    title = stringResource(R.string.summary_total_title, totals.display.count)
-                )
 
-                if (showFallback) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                    Spacer(modifier = Modifier.height(16.dp))
+                    if (showFallback) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        FlatSummarySection(
+                            title = stringResource(R.string.summary_fallback_title, totals.fallback.count),
+                            subtitle = null,
+                            totals = totals.fallback,
+                            currencyCode = fallbackCode
+                        )
+                    }
+                }
+                // Donut Chart
+                Column(modifier = Modifier.hiddenUnless(selectedTab == 1)) {
                     SummaryDonutChartView(
-                        totals = totals.fallback,
-                        currencyCode = fallbackCode,
-                        title = stringResource(R.string.summary_fallback_title, totals.fallback.count)
+                        totals = totals.display,
+                        currencyCode = displayCode,
+                        title = stringResource(R.string.summary_total_title, totals.display.count)
                     )
+
+                    if (showFallback) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        SummaryDonutChartView(
+                            totals = totals.fallback,
+                            currencyCode = fallbackCode,
+                            title = stringResource(R.string.summary_fallback_title, totals.fallback.count)
+                        )
+                    }
                 }
             }
 
@@ -765,13 +773,61 @@ fun FlatSummarySection(
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
         // Balans qatori
-        val balColor = if (totals.balance >= BigDecimal.ZERO) IncomeColor else ExpenseColor
         SummaryRowItem(
             label = stringResource(R.string.label_balance),
             amount = FormatUtils.formatAmount(totals.balance, currencyCode, includePositiveSign = true),
-            color = balColor,
+            color = balanceColor(totals.balance),
             isBalance = true
         )
+    }
+}
+
+
+/** Faol bo'lmagan tab joyini egallaydi (balandlik uchun), lekin ko'rinmaydi va TalkBack'ka chiqmaydi. */
+private fun Modifier.hiddenUnless(visible: Boolean): Modifier =
+    if (visible) this else this.alpha(0f).clearAndSetSemantics { }
+
+/** Balans rangi: musbat - income, manfiy - expense, nol - onSurface (Details va Chart uchun yagona qoida). */
+@Composable
+private fun balanceColor(balance: BigDecimal): Color = when (balance.signum()) {
+    1 -> IncomeColor
+    -1 -> ExpenseColor
+    else -> MaterialTheme.colorScheme.onSurface
+}
+
+/**
+ * Yorliq chapda, summa o'ngda. Agar ikkalasi bitta qatorga sig'masa (masalan shrift 1.3x-2.0x),
+ * summa yorliq ostiga tushadi va [stackedIndent] bilan yorliq matni chegarasida tekislanadi.
+ */
+@Composable
+private fun AdaptiveAmountRow(
+    label: @Composable () -> Unit,
+    amount: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    stackedIndent: Dp = 0.dp,
+) {
+    Layout(contents = listOf(label, amount), modifier = modifier) { measurables, constraints ->
+        val width = constraints.maxWidth
+        val gap = 12.dp.roundToPx()
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val amountPlaceable = measurables[1].first().measure(loose)
+        val labelFitsInRow = width - amountPlaceable.width - gap
+        val labelInRow = measurables[0].first()
+        if (labelInRow.maxIntrinsicWidth(constraints.maxHeight) <= labelFitsInRow) {
+            val labelPlaceable = labelInRow.measure(loose.copy(maxWidth = labelFitsInRow))
+            val height = maxOf(labelPlaceable.height, amountPlaceable.height)
+            layout(width, height) {
+                labelPlaceable.place(0, (height - labelPlaceable.height) / 2)
+                amountPlaceable.place(width - amountPlaceable.width, (height - amountPlaceable.height) / 2)
+            }
+        } else {
+            val labelPlaceable = labelInRow.measure(loose)
+            val indent = stackedIndent.roundToPx().coerceAtMost((width - amountPlaceable.width).coerceAtLeast(0))
+            layout(width, labelPlaceable.height + amountPlaceable.height) {
+                labelPlaceable.place(0, 0)
+                amountPlaceable.place(indent, labelPlaceable.height)
+            }
+        }
     }
 }
 
@@ -783,59 +839,99 @@ fun SummaryRowItem(
     isIncome: Boolean = false,
     isBalance: Boolean = false,
 ) {
-    Row(
+    AdaptiveAmountRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(color.copy(alpha = 0.15f), shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isBalance) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(color, shape = CircleShape)
-                    )
-                } else if (isIncome) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDownward,
-                        contentDescription = null,
-                        tint = color,
-                        modifier = Modifier.size(14.dp)
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.ArrowUpward,
-                        contentDescription = null,
-                        tint = color,
-                        modifier = Modifier.size(14.dp)
-                    )
+        stackedIndent = 34.dp,
+        label = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .background(color.copy(alpha = 0.15f), shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isBalance) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(color, shape = CircleShape)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = if (isIncome) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
+                            contentDescription = null,
+                            tint = color,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = if (isBalance) FontWeight.Bold else FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
-            Spacer(modifier = Modifier.width(10.dp))
+        },
+        amount = {
             Text(
-                text = label,
+                text = amount,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (isBalance) FontWeight.Bold else FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                fontWeight = FontWeight.Bold,
+                color = color,
+                maxLines = 1,
+                softWrap = false
             )
         }
-
-        Text(
-            text = amount,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
-    }
+    )
 }
+
+/** Legenda qatori: [dotColor] null bo'lsa nuqta o'rnida o'sha kenglikda bo'sh joy qoladi. */
+@Composable
+private fun LegendRow(
+    label: String,
+    amount: String,
+    amountColor: Color,
+    dotColor: Color?,
+    bold: Boolean = false,
+) {
+    AdaptiveAmountRow(
+        modifier = Modifier.fillMaxWidth(),
+        stackedIndent = LegendDotSize + LegendDotGap,
+        label = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(LegendDotSize)
+                        .then(if (dotColor != null) Modifier.background(dotColor, CircleShape) else Modifier)
+                )
+                Spacer(modifier = Modifier.width(LegendDotGap))
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = if (bold) FontWeight.Bold else FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        },
+        amount = {
+            Text(
+                text = amount,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = amountColor,
+                maxLines = 1,
+                softWrap = false
+            )
+        }
+    )
+}
+
+private val LegendDotSize = 10.dp
+private val LegendDotGap = 8.dp
 
 @Composable
 fun SummaryDonutChartView(
@@ -873,138 +969,79 @@ fun SummaryDonutChartView(
         val emptyText = stringResource(R.string.empty_transactions)
         val incomeLabel = stringResource(R.string.label_income)
         val expenseLabel = stringResource(R.string.label_expense)
+        val balanceLabel = stringResource(R.string.label_balance)
+        val balanceText = FormatUtils.formatAmount(totals.balance, currencyCode, includePositiveSign = true)
         val chartSemanticsDesc = if (totalVolume <= 0f) {
             emptyText
         } else {
-            "$incomeLabel: $incPct%, $expenseLabel: $expPct%"
+            "$incomeLabel $incPct%, $expenseLabel $expPct%, $balanceLabel $balanceText"
         }
 
-        Box(
-            contentAlignment = Alignment.Center,
+        // Donut markazi ataylab bo'sh: balans legendada ko'rsatiladi
+        Canvas(
             modifier = Modifier
                 .size(160.dp)
+                .padding(14.dp)
                 .semantics { contentDescription = chartSemanticsDesc }
         ) {
-            Canvas(modifier = Modifier.fillMaxSize().padding(14.dp)) {
-                if (totalVolume <= 0f) {
-                    drawCircle(
-                        color = outlineVariantColor,
-                        style = Stroke(width = strokeWidthPx)
-                    )
-                } else {
-                    val incomeAngle = (incFloat / totalVolume) * 360f
-                    val expenseAngle = (expFloat / totalVolume) * 360f
-                    val gapAngle = if (incPct > 0 && expPct > 0) 3f else 0f
-                    val adjInc = (incomeAngle - gapAngle).coerceAtLeast(0f)
-                    val adjExp = (expenseAngle - gapAngle).coerceAtLeast(0f)
+            if (totalVolume <= 0f) {
+                drawCircle(
+                    color = outlineVariantColor,
+                    style = Stroke(width = strokeWidthPx)
+                )
+            } else {
+                val incomeAngle = (incFloat / totalVolume) * 360f
+                val expenseAngle = (expFloat / totalVolume) * 360f
+                val gapAngle = if (incPct > 0 && expPct > 0) 3f else 0f
+                val adjInc = (incomeAngle - gapAngle).coerceAtLeast(0f)
+                val adjExp = (expenseAngle - gapAngle).coerceAtLeast(0f)
 
-                    drawArc(
-                        color = incColor,
-                        startAngle = -90f + gapAngle / 2,
-                        sweepAngle = adjInc,
-                        useCenter = false,
-                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
-                    )
-                    drawArc(
-                        color = expColor,
-                        startAngle = -90f + incomeAngle + gapAngle / 2,
-                        sweepAngle = adjExp,
-                        useCenter = false,
-                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
-                    )
-                }
-            }
-
-            // Donut markazi: Balans summasi va valyuta
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            ) {
-                if (totalVolume <= 0f) {
-                    Text(
-                        text = "0",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    val balColor = if (totals.balance >= BigDecimal.ZERO) incColor else expColor
-                    Text(
-                        text = FormatUtils.formatAmount(totals.balance, currencyCode, includePositiveSign = true),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = balColor,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                drawArc(
+                    color = incColor,
+                    startAngle = -90f + gapAngle / 2,
+                    sweepAngle = adjInc,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                )
+                drawArc(
+                    color = expColor,
+                    startAngle = -90f + incomeAngle + gapAngle / 2,
+                    sweepAngle = adjExp,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Legenda: Har biri alohida qatorda (Column), chapda doiracha + yorliq + foiz, o'ngda summa (SpaceBetween)
+        // Legenda: Income, Expense, divider, Balance
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(incColor, shape = CircleShape)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "$incomeLabel ($incPct%)",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                Text(
-                    text = FormatUtils.formatAmount(totals.income, currencyCode, TransactionType.INCOME),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = incColor,
-                    maxLines = 1
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(expColor, shape = CircleShape)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "$expenseLabel ($expPct%)",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                Text(
-                    text = FormatUtils.formatAmount(totals.expense, currencyCode, TransactionType.EXPENSE),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = expColor,
-                    maxLines = 1
-                )
-            }
+            LegendRow(
+                label = "$incomeLabel ($incPct%)",
+                amount = FormatUtils.formatAmount(totals.income, currencyCode, TransactionType.INCOME),
+                amountColor = incColor,
+                dotColor = incColor
+            )
+            LegendRow(
+                label = "$expenseLabel ($expPct%)",
+                amount = FormatUtils.formatAmount(totals.expense, currencyCode, TransactionType.EXPENSE),
+                amountColor = expColor,
+                dotColor = expColor
+            )
+            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+            LegendRow(
+                label = balanceLabel,
+                amount = balanceText,
+                amountColor = balanceColor(totals.balance),
+                dotColor = null,
+                bold = true
+            )
         }
     }
 }

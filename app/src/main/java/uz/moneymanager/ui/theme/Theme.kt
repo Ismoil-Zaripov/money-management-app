@@ -33,9 +33,6 @@ val ExpenseColor: Color
     @Composable
     get() = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) ExpenseDark else ExpenseLight
 
-val IncomeGreen = IncomeLight
-val ExpenseRed = ExpenseLight
-
 /**
  * Bar colors: in light mode bar = primary and content = onPrimary.
  * In dark mode bar = primaryContainer (deep tonal shade) and content = onPrimaryContainer.

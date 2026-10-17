@@ -75,4 +75,20 @@ class DomainRulesTest {
         assertEquals(0, BigDecimal.ZERO.compareTo(totals.fallback.expense))
         assertEquals(1, totals.fallback.count)
     }
+
+    @Test
+    fun testAmountInputSanitizeAndTransformation() {
+        // Comma and dot normalized, leading zeros stripped, max 2 decimals, max 15 integer digits
+        assertEquals("0", uz.moneymanager.ui.transactions.form.AmountInput.sanitize("000"))
+        assertEquals("5", uz.moneymanager.ui.transactions.form.AmountInput.sanitize("005"))
+        assertEquals("0.25", uz.moneymanager.ui.transactions.form.AmountInput.sanitize(",25"))
+        assertEquals("1234.56", uz.moneymanager.ui.transactions.form.AmountInput.sanitize("1,234.567", isPaste = true))
+        assertEquals(15, uz.moneymanager.ui.transactions.form.AmountInput.sanitize("1234567890123456789").length)
+
+        val vt = uz.moneymanager.ui.transactions.form.AmountVisualTransformation(decimalSeparator = ',', groupingSeparator = '\u00A0')
+        val transformed = vt.filter(androidx.compose.ui.text.AnnotatedString("1234567.89"))
+        assertEquals("1\u00A0234\u00A0567,89", transformed.text.text)
+        assertEquals(transformed.text.length, transformed.offsetMapping.originalToTransformed(10))
+        assertEquals(10, transformed.offsetMapping.transformedToOriginal(transformed.text.length))
+    }
 }

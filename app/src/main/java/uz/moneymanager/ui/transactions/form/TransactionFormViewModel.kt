@@ -1,5 +1,6 @@
 package uz.moneymanager.ui.transactions.form
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +12,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.moneymanager.R
 import uz.moneymanager.data.local.CategoryEntity
@@ -25,7 +28,6 @@ import uz.moneymanager.data.repository.TransactionRepository
 import uz.moneymanager.domain.AmountResult
 import uz.moneymanager.domain.AmountValidator
 import uz.moneymanager.domain.DomainException
-import uz.moneymanager.domain.RateValidator
 import uz.moneymanager.domain.model.TransactionType
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -38,124 +40,296 @@ sealed interface FormEvent {
         val base: CurrencyEntity,
         val date: LocalDate,
         val missing: List<CurrencyEntity>,
-        val suggestedRates: Map<Long, String>, // quoteId to prefilled rate string
+        val suggestedRates: Map<Long, String>,
     ) : FormEvent
 }
 
+@Immutable
+data class FormUiState(
+    val isNew: Boolean = true,
+    val type: TransactionType = TransactionType.EXPENSE,
+    val amountText: String = "",
+    val currencyId: Long? = null,
+    val currency: CurrencyEntity? = null,
+    val categoryText: String = "",
+    val date: LocalDate = LocalDate.now(),
+    val currencies: List<CurrencyEntity> = emptyList(),
+    val allCategories: List<CategoryEntity> = emptyList(),
+    val categorySuggestions: List<String> = emptyList(),
+    val isLoading: Boolean = false,
+    val isSaving: Boolean = false,
+    val amountErrorRes: Int? = null,
+    val categoryErrorRes: Int? = null,
+    val canSave: Boolean = false,
+    val isDirty: Boolean = false,
+)
+
 @HiltViewModel
 class TransactionFormViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val transactionRepository: TransactionRepository,
-    private val currencyRepository: CurrencyRepository,
-    private val categoryRepository: CategoryRepository,
+    currencyRepository: CurrencyRepository,
+    categoryRepository: CategoryRepository,
     private val rateRepository: ExchangeRateRepository,
 ) : ViewModel() {
 
     val transactionId: Long? = savedStateHandle.get<String>("id")?.toLongOrNull()
+    private val isNew: Boolean = transactionId == null
 
-    private val _type = MutableStateFlow(TransactionType.EXPENSE)
-    val type: StateFlow<TransactionType> = _type.asStateFlow()
+    private var saveAttempted: Boolean
+        get() = savedStateHandle[KEY_SAVE_ATTEMPTED] ?: false
+        set(value) { savedStateHandle[KEY_SAVE_ATTEMPTED] = value }
 
-    private val _amount = MutableStateFlow("")
-    val amount: StateFlow<String> = _amount.asStateFlow()
+    private var amountTouched: Boolean
+        get() = savedStateHandle[KEY_AMOUNT_TOUCHED] ?: false
+        set(value) { savedStateHandle[KEY_AMOUNT_TOUCHED] = value }
 
-    private val _currencyId = MutableStateFlow<Long?>(null)
-    val currencyId: StateFlow<Long?> = _currencyId.asStateFlow()
+    private var categoryTouched: Boolean
+        get() = savedStateHandle[KEY_CATEGORY_TOUCHED] ?: false
+        set(value) { savedStateHandle[KEY_CATEGORY_TOUCHED] = value }
 
-    private val _categoryText = MutableStateFlow("")
-    val categoryText: StateFlow<String> = _categoryText.asStateFlow()
-
-    private val _date = MutableStateFlow(LocalDate.now())
-    val date: StateFlow<LocalDate> = _date.asStateFlow()
-
-    val currencies: StateFlow<List<CurrencyEntity>> = currencyRepository.observeAll()
+    private val currenciesFlow: StateFlow<List<CurrencyEntity>> = currencyRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val allCategories: StateFlow<List<CategoryEntity>> = categoryRepository.observeAll()
+    private val categoriesFlow: StateFlow<List<CategoryEntity>> = categoryRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val suggestionsFlow: StateFlow<List<String>> = transactionRepository.recentCategoryNames(RECENT_CATEGORY_LIMIT)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _uiState = MutableStateFlow(buildInitialState())
+    val uiState: StateFlow<FormUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<FormEvent>()
     val events: SharedFlow<FormEvent> = _events.asSharedFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
     init {
+        // Fonda valyuta va kategoriya ro'yxatlarini yuklash (ekran ochilishini kutdirmaydi)
         viewModelScope.launch {
-            // Set default currency if creating new
-            if (transactionId == null) {
-                currencies.collect { list ->
-                    if (_currencyId.value == null && list.isNotEmpty()) {
-                        val def = list.firstOrNull { it.isDefault } ?: list.first()
-                        _currencyId.value = def.id
+            combine(currenciesFlow, categoriesFlow, suggestionsFlow) { currList, catList, recentList ->
+                Triple(currList, catList, recentList)
+            }.collect { (currList, catList, recentList) ->
+                _uiState.update { current ->
+                    val resolvedCurrencyId = current.currencyId ?: resolveInitialCurrencyId(currList)
+                    if (current.currencyId == null && resolvedCurrencyId != null) {
+                        savedStateHandle[KEY_CURRENCY_ID] = resolvedCurrencyId
+                        if (savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID) == null) {
+                            savedStateHandle[KEY_ORIG_CURRENCY_ID] = resolvedCurrencyId
+                        }
                     }
+                    current.copy(
+                        currencyId = resolvedCurrencyId,
+                        currencies = currList,
+                        allCategories = catList,
+                        categorySuggestions = recentList,
+                    ).recompute()
                 }
             }
         }
 
-        if (transactionId != null) {
+        if (isNew) {
             viewModelScope.launch {
-                _isLoading.value = true
-                val tx = transactionRepository.getDetails(transactionId)
-                if (tx != null) {
-                    _type.value = tx.type
-                    _amount.value = tx.amount.toPlainString()
-                    _currencyId.value = tx.currencyId
-                    _categoryText.value = tx.categoryName
-                    _date.value = tx.date
+                val lastUsedId = transactionRepository.lastUsedCurrencyId()
+                if (lastUsedId != null && savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID) == null) {
+                    savedStateHandle[KEY_ORIG_CURRENCY_ID] = lastUsedId
+                    if (savedStateHandle.get<Long>(KEY_CURRENCY_ID) == null) {
+                        savedStateHandle[KEY_CURRENCY_ID] = lastUsedId
+                        _uiState.update { it.copy(currencyId = lastUsedId).recompute() }
+                    }
                 }
-                _isLoading.value = false
+            }
+        } else if (savedStateHandle.get<Boolean>(KEY_ORIG_LOADED) != true) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(isLoading = true).recompute() }
+                val tx = transactionRepository.getDetails(transactionId!!)
+                if (tx != null) {
+                    val plainAmount = tx.amount.stripTrailingZeros().toPlainString()
+                    savedStateHandle[KEY_ORIG_LOADED] = true
+                    savedStateHandle[KEY_ORIG_TYPE] = tx.type.name
+                    savedStateHandle[KEY_ORIG_AMOUNT] = plainAmount
+                    savedStateHandle[KEY_ORIG_CURRENCY_ID] = tx.currencyId
+                    savedStateHandle[KEY_ORIG_CATEGORY] = tx.categoryName
+                    savedStateHandle[KEY_ORIG_DATE] = tx.date.toEpochDay()
+
+                    savedStateHandle[KEY_TYPE] = tx.type.name
+                    savedStateHandle[KEY_AMOUNT] = plainAmount
+                    savedStateHandle[KEY_CURRENCY_ID] = tx.currencyId
+                    savedStateHandle[KEY_CATEGORY] = tx.categoryName
+                    savedStateHandle[KEY_DATE] = tx.date.toEpochDay()
+
+                    _uiState.update {
+                        it.copy(
+                            type = tx.type,
+                            amountText = plainAmount,
+                            currencyId = tx.currencyId,
+                            categoryText = tx.categoryName,
+                            date = tx.date,
+                            isLoading = false,
+                        ).recompute()
+                    }
+                } else {
+                    _uiState.update { it.copy(isLoading = false).recompute() }
+                }
             }
         }
     }
 
-    fun setType(t: TransactionType) { _type.value = t }
-    fun setAmount(a: String) { _amount.value = AmountValidator.sanitize(a) }
-    fun setCurrencyId(id: Long) { _currencyId.value = id }
-    fun setCategoryText(c: String) { _categoryText.value = c }
+    private fun buildInitialState(): FormUiState {
+        val savedType = savedStateHandle.get<String>(KEY_TYPE)?.let {
+            runCatching { TransactionType.valueOf(it) }.getOrNull()
+        } ?: TransactionType.EXPENSE
+        val savedAmount = savedStateHandle.get<String>(KEY_AMOUNT) ?: ""
+        val savedCurrencyId = savedStateHandle.get<Long>(KEY_CURRENCY_ID)
+        val savedCategory = savedStateHandle.get<String>(KEY_CATEGORY) ?: ""
+        val savedDate = savedStateHandle.get<Long>(KEY_DATE)?.let(LocalDate::ofEpochDay) ?: LocalDate.now()
+        val origLoaded = savedStateHandle.get<Boolean>(KEY_ORIG_LOADED) == true
+
+        if (isNew && savedStateHandle.get<Long>(KEY_ORIG_DATE) == null) {
+            savedStateHandle[KEY_ORIG_TYPE] = TransactionType.EXPENSE.name
+            savedStateHandle[KEY_ORIG_AMOUNT] = ""
+            savedStateHandle[KEY_ORIG_CATEGORY] = ""
+            savedStateHandle[KEY_ORIG_DATE] = savedDate.toEpochDay()
+        }
+
+        return FormUiState(
+            isNew = isNew,
+            type = savedType,
+            amountText = savedAmount,
+            currencyId = savedCurrencyId,
+            categoryText = savedCategory,
+            date = savedDate,
+            isLoading = !isNew && !origLoaded,
+        ).recompute()
+    }
+
+    private fun resolveInitialCurrencyId(currList: List<CurrencyEntity>): Long? {
+        if (currList.isEmpty()) return null
+        val preferredId = savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID)
+        return (currList.firstOrNull { it.id == preferredId }
+            ?: currList.firstOrNull { it.isDefault }
+            ?: currList.first()).id
+    }
+
+    private fun FormUiState.recompute(): FormUiState {
+        val rawAmountError = when (val res = AmountValidator.validate(amountText)) {
+            is AmountResult.Invalid -> res.messageRes
+            is AmountResult.Valid -> null
+        }
+        val rawCategoryError = if (categoryText.isBlank()) R.string.err_category_required else null
+        val selectedCurrency = currencies.firstOrNull { it.id == currencyId }
+
+        val origType = savedStateHandle.get<String>(KEY_ORIG_TYPE)?.let {
+            runCatching { TransactionType.valueOf(it) }.getOrNull()
+        } ?: TransactionType.EXPENSE
+        val origAmount = savedStateHandle.get<String>(KEY_ORIG_AMOUNT) ?: ""
+        val origCurrencyId = savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID)
+        val origCategory = savedStateHandle.get<String>(KEY_ORIG_CATEGORY) ?: ""
+        val origDate = savedStateHandle.get<Long>(KEY_ORIG_DATE)?.let(LocalDate::ofEpochDay) ?: LocalDate.now()
+
+        val dirty = if (isNew) {
+            amountText.isNotBlank() ||
+                categoryText.isNotBlank() ||
+                type != origType ||
+                date != origDate ||
+                (origCurrencyId != null && currencyId != null && currencyId != origCurrencyId)
+        } else {
+            val loaded = savedStateHandle.get<Boolean>(KEY_ORIG_LOADED) == true
+            loaded && (
+                type != origType ||
+                    amountText != origAmount ||
+                    currencyId != origCurrencyId ||
+                    categoryText.trim() != origCategory.trim() ||
+                    date != origDate
+                )
+        }
+
+        return copy(
+            currency = selectedCurrency,
+            amountErrorRes = if (saveAttempted || amountTouched) rawAmountError else null,
+            categoryErrorRes = if (saveAttempted || categoryTouched) rawCategoryError else null,
+            canSave = !isLoading && rawAmountError == null && rawCategoryError == null,
+            isDirty = dirty,
+        )
+    }
+
+    fun setType(t: TransactionType) {
+        savedStateHandle[KEY_TYPE] = t.name
+        _uiState.update { it.copy(type = t).recompute() }
+    }
+
+    fun setAmount(raw: String) {
+        val sanitized = AmountInput.sanitize(raw)
+        savedStateHandle[KEY_AMOUNT] = sanitized
+        _uiState.update { it.copy(amountText = sanitized).recompute() }
+    }
+
+    fun setCurrencyId(id: Long) {
+        savedStateHandle[KEY_CURRENCY_ID] = id
+        _uiState.update { it.copy(currencyId = id).recompute() }
+    }
+
+    fun setCategoryText(c: String) {
+        savedStateHandle[KEY_CATEGORY] = c
+        _uiState.update { it.copy(categoryText = c).recompute() }
+    }
+
     fun setDate(d: LocalDate) {
         if (!d.isAfter(LocalDate.now())) {
-            _date.value = d
+            savedStateHandle[KEY_DATE] = d.toEpochDay()
+            _uiState.update { it.copy(date = d).recompute() }
+        }
+    }
+
+    fun onAmountBlur() {
+        if (!amountTouched) {
+            amountTouched = true
+            _uiState.update { it.recompute() }
+        }
+    }
+
+    fun onCategoryBlur() {
+        if (!categoryTouched) {
+            categoryTouched = true
+            _uiState.update { it.recompute() }
         }
     }
 
     fun save(additionalRates: Map<Long, BigDecimal> = emptyMap()) {
-        val currId = _currencyId.value ?: run {
+        val current = _uiState.value
+        if (current.isSaving || current.isLoading) return
+
+        saveAttempted = true
+        val validated = current.recompute()
+        _uiState.value = validated
+
+        val currId = validated.currencyId ?: run {
             emitError(R.string.err_currency_required)
             return
         }
 
-        val amountResult = AmountValidator.validate(_amount.value)
-        if (amountResult is AmountResult.Invalid) {
-            emitError(amountResult.messageRes)
-            return
-        }
+        val amountResult = AmountValidator.validate(validated.amountText)
+        if (amountResult is AmountResult.Invalid) return
         val validAmount = (amountResult as AmountResult.Valid).value
 
-        if (_categoryText.value.isBlank()) {
-            emitError(R.string.err_category_required)
-            return
-        }
+        if (validated.categoryText.isBlank()) return
 
         viewModelScope.launch {
-            _isLoading.value = true
+            _uiState.update { it.copy(isSaving = true) }
             try {
                 val input = TransactionInput(
                     id = transactionId,
-                    type = _type.value,
+                    type = validated.type,
                     amount = validAmount,
                     currencyId = currId,
-                    categoryName = _categoryText.value,
-                    date = _date.value,
+                    categoryName = validated.categoryText,
+                    date = validated.date,
                 )
 
-                val result = transactionRepository.save(input, additionalRates)
-                when (result) {
+                when (val result = transactionRepository.save(input, additionalRates)) {
                     is SaveResult.Saved -> {
                         _events.emit(FormEvent.Saved)
                     }
                     is SaveResult.MissingRates -> {
-                        // Prefill rates from CBU
                         val suggestions = rateRepository.suggestFromCbu(
                             base = result.base,
                             quotes = result.missing,
@@ -174,10 +348,10 @@ class TransactionFormViewModel @Inject constructor(
                 }
             } catch (e: DomainException) {
                 _events.emit(FormEvent.Error(e.messageRes, e.args.toList()))
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _events.emit(FormEvent.Error(R.string.err_amount_invalid))
             } finally {
-                _isLoading.value = false
+                _uiState.update { it.copy(isSaving = false) }
             }
         }
     }
@@ -186,5 +360,23 @@ class TransactionFormViewModel @Inject constructor(
         viewModelScope.launch {
             _events.emit(FormEvent.Error(res))
         }
+    }
+
+    private companion object {
+        const val RECENT_CATEGORY_LIMIT = 6
+        const val KEY_TYPE = "form_type"
+        const val KEY_AMOUNT = "form_amount"
+        const val KEY_CURRENCY_ID = "form_currency_id"
+        const val KEY_CATEGORY = "form_category"
+        const val KEY_DATE = "form_date"
+        const val KEY_SAVE_ATTEMPTED = "form_save_attempted"
+        const val KEY_AMOUNT_TOUCHED = "form_amount_touched"
+        const val KEY_CATEGORY_TOUCHED = "form_category_touched"
+        const val KEY_ORIG_LOADED = "form_orig_loaded"
+        const val KEY_ORIG_TYPE = "form_orig_type"
+        const val KEY_ORIG_AMOUNT = "form_orig_amount"
+        const val KEY_ORIG_CURRENCY_ID = "form_orig_currency_id"
+        const val KEY_ORIG_CATEGORY = "form_orig_category"
+        const val KEY_ORIG_DATE = "form_orig_date"
     }
 }

@@ -218,4 +218,19 @@ interface TransactionDao {
         displayCurrencyId: Long,
         fallbackCurrencyId: Long,
     ): Flow<List<TotalsRow>>
+
+    @Query("SELECT currencyId FROM transactions ORDER BY createdAt DESC, id DESC LIMIT 1")
+    suspend fun lastUsedCurrencyId(): Long?
+
+    /** Eng oxirgi ishlatilgan kategoriyalar (har biri bir marta), yangi tranzaksiya formasi uchun. */
+    @Query(
+        """
+        SELECT cat.name FROM transactions t
+        INNER JOIN categories cat ON cat.id = t.categoryId
+        GROUP BY t.categoryId
+        ORDER BY MAX(t.createdAt) DESC
+        LIMIT :limit
+        """
+    )
+    fun observeRecentCategoryNames(limit: Int): Flow<List<String>>
 }

@@ -3,7 +3,6 @@
 
     <!-- Navigation -->
     <string name="nav_transactions">Транзакции</string>
-    <string name="nav_monitoring">Мониторинг</string>
     <string name="nav_settings">Настройки</string>
 
     <!-- General / Actions -->
@@ -12,51 +11,51 @@
     <string name="action_delete">Удалить</string>
     <string name="action_edit">Редактировать</string>
     <string name="action_add">Добавить</string>
-    <string name="action_confirm">Подтвердить</string>
     <string name="action_apply">Применить</string>
     <string name="action_reset">Сбросить</string>
     <string name="action_close">Закрыть</string>
+    <string name="action_back">Назад</string>
+    <string name="action_clear">Очистить</string>
     <string name="action_import_cbu">Загрузить с ЦБ РУз</string>
 
     <!-- Transaction form -->
     <string name="title_new_transaction">Новая транзакция</string>
     <string name="title_edit_transaction">Редактировать транзакцию</string>
-    <string name="label_type">Тип транзакции</string>
     <string name="type_income">Доход</string>
     <string name="type_expense">Расход</string>
     <string name="label_amount">Сумма</string>
     <string name="label_currency">Валюта</string>
     <string name="label_info">Инфо (Категория)</string>
     <string name="label_date">Дата</string>
+    <string name="date_today">Сегодня</string>
+    <string name="date_yesterday">Вчера</string>
     <string name="delete_transaction_confirm">Вы уверены, что хотите удалить эту транзакцию?</string>
+    <string name="discard_changes_title">Отменить изменения?</string>
+    <string name="discard_changes_desc">Введённые данные не сохранены. Выйти без сохранения?</string>
+    <string name="action_discard">Отменить</string>
+    <string name="action_keep_editing">Продолжить</string>
 
     <!-- Missing Rates Dialog -->
     <string name="dialog_missing_rates_title">Требуются курсы валют</string>
     <string name="dialog_missing_rates_desc">Для сохранения транзакции в %1$s на дату %2$s необходимо указать курсы к другим валютам. Доступные курсы предзаполнены с CBU.uz.</string>
 
-    <!-- Monitoring -->
-    <string name="title_monitoring">Мониторинг</string>
+    <!-- Transactions / Filters -->
     <string name="filter_category">Категория</string>
     <string name="filter_currency">Валюта</string>
     <string name="display_currency">Отображение</string>
     <string name="filter_type">Тип</string>
     <string name="filter_all">Все</string>
     <string name="filter_date_range">Диапазон дат</string>
-    <string name="filter_from">От</string>
-    <string name="filter_to">До</string>
     <string name="empty_transactions">Транзакции не найдены</string>
 
     <!-- Footer / Totals -->
     <string name="summary_total_title">Всего · %1$d транзакций</string>
     <string name="summary_fallback_title">Остальные · %1$d транзакций</string>
     <string name="summary_converted_subtitle">Конвертировано в %1$s по курсу</string>
-    <string name="footer_title_display">Итого (%1$s - %2$d шт.):</string>
-    <string name="footer_title_fallback">Остальные (%1$s - %2$d шт.):</string>
     <string name="label_income">Доход</string>
     <string name="label_expense">Расход</string>
     <string name="label_balance">Баланс</string>
     <string name="action_show_footer">Итоговая сумма</string>
-    <string name="action_show_summary">Общий отчёт</string>
     <string name="title_summary_report">Общий отчёт</string>
     <string name="tab_numbers">Строки</string>
     <string name="tab_chart">Круговая диаграмма</string>
@@ -81,12 +80,15 @@
     <string name="cbu_import_not_found">Не найдено в ЦБ: %1$s</string>
     <string name="delete_rate_confirm">Вы уверены, что хотите удалить курс %1$s/%2$s?</string>
     <string name="rate_locked_badge">Используется в транзакции</string>
+    <string name="empty_rates">Нет курсов валют на эту дату</string>
 
     <!-- Categories Screen -->
     <string name="title_categories">Категории (Инфо)</string>
     <string name="action_rename_category">Переименовать</string>
     <string name="label_category_name">Название категории</string>
     <string name="delete_category_confirm">Вы уверены, что хотите удалить категорию \"%1$s\"?</string>
+    <string name="category_tx_count">Транзакций: %1$d</string>
+    <string name="empty_categories">Категории отсутствуют</string>
 
     <!-- Settings Screen -->
     <string name="title_settings">Настройки</string>
@@ -109,10 +111,6 @@
     <string name="desc_currencies">Управление валютами и основной валютой</string>
     <string name="desc_exchange_rates">Курсы валют и загрузка с ЦБ РУз</string>
     <string name="desc_categories">Категории транзакций и управление ими</string>
-
-    <string name="lang_en">English</string>
-    <string name="lang_uz">Oʻzbekcha</string>
-    <string name="lang_ru">Русский</string>
 
     <!-- Error strings -->
     <string name="err_amount_required">Введите сумму</string>

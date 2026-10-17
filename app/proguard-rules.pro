@@ -10,3 +10,4 @@
 -keep class uz.moneymanager.domain.model.** { *; }
 -keep class uz.moneymanager.data.repository.AppSettings { *; }
 -keep class uz.moneymanager.ui.transactions.TransactionUiItem { *; }
+-keep class uz.moneymanager.ui.transactions.form.FormUiState { *; }

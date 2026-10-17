@@ -140,6 +140,10 @@ class TransactionRepository @Inject constructor(
 
     suspend fun delete(id: Long) = dao.deleteById(id)
 
+    suspend fun lastUsedCurrencyId(): Long? = dao.lastUsedCurrencyId()
+
+    fun recentCategoryNames(limit: Int): Flow<List<String>> = dao.observeRecentCategoryNames(limit)
+
     private suspend fun writeSnapshot(transactionId: Long, currencyId: Long, date: LocalDate) {
         val rates = rateRepository.ratesForBase(currencyId, date)
             .filter { it.quoteCurrencyId != currencyId }

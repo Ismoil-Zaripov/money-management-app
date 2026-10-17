@@ -25,8 +25,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,19 +36,17 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,11 +59,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.moneymanager.R
-import uz.moneymanager.ui.theme.barContainer
-import uz.moneymanager.ui.theme.onBarContainer
 import uz.moneymanager.data.local.ExchangeRateRow
 import uz.moneymanager.domain.RateValidator
+import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.onBarContainer
+import uz.moneymanager.ui.transactions.FormatUtils
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -79,10 +78,10 @@ fun RatesScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val date by viewModel.selectedDate.collectAsState()
-    val currencies by viewModel.currencies.collectAsState()
-    val rates by viewModel.rates.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val date by viewModel.selectedDate.collectAsStateWithLifecycle()
+    val currencies by viewModel.currencies.collectAsStateWithLifecycle()
+    val rates by viewModel.rates.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var rateToEdit by remember { mutableStateOf<ExchangeRateRow?>(null) }
@@ -123,17 +122,20 @@ fun RatesScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.action_back)
+                            )
                         }
                     },
                     actions = {
                         if (isLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier
-                                    .size(24.dp)
-                                    .padding(end = 16.dp),
+                                    .padding(end = 16.dp)
+                                    .size(22.dp),
                                 strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = MaterialTheme.colorScheme.onBarContainer
                             )
                         } else {
                             IconButton(onClick = { viewModel.importFromCbu() }) {
@@ -152,7 +154,11 @@ fun RatesScreen(
             }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.action_add_rate))
             }
         },
@@ -183,25 +189,43 @@ fun RatesScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${stringResource(R.string.label_date)}: $date",
+                    text = "${stringResource(R.string.label_date)}: ${FormatUtils.formatDate(date)}",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Icon(Icons.Default.CalendarToday, contentDescription = null)
+                Icon(
+                    Icons.Default.CalendarToday,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
+            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
             // Rates list
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(0.dp),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                items(rates, key = { it.id }) { item ->
-                    RateCard(
-                        item = item,
-                        onEdit = { rateToEdit = item },
-                        onDelete = { rateToDelete = item }
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (rates.isEmpty() && !isLoading) {
+                    Text(
+                        text = stringResource(R.string.empty_rates),
+                        modifier = Modifier.align(Alignment.Center),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 88.dp),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        items(rates, key = { it.id }) { item ->
+                            RateCard(
+                                item = item,
+                                onEdit = { rateToEdit = item },
+                                onDelete = { rateToDelete = item }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -232,7 +256,7 @@ fun RatesScreen(
                             label = { Text(stringResource(R.string.label_base_currency)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = baseExpanded) },
                             modifier = Modifier
-                                .menuAnchor()
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                                 .fillMaxWidth()
                         )
                         ExposedDropdownMenu(
@@ -265,7 +289,7 @@ fun RatesScreen(
                             label = { Text(stringResource(R.string.label_quote_currency)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = quoteExpanded) },
                             modifier = Modifier
-                                .menuAnchor()
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                                 .fillMaxWidth()
                         )
                         ExposedDropdownMenu(
@@ -402,13 +426,13 @@ fun RateCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        color = MaterialTheme.colorScheme.surface
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -420,7 +444,8 @@ fun RateCard(
                             Text(
                                 text = "1 ${item.baseCode}",
                                 style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "  =  ",
@@ -438,20 +463,14 @@ fun RateCard(
 
                     // Actions: if locked, show a clean lock badge; if not locked, show edit/delete buttons
                     if (!item.locked) {
-                        IconButton(
-                            onClick = onEdit,
-                            modifier = Modifier.size(36.dp)
-                        ) {
+                        IconButton(onClick = onEdit) {
                             Icon(
                                 Icons.Default.Edit,
                                 contentDescription = stringResource(R.string.action_edit),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
-                        IconButton(
-                            onClick = onDelete,
-                            modifier = Modifier.size(36.dp)
-                        ) {
+                        IconButton(onClick = onDelete) {
                             Icon(
                                 Icons.Default.Delete,
                                 contentDescription = stringResource(R.string.action_delete),
@@ -478,9 +497,9 @@ fun RateCard(
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp),
+                    .padding(horizontal = 16.dp),
                 thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
             )
         }
     }

@@ -3,7 +3,6 @@
 
     <!-- Navigation -->
     <string name="nav_transactions">Tranzaksiyalar</string>
-    <string name="nav_monitoring">Monitoring</string>
     <string name="nav_settings">Sozlamalar</string>
 
     <!-- General / Actions -->
@@ -12,51 +11,51 @@
     <string name="action_delete">O‘chirish</string>
     <string name="action_edit">Tahrirlash</string>
     <string name="action_add">Qo‘shish</string>
-    <string name="action_confirm">Tasdiqlash</string>
     <string name="action_apply">Qo‘llash</string>
     <string name="action_reset">Tozalash</string>
     <string name="action_close">Yopish</string>
+    <string name="action_back">Orqaga</string>
+    <string name="action_clear">Tozalash</string>
     <string name="action_import_cbu">CBU dan yuklash</string>
 
     <!-- Transaction form -->
     <string name="title_new_transaction">Yangi tranzaksiya</string>
     <string name="title_edit_transaction">Tranzaksiyani tahrirlash</string>
-    <string name="label_type">Tranzaksiya turi</string>
     <string name="type_income">Kirim</string>
     <string name="type_expense">Chiqim</string>
     <string name="label_amount">Summa</string>
     <string name="label_currency">Valyuta</string>
     <string name="label_info">Info (Kategoriya)</string>
     <string name="label_date">Sana</string>
+    <string name="date_today">Bugun</string>
+    <string name="date_yesterday">Kecha</string>
     <string name="delete_transaction_confirm">Haqiqatan ham bu tranzaksiyani o‘chirmoqchimisiz?</string>
+    <string name="discard_changes_title">Bekor qilinsinmi?</string>
+    <string name="discard_changes_desc">Kiritilgan ma’lumotlar saqlanmagan. Chiqishni xohlaysizmi?</string>
+    <string name="action_discard">Bekor qilish</string>
+    <string name="action_keep_editing">Davom etish</string>
 
     <!-- Missing Rates Dialog -->
     <string name="dialog_missing_rates_title">Valyuta kursi talab qilinadi</string>
     <string name="dialog_missing_rates_desc">%2$s sanasida %1$s bo‘yicha tranzaksiya yaratish uchun boshqa valyutalarga kurslar kiritilishi shart. CBU.uz ma’lumotlari avtomatik to‘ldirildi.</string>
 
-    <!-- Monitoring -->
-    <string name="title_monitoring">Monitoring</string>
+    <!-- Transactions / Filters -->
     <string name="filter_category">Kategoriya</string>
     <string name="filter_currency">Valyuta</string>
     <string name="display_currency">Ko‘rsatish</string>
     <string name="filter_type">Turi</string>
     <string name="filter_all">Hammasi</string>
     <string name="filter_date_range">Sana oralig‘i</string>
-    <string name="filter_from">Dan</string>
-    <string name="filter_to">Gacha</string>
     <string name="empty_transactions">Tranzaksiyalar yo‘q</string>
 
     <!-- Footer / Totals -->
     <string name="summary_total_title">Jami · %1$d ta tranzaksiya</string>
     <string name="summary_fallback_title">Qolganlari · %1$d ta tranzaksiya</string>
     <string name="summary_converted_subtitle">Kurslar bo‘yicha %1$s ga o‘girilgan</string>
-    <string name="footer_title_display">Jami (%1$s - %2$d ta):</string>
-    <string name="footer_title_fallback">Qolganlari (%1$s - %2$d ta):</string>
     <string name="label_income">Kirim</string>
     <string name="label_expense">Chiqim</string>
     <string name="label_balance">Balans</string>
     <string name="action_show_footer">Jami summa</string>
-    <string name="action_show_summary">Umumiy hisobot</string>
     <string name="title_summary_report">Umumiy hisobot</string>
     <string name="tab_numbers">Qatorlar</string>
     <string name="tab_chart">Aylana diagramma</string>
@@ -81,12 +80,15 @@
     <string name="cbu_import_not_found">CBU da topilmadi: %1$s</string>
     <string name="delete_rate_confirm">%1$s/%2$s kursini o‘chirishni tasdiqlaysizmi?</string>
     <string name="rate_locked_badge">Tranzaksiyada ishlatilgan</string>
+    <string name="empty_rates">Bu sana uchun valyuta kurslari yo‘q</string>
 
     <!-- Categories Screen -->
     <string name="title_categories">Kategoriyalar (Info)</string>
     <string name="action_rename_category">Nomini o‘zgartirish</string>
     <string name="label_category_name">Kategoriya nomi</string>
     <string name="delete_category_confirm">\"%1$s\" kategoriyasini o‘chirishni tasdiqlaysizmi?</string>
+    <string name="category_tx_count">%1$d ta tranzaksiya</string>
+    <string name="empty_categories">Kategoriyalar yo‘q</string>
 
     <!-- Settings Screen -->
     <string name="title_settings">Sozlamalar</string>
@@ -109,10 +111,6 @@
     <string name="desc_currencies">Valyutalarni boshqarish va asosiy valyuta</string>
     <string name="desc_exchange_rates">Kunlik kurslar va CBU dan yuklash</string>
     <string name="desc_categories">Tranzaksiya kategoriyalari va ularni boshqarish</string>
-
-    <string name="lang_en">English</string>
-    <string name="lang_uz">Oʻzbekcha</string>
-    <string name="lang_ru">Русский</string>
 
     <!-- Error strings -->
     <string name="err_amount_required">Summa kiritilishi shart</string>
