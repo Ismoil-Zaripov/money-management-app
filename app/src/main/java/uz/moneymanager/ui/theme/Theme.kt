@@ -10,37 +10,52 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.luminance
 import uz.moneymanager.domain.model.ThemeMode
 
-// MUI Teal & Indigo inspired palette
-val PrimaryTeal = Color(0xFF00796B)
-val PrimaryTealDark = Color(0xFF4DB6AC)
+// Official Material-UI (MUI) Default Palette
+val MuiPrimary = Color(0xFF1976D2)
+val MuiPrimaryDark = Color(0xFF1565C0)
 val SecondaryAmber = Color(0xFFFFB300)
-val IncomeGreen = Color(0xFF2E7D32)
-val ExpenseRed = Color(0xFFC62828)
+
+val IncomeLight = Color(0xFF2E7D32)
+val IncomeDark = Color(0xFF66BB6A)
+val ExpenseLight = Color(0xFFC62828)
+val ExpenseDark = Color(0xFFEF5350)
+
+val IncomeColor: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) IncomeDark else IncomeLight
+
+val ExpenseColor: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) ExpenseDark else ExpenseLight
+
+val IncomeGreen = IncomeLight
+val ExpenseRed = ExpenseLight
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryTeal,
+    primary = MuiPrimary,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFB2DFDB),
-    onPrimaryContainer = Color(0xFF004D40),
+    primaryContainer = Color(0xFFE3F2FD),
+    onPrimaryContainer = Color(0xFF0D47A1),
     secondary = SecondaryAmber,
     onSecondary = Color.Black,
-    background = Color(0xFFFBFDFD),
+    background = Color(0xFFF5F5F5),
     surface = Color.White,
     onBackground = Color(0xFF191C1C),
     onSurface = Color(0xFF191C1C),
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryTealDark,
-    onPrimary = Color(0xFF003730),
-    primaryContainer = Color(0xFF004D40),
-    onPrimaryContainer = Color(0xFFB2DFDB),
+    primary = MuiPrimary,
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF1565C0),
+    onPrimaryContainer = Color(0xFFE3F2FD),
     secondary = SecondaryAmber,
     onSecondary = Color.Black,
-    background = Color(0xFF191C1C),
-    surface = Color(0xFF202525),
+    background = Color(0xFF121212),
+    surface = Color(0xFF1E1E1E),
     onBackground = Color(0xFFE0E3E3),
     onSurface = Color(0xFFE0E3E3),
 )
@@ -48,7 +63,7 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun MoneyManagerTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val darkTheme = when (themeMode) {

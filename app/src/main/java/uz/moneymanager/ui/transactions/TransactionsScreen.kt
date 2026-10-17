@@ -1,6 +1,8 @@
 package uz.moneymanager.ui.transactions
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,16 +24,20 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +47,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -48,12 +56,52 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import uz.moneymanager.R
 import uz.moneymanager.data.local.TransactionListRow
 import uz.moneymanager.domain.model.TransactionType
-import uz.moneymanager.ui.theme.ExpenseRed
-import uz.moneymanager.ui.theme.IncomeGreen
+import uz.moneymanager.ui.theme.ExpenseColor
+import uz.moneymanager.ui.theme.IncomeColor
 import java.math.BigDecimal
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-val NumberFormatter = DecimalFormat("#,##0.00")
+fun formatAmount(
+    amount: BigDecimal,
+    currencyCode: String,
+    type: TransactionType? = null
+): String {
+    val symbols = DecimalFormatSymbols(Locale.US).apply {
+        groupingSeparator = ' '
+    }
+    val df = DecimalFormat("#,##0.##", symbols)
+    val sign = when (type) {
+        TransactionType.INCOME -> "+"
+        TransactionType.EXPENSE -> "−"
+        null -> ""
+    }
+    return "$sign${df.format(amount)} $currencyCode"
+}
+
+object NumberFormatter {
+    private val wholeDf = DecimalFormat("#,##0")
+    private val decimalDf = DecimalFormat("#,##0.00")
+
+    fun format(value: BigDecimal): String {
+        return if (value.stripTrailingZeros().scale() <= 0) {
+            wholeDf.format(value)
+        } else {
+            decimalDf.format(value)
+        }
+    }
+
+    fun format(value: Number): String {
+        val bd = when (value) {
+            is BigDecimal -> value
+            is Double, is Float -> BigDecimal(value.toString())
+            else -> BigDecimal(value.toLong())
+        }
+        return format(bd)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,12 +115,31 @@ fun TransactionsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.nav_transactions)) }
-            )
+            Column {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.nav_transactions),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                )
+                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
+            }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToCreate) {
+            FloatingActionButton(
+                onClick = onNavigateToCreate,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.title_new_transaction))
             }
         }
@@ -88,28 +155,22 @@ fun TransactionsScreen(
                 Text(
                     text = stringResource(R.string.empty_transactions),
                     modifier = Modifier.align(Alignment.Center),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    contentPadding = PaddingValues(0.dp),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     items(count = items.itemCount) { index ->
                         val item = items[index]
                         if (item != null) {
-                            val defaultCurr = viewModel.defaultCurrency.value
-                            val converted = if (defaultCurr != null && item.currencyCode != defaultCurr.code && item.displayRate != null) {
-                                item.amount.multiply(item.displayRate) to defaultCurr.code
-                            } else null
-
                             TransactionItem(
                                 item = item,
                                 onClick = { onNavigateToEdit(item.id) },
-                                onDelete = { transactionToDelete = item },
-                                convertedAmount = converted?.first,
-                                convertedCode = converted?.second
+                                onDelete = { transactionToDelete = item }
                             )
                         }
                     }
@@ -155,93 +216,74 @@ fun TransactionsScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TransactionItem(
     item: TransactionListRow,
     onClick: () -> Unit,
     onDelete: () -> Unit,
-    convertedAmount: BigDecimal? = null,
-    convertedCode: String? = null,
 ) {
-    Card(
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
+    val isIncome = item.type == TransactionType.INCOME
+    val amountColor = if (isIncome) IncomeColor else ExpenseColor
+
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onDelete
+            ),
+        color = MaterialTheme.colorScheme.surface
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp)
-        ) {
-            val isIncome = item.type == TransactionType.INCOME
-            val icon = if (isIncome) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward
-            val color = if (isIncome) IncomeGreen else ExpenseRed
-
-            // Upper tier: Type Icon, Category Name, Date, and Delete button
+        Column(modifier = Modifier.fillMaxWidth()) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = color,
-                    modifier = Modifier.padding(end = 10.dp)
-                )
-
-                Text(
-                    text = item.categoryName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                )
-
-                Text(
-                    text = item.date.toString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(32.dp)
+                // Chap tomon: 1-qator nom (kategoriya), 2-qator sana
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 12.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.action_delete),
-                        tint = MaterialTheme.colorScheme.outline
+                    Text(
+                        text = item.categoryName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = item.date.format(dateFormatter),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Lower tier: Amount on its own full-width line
-            val prefix = if (isIncome) "+" else "-"
-            Text(
-                text = "$prefix${NumberFormatter.format(item.amount)} ${item.currencyCode}",
-                style = MaterialTheme.typography.titleMedium,
-                color = color,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-            )
-
-            // Converted amount on its own dedicated line underneath
-            if (convertedAmount != null && convertedCode != null && convertedCode != item.currencyCode) {
-                Spacer(modifier = Modifier.height(3.dp))
+                // O'ng tomon: summa (bold, kirim/chiqim belgisi va rangi bilan)
                 Text(
-                    text = "≈ $prefix${NumberFormatter.format(convertedAmount)} $convertedCode",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    text = formatAmount(item.amount, item.currencyCode, item.type),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = amountColor,
+                    textAlign = TextAlign.End,
+                    maxLines = 1
                 )
             }
+
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+            )
         }
     }
 }

@@ -37,8 +37,8 @@
     <!-- Monitoring -->
     <string name="title_monitoring">Мониторинг</string>
     <string name="filter_category">Категория</string>
-    <string name="filter_currency">Фильтр по валюте</string>
-    <string name="display_currency">Валюта отображения</string>
+    <string name="filter_currency">Валюта</string>
+    <string name="display_currency">Отображение</string>
     <string name="filter_type">Тип</string>
     <string name="filter_all">Все</string>
     <string name="filter_date_range">Диапазон дат</string>

@@ -37,14 +37,14 @@
     <!-- Monitoring -->
     <string name="title_monitoring">Monitoring</string>
     <string name="filter_category">Kategoriya</string>
-    <string name="filter_currency">Valyuta filtri</string>
-    <string name="display_currency">Ko‘rsatish valyutasi</string>
+    <string name="filter_currency">Valyuta</string>
+    <string name="display_currency">Ko‘rsatish</string>
     <string name="filter_type">Turi</string>
     <string name="filter_all">Hammasi</string>
     <string name="filter_date_range">Sana oralig‘i</string>
     <string name="filter_from">Dan</string>
     <string name="filter_to">Gacha</string>
-    <string name="empty_transactions">Tranzaksiyalar mavjud emas</string>
+    <string name="empty_transactions">Tranzaksiyalar yo‘q</string>
 
     <!-- Footer / Totals -->
     <string name="footer_title_display">Jami (%1$s - %2$d ta):</string>

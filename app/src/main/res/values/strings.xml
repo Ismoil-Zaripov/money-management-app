@@ -37,8 +37,8 @@
     <!-- Monitoring -->
     <string name="title_monitoring">Monitoring</string>
     <string name="filter_category">Category</string>
-    <string name="filter_currency">Filter Currency</string>
-    <string name="display_currency">Display Currency</string>
+    <string name="filter_currency">Currency</string>
+    <string name="display_currency">Display</string>
     <string name="filter_type">Type</string>
     <string name="filter_all">All</string>
     <string name="filter_date_range">Date Range</string>

@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
@@ -53,9 +54,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -75,10 +78,17 @@ import uz.moneymanager.R
 import uz.moneymanager.data.local.TransactionListRow
 import uz.moneymanager.domain.Totals
 import uz.moneymanager.domain.model.TransactionType
-import uz.moneymanager.ui.theme.ExpenseRed
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.runtime.saveable.rememberSaveable
+import uz.moneymanager.ui.theme.ExpenseColor
+import uz.moneymanager.ui.theme.IncomeColor
 import uz.moneymanager.ui.theme.IncomeGreen
-import uz.moneymanager.ui.transactions.NumberFormatter
+import uz.moneymanager.ui.theme.ExpenseRed
+import uz.moneymanager.ui.transactions.formatAmount
 import uz.moneymanager.ui.transactions.TransactionItem
+import uz.moneymanager.ui.transactions.NumberFormatter
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,41 +110,94 @@ fun MonitoringScreen(
     val displayCurrency = currencies.firstOrNull { it.id == filter.displayCurrencyId } ?: defaultCurrency
     val fallbackCurrency = defaultCurrency
     var showSummarySheet by remember { mutableStateOf(false) }
+    var isAmountVisible by rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.title_monitoring)) },
-                actions = {
-                    IconButton(onClick = { viewModel.resetFilters() }) {
-                        Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.action_reset))
-                    }
-                }
-            )
+            Column {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.title_monitoring),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = { viewModel.resetFilters() }) {
+                            Icon(Icons.Default.RestartAlt, contentDescription = stringResource(R.string.action_reset))
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                )
+                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
+            }
         },
         bottomBar = {
             Surface(
-                shadowElevation = 8.dp,
-                color = MaterialTheme.colorScheme.surface
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showSummarySheet = true }
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Button(
-                        onClick = { showSummarySheet = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            Icons.Default.Visibility,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = { isAmountVisible = !isAmountVisible },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    if (isAmountVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = stringResource(R.string.action_show_footer),
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(R.string.action_show_footer),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        val totalText = if (isAmountVisible) {
+                            val dCode = displayCurrency?.code ?: "UZS"
+                            val fCode = defaultCurrency?.code ?: "UZS"
+                            val showFallback = totals.fallback.count > 0 && displayCurrency?.id != defaultCurrency?.id
+                            if (showFallback) {
+                                "${formatAmount(totals.display.balance, dCode)} / ${formatAmount(totals.fallback.balance, fCode)}"
+                            } else {
+                                formatAmount(totals.display.balance, dCode)
+                            }
+                        } else {
+                            "••••••"
+                        }
+
+                        Text(
+                            text = totalText,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isAmountVisible) {
+                                if (totals.display.balance >= BigDecimal.ZERO) IncomeColor else ExpenseColor
+                            } else MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(stringResource(R.string.action_show_footer))
                     }
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
         }
@@ -167,31 +230,22 @@ fun MonitoringScreen(
                     Text(
                         text = stringResource(R.string.empty_transactions),
                         modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        contentPadding = PaddingValues(0.dp),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
                         items(count = items.itemCount) { index ->
                             val item = items[index]
                             if (item != null) {
-                                val converted: Pair<BigDecimal, String>? = when {
-                                    item.displayRate != null && displayCurrency != null ->
-                                        item.amount.multiply(item.displayRate) to displayCurrency.code
-                                    item.fallbackRate != null && fallbackCurrency != null ->
-                                        item.amount.multiply(item.fallbackRate) to fallbackCurrency.code
-                                    else -> null
-                                }
-
                                 TransactionItem(
                                     item = item,
                                     onClick = { onNavigateToEdit(item.id) },
-                                    onDelete = { transactionToDelete = item },
-                                    convertedAmount = converted?.first,
-                                    convertedCode = converted?.second
+                                    onDelete = { transactionToDelete = item }
                                 )
                             }
                         }
@@ -663,189 +717,209 @@ fun MonitoringFilterBar(
     onDateRangeSelect: (LocalDate?, LocalDate?) -> Unit,
 ) {
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
-
     var showCategoryMenu by remember { mutableStateOf(false) }
     var showCurrencyFilterMenu by remember { mutableStateOf(false) }
     var showDisplayCurrencyMenu by remember { mutableStateOf(false) }
     var showTypeMenu by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(scrollState)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+    val chipColors = FilterChipDefaults.filterChipColors(
+        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        selectedTrailingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        containerColor = MaterialTheme.colorScheme.surface,
+        labelColor = MaterialTheme.colorScheme.onSurface,
+    )
+
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Display Currency Selector (Which currency to convert to)
-        Box {
-            FilterChip(
-                selected = true,
-                onClick = { showDisplayCurrencyMenu = true },
-                label = { Text("${stringResource(R.string.display_currency)}: ${displayCurrency?.code ?: "UZS"}") }
-            )
-            DropdownMenu(
-                expanded = showDisplayCurrencyMenu,
-                onDismissRequest = { showDisplayCurrencyMenu = false }
-            ) {
-                currencies.forEach { c ->
-                    DropdownMenuItem(
-                        text = { Text("${c.code} - ${c.name}") },
-                        onClick = {
-                            onDisplayCurrencySelect(c.id)
-                            showDisplayCurrencyMenu = false
-                        }
-                    )
+        item {
+            Box {
+                FilterChip(
+                    selected = true,
+                    onClick = { showDisplayCurrencyMenu = true },
+                    label = { Text("${stringResource(R.string.display_currency)}: ${displayCurrency?.code ?: "UZS"}") },
+                    colors = chipColors
+                )
+                DropdownMenu(
+                    expanded = showDisplayCurrencyMenu,
+                    onDismissRequest = { showDisplayCurrencyMenu = false }
+                ) {
+                    currencies.forEach { c ->
+                        DropdownMenuItem(
+                            text = { Text("${c.code} - ${c.name}") },
+                            onClick = {
+                                onDisplayCurrencySelect(c.id)
+                                showDisplayCurrencyMenu = false
+                            }
+                        )
+                    }
                 }
             }
         }
 
         // Info / Category Filter
-        val selectedCategory = categories.firstOrNull { it.id == filter.categoryId }
-        Box {
-            FilterChip(
-                selected = filter.categoryId != null,
-                onClick = { showCategoryMenu = true },
-                label = { Text("${stringResource(R.string.filter_category)}: ${selectedCategory?.name ?: stringResource(R.string.filter_all)}") }
-            )
-            DropdownMenu(
-                expanded = showCategoryMenu,
-                onDismissRequest = { showCategoryMenu = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.filter_all)) },
-                    onClick = {
-                        onCategorySelect(null)
-                        showCategoryMenu = false
-                    }
+        item {
+            val selectedCategory = categories.firstOrNull { it.id == filter.categoryId }
+            Box {
+                FilterChip(
+                    selected = filter.categoryId != null,
+                    onClick = { showCategoryMenu = true },
+                    label = { Text("${stringResource(R.string.filter_category)}: ${selectedCategory?.name ?: stringResource(R.string.filter_all)}") },
+                    colors = chipColors
                 )
-                categories.forEach { cat ->
+                DropdownMenu(
+                    expanded = showCategoryMenu,
+                    onDismissRequest = { showCategoryMenu = false }
+                ) {
                     DropdownMenuItem(
-                        text = { Text(cat.name) },
+                        text = { Text(stringResource(R.string.filter_all)) },
                         onClick = {
-                            onCategorySelect(cat.id)
+                            onCategorySelect(null)
                             showCategoryMenu = false
                         }
                     )
+                    categories.forEach { cat ->
+                        DropdownMenuItem(
+                            text = { Text(cat.name) },
+                            onClick = {
+                                onCategorySelect(cat.id)
+                                showCategoryMenu = false
+                            }
+                        )
+                    }
                 }
             }
         }
 
         // Currency Filter (Only show transactions made in this currency)
-        val selectedCurrencyFilter = currencies.firstOrNull { it.id == filter.currencyId }
-        Box {
-            FilterChip(
-                selected = filter.currencyId != null,
-                onClick = { showCurrencyFilterMenu = true },
-                label = { Text("${stringResource(R.string.filter_currency)}: ${selectedCurrencyFilter?.code ?: stringResource(R.string.filter_all)}") }
-            )
-            DropdownMenu(
-                expanded = showCurrencyFilterMenu,
-                onDismissRequest = { showCurrencyFilterMenu = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.filter_all)) },
-                    onClick = {
-                        onCurrencyFilterSelect(null)
-                        showCurrencyFilterMenu = false
-                    }
+        item {
+            val selectedCurrencyFilter = currencies.firstOrNull { it.id == filter.currencyId }
+            Box {
+                FilterChip(
+                    selected = filter.currencyId != null,
+                    onClick = { showCurrencyFilterMenu = true },
+                    label = { Text("${stringResource(R.string.filter_currency)}: ${selectedCurrencyFilter?.code ?: stringResource(R.string.filter_all)}") },
+                    colors = chipColors
                 )
-                currencies.forEach { c ->
+                DropdownMenu(
+                    expanded = showCurrencyFilterMenu,
+                    onDismissRequest = { showCurrencyFilterMenu = false }
+                ) {
                     DropdownMenuItem(
-                        text = { Text(c.code) },
+                        text = { Text(stringResource(R.string.filter_all)) },
                         onClick = {
-                            onCurrencyFilterSelect(c.id)
+                            onCurrencyFilterSelect(null)
                             showCurrencyFilterMenu = false
+                        }
+                    )
+                    currencies.forEach { c ->
+                        DropdownMenuItem(
+                            text = { Text(c.code) },
+                            onClick = {
+                                onCurrencyFilterSelect(c.id)
+                                showCurrencyFilterMenu = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Type Filter (Income / Expense / All)
+        item {
+            Box {
+                val typeLabel = when (filter.type) {
+                    TransactionType.INCOME -> stringResource(R.string.type_income)
+                    TransactionType.EXPENSE -> stringResource(R.string.type_expense)
+                    null -> stringResource(R.string.filter_all)
+                }
+                FilterChip(
+                    selected = filter.type != null,
+                    onClick = { showTypeMenu = true },
+                    label = { Text("${stringResource(R.string.filter_type)}: $typeLabel") },
+                    colors = chipColors
+                )
+                DropdownMenu(
+                    expanded = showTypeMenu,
+                    onDismissRequest = { showTypeMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.filter_all)) },
+                        onClick = {
+                            onTypeSelect(null)
+                            showTypeMenu = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.type_income)) },
+                        onClick = {
+                            onTypeSelect(TransactionType.INCOME)
+                            showTypeMenu = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.type_expense)) },
+                        onClick = {
+                            onTypeSelect(TransactionType.EXPENSE)
+                            showTypeMenu = false
                         }
                     )
                 }
             }
         }
 
-        // Type Filter (Income / Expense / All)
-        Box {
-            val typeLabel = when (filter.type) {
-                TransactionType.INCOME -> stringResource(R.string.type_income)
-                TransactionType.EXPENSE -> stringResource(R.string.type_expense)
-                null -> stringResource(R.string.filter_all)
-            }
-            FilterChip(
-                selected = filter.type != null,
-                onClick = { showTypeMenu = true },
-                label = { Text("${stringResource(R.string.filter_type)}: $typeLabel") }
-            )
-            DropdownMenu(
-                expanded = showTypeMenu,
-                onDismissRequest = { showTypeMenu = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.filter_all)) },
-                    onClick = {
-                        onTypeSelect(null)
-                        showTypeMenu = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.type_income)) },
-                    onClick = {
-                        onTypeSelect(TransactionType.INCOME)
-                        showTypeMenu = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.type_expense)) },
-                    onClick = {
-                        onTypeSelect(TransactionType.EXPENSE)
-                        showTypeMenu = false
-                    }
-                )
-            }
-        }
-
         // Date Range Filter (From / To)
-        val dateLabel = if (filter.from != null || filter.to != null) {
-            "${filter.from?.toString() ?: "..."} - ${filter.to?.toString() ?: "..."}"
-        } else {
-            stringResource(R.string.filter_date_range)
-        }
+        item {
+            val dateLabel = if (filter.from != null || filter.to != null) {
+                "${filter.from?.toString() ?: "..."} - ${filter.to?.toString() ?: "..."}"
+            } else {
+                stringResource(R.string.filter_date_range)
+            }
 
-        FilterChip(
-            selected = filter.from != null || filter.to != null,
-            onClick = {
-                val now = LocalDate.now()
-                val currentFrom = filter.from ?: now
-                DatePickerDialog(
-                    context,
-                    { _, y1, m1, d1 ->
-                        val fromDate = LocalDate.of(y1, m1 + 1, d1)
-                        DatePickerDialog(
-                            context,
-                            { _, y2, m2, d2 ->
-                                val toDate = LocalDate.of(y2, m2 + 1, d2)
-                                onDateRangeSelect(fromDate, toDate)
-                            },
-                            fromDate.year,
-                            fromDate.monthValue - 1,
-                            fromDate.dayOfMonth
-                        ).show()
-                    },
-                    currentFrom.year,
-                    currentFrom.monthValue - 1,
-                    currentFrom.dayOfMonth
-                ).show()
-            },
-            label = { Text(dateLabel) },
-            trailingIcon = {
-                if (filter.from != null || filter.to != null) {
-                    IconButton(
-                        onClick = { onDateRangeSelect(null, null) },
-                        modifier = Modifier.size(16.dp)
-                    ) {
-                        Icon(Icons.Default.Clear, contentDescription = null)
+            FilterChip(
+                selected = filter.from != null || filter.to != null,
+                onClick = {
+                    val now = LocalDate.now()
+                    val currentFrom = filter.from ?: now
+                    DatePickerDialog(
+                        context,
+                        { _, y1, m1, d1 ->
+                            val fromDate = LocalDate.of(y1, m1 + 1, d1)
+                            DatePickerDialog(
+                                context,
+                                { _, y2, m2, d2 ->
+                                    val toDate = LocalDate.of(y2, m2 + 1, d2)
+                                    onDateRangeSelect(fromDate, toDate)
+                                },
+                                fromDate.year,
+                                fromDate.monthValue - 1,
+                                fromDate.dayOfMonth
+                            ).show()
+                        },
+                        currentFrom.year,
+                        currentFrom.monthValue - 1,
+                        currentFrom.dayOfMonth
+                    ).show()
+                },
+                label = { Text(dateLabel) },
+                colors = chipColors,
+                trailingIcon = {
+                    if (filter.from != null || filter.to != null) {
+                        IconButton(
+                            onClick = { onDateRangeSelect(null, null) },
+                            modifier = Modifier.size(16.dp)
+                        ) {
+                            Icon(Icons.Default.Clear, contentDescription = null)
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
     }
 }
