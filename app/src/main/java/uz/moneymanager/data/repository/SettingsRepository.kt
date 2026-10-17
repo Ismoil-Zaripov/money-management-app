@@ -17,21 +17,28 @@ import uz.moneymanager.domain.model.ThemeMode
 import javax.inject.Inject
 import javax.inject.Singleton
 
+data class AppSettings(
+    val themeMode: ThemeMode,
+    val palette: AppPalette,
+)
+
 @Singleton
 class SettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) {
-    val themeMode: Flow<ThemeMode> = dataStore.data.map { prefs ->
-        prefs[THEME]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM
+    val settings: Flow<AppSettings> = dataStore.data.map { prefs ->
+        val mode = prefs[THEME]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM
+        val pal = prefs[PALETTE]?.let { runCatching { AppPalette.valueOf(it) }.getOrNull() } ?: AppPalette.EMERALD
+        AppSettings(themeMode = mode, palette = pal)
     }
+
+    val themeMode: Flow<ThemeMode> = settings.map { it.themeMode }
 
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { it[THEME] = mode.name }
     }
 
-    val palette: Flow<AppPalette> = dataStore.data.map { prefs ->
-        prefs[PALETTE]?.let { runCatching { AppPalette.valueOf(it) }.getOrNull() } ?: AppPalette.OCEAN
-    }
+    val palette: Flow<AppPalette> = settings.map { it.palette }
 
     suspend fun setPalette(palette: AppPalette) {
         dataStore.edit { it[PALETTE] = palette.name }

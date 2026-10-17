@@ -58,6 +58,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import uz.moneymanager.R
+import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.onBarContainer
 import uz.moneymanager.domain.CategoryNames
 import uz.moneymanager.domain.RateValidator
 import uz.moneymanager.domain.model.TransactionType
@@ -134,13 +136,13 @@ fun TransactionFormScreen(
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.barContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onBarContainer,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBarContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onBarContainer
                     )
                 )
-                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
+                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onBarContainer.copy(alpha = 0.2f))
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }

@@ -1,11 +1,14 @@
 package uz.moneymanager
 
-import android.app.Activity
 import android.os.Bundle
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,15 +26,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -41,7 +40,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
-import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.ui.categories.CategoriesScreen
 import uz.moneymanager.ui.currencies.CurrenciesScreen
 import uz.moneymanager.ui.navigation.BottomNavItem
@@ -49,49 +47,32 @@ import uz.moneymanager.ui.navigation.Screen
 import uz.moneymanager.ui.rates.RatesScreen
 import uz.moneymanager.ui.settings.SettingsScreen
 import uz.moneymanager.ui.theme.MoneyManagerTheme
+import uz.moneymanager.ui.theme.SystemBarsEffect
+import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.onBarContainer
 import uz.moneymanager.ui.transactions.TransactionsScreen
 import uz.moneymanager.ui.transactions.form.TransactionFormScreen
-import javax.inject.Inject
+
+private val AppBottomNavItems = listOf(
+    BottomNavItem.Transactions,
+    BottomNavItem.Settings,
+)
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var settingsRepository: SettingsRepository
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.auto(
-                android.graphics.Color.TRANSPARENT,
-                android.graphics.Color.TRANSPARENT
-            )
-        )
+        splashScreen.setKeepOnScreenCondition { viewModel.settings.value == null }
+        enableEdgeToEdge()
 
         setContent {
-            val themeMode by settingsRepository.themeMode.collectAsStateWithLifecycle(initialValue = null)
-            val palette by settingsRepository.palette.collectAsStateWithLifecycle(initialValue = null)
-
-            splashScreen.setKeepOnScreenCondition {
-                themeMode == null || palette == null
-            }
-
-            if (themeMode != null && palette != null) {
-                MoneyManagerTheme(themeMode = themeMode!!, palette = palette!!) {
-                    val view = LocalView.current
-                    if (!view.isInEditMode) {
-                        val primaryColor = MaterialTheme.colorScheme.primary
-                        val darkIcons = primaryColor.luminance() > 0.5f
-                        SideEffect {
-                            val window = (view.context as Activity).window
-                            val insetsController = WindowCompat.getInsetsController(window, view)
-                            insetsController.isAppearanceLightStatusBars = darkIcons
-                            insetsController.isAppearanceLightNavigationBars = darkIcons
-                        }
-                    }
-
+            val settings by viewModel.settings.collectAsStateWithLifecycle()
+            settings?.let { s ->
+                MoneyManagerTheme(themeMode = s.themeMode, palette = s.palette) {
                     MainAppContent()
                 }
             }
@@ -105,12 +86,12 @@ fun MainAppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val bottomNavItems = listOf(
-        BottomNavItem.Transactions,
-        BottomNavItem.Settings,
-    )
+    val showBottomBar = AppBottomNavItems.any { it.screen.route == currentRoute }
 
-    val showBottomBar = bottomNavItems.any { it.screen.route == currentRoute }
+    // Dynamic system bars color
+    val barColor = MaterialTheme.colorScheme.barContainer
+    val navBarColor = if (showBottomBar) barColor else MaterialTheme.colorScheme.surface
+    SystemBarsEffect(statusBarBackground = barColor, navBarBackground = navBarColor)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -118,15 +99,15 @@ fun MainAppContent() {
         bottomBar = {
             if (showBottomBar) {
                 Column(
-                    modifier = Modifier.background(MaterialTheme.colorScheme.primary)
+                    modifier = Modifier.background(barColor)
                 ) {
-                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onBarContainer.copy(alpha = 0.2f))
                     NavigationBar(
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = barColor,
                         tonalElevation = 0.dp,
                         windowInsets = WindowInsets(0, 0, 0, 0)
                     ) {
-                        bottomNavItems.forEach { item ->
+                        AppBottomNavItems.forEach { item ->
                             val selected = currentRoute == item.screen.route
                             NavigationBarItem(
                                 selected = selected,
@@ -142,11 +123,11 @@ fun MainAppContent() {
                                 icon = { Icon(item.icon, contentDescription = stringResource(item.titleRes)) },
                                 label = { Text(stringResource(item.titleRes)) },
                                 colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                                    selectedTextColor = MaterialTheme.colorScheme.onPrimary,
-                                    indicatorColor = MaterialTheme.colorScheme.onPrimary,
-                                    unselectedIconColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                                    unselectedTextColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                                    selectedIconColor = barColor,
+                                    selectedTextColor = MaterialTheme.colorScheme.onBarContainer,
+                                    indicatorColor = MaterialTheme.colorScheme.onBarContainer,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onBarContainer.copy(alpha = 0.7f),
+                                    unselectedTextColor = MaterialTheme.colorScheme.onBarContainer.copy(alpha = 0.7f)
                                 )
                             )
                         }
@@ -159,7 +140,11 @@ fun MainAppContent() {
         NavHost(
             navController = navController,
             startDestination = Screen.Transactions.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { fadeIn(animationSpec = tween(120)) },
+            exitTransition = { fadeOut(animationSpec = tween(90)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(120)) },
+            popExitTransition = { fadeOut(animationSpec = tween(90)) },
         ) {
             composable(Screen.Transactions.route) {
                 TransactionsScreen(
@@ -182,26 +167,48 @@ fun MainAppContent() {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
-                })
+                }),
+                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
             ) {
                 TransactionFormScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            composable(Screen.Currencies.route) {
+            composable(
+                route = Screen.Currencies.route,
+                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+            ) {
                 CurrenciesScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            composable(Screen.Rates.route) {
+            composable(
+                route = Screen.Rates.route,
+                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+            ) {
                 RatesScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            composable(Screen.Categories.route) {
+            composable(
+                route = Screen.Categories.route,
+                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+            ) {
                 CategoriesScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )

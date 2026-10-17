@@ -1,9 +1,11 @@
 package uz.moneymanager.ui.transactions
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -13,19 +15,65 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uz.moneymanager.data.local.CategoryEntity
 import uz.moneymanager.data.local.CurrencyEntity
-import uz.moneymanager.data.local.TransactionListRow
 import uz.moneymanager.data.repository.CategoryRepository
 import uz.moneymanager.data.repository.CurrencyRepository
 import uz.moneymanager.data.repository.TransactionRepository
 import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
 import uz.moneymanager.domain.model.TransactionType
+import java.math.BigDecimal
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
+
+@Immutable
+data class TransactionUiItem(
+    val id: Long,
+    val title: String,
+    val subtitle: String,
+    val amountText: String,
+    val type: TransactionType,
+)
+
+object FormatUtils {
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+    fun formatDate(date: LocalDate): String = date.format(dateFormatter)
+
+    fun formatAmount(
+        amount: BigDecimal,
+        currencyCode: String,
+        type: TransactionType? = null,
+        includePositiveSign: Boolean = false,
+    ): String {
+        val activeLocale = Locale.getDefault()
+        val localeSymbols = DecimalFormatSymbols.getInstance(activeLocale)
+        val symbols = DecimalFormatSymbols(activeLocale).apply {
+            groupingSeparator = '\u00A0'
+            decimalSeparator = localeSymbols.decimalSeparator
+        }
+        val df = DecimalFormat("#,##0.##", symbols)
+        val sign = when (type) {
+            TransactionType.INCOME -> "+"
+            TransactionType.EXPENSE -> "\u2212"
+            null -> when {
+                amount.signum() < 0 -> "\u2212"
+                amount.signum() > 0 && includePositiveSign -> "+"
+                else -> ""
+            }
+        }
+        val formattedValue = df.format(amount.abs())
+        return "$sign$formattedValue\u00A0$currencyCode"
+    }
+}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -49,7 +97,6 @@ class TransactionsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     init {
-        // Set display currency default to UZS
         viewModelScope.launch {
             defaultCurrency.collect { def ->
                 if (def != null && _filter.value.displayCurrencyId == null) {
@@ -65,8 +112,18 @@ class TransactionsViewModel @Inject constructor(
         Triple(f, displayId, fallbackId)
     }
 
-    val transactions: Flow<PagingData<TransactionListRow>> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
-        transactionRepository.paging(f, displayId, fallbackId)
+    val transactions: Flow<PagingData<TransactionUiItem>> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
+        transactionRepository.paging(f, displayId, fallbackId).map { pagingData ->
+            pagingData.map { row ->
+                TransactionUiItem(
+                    id = row.id,
+                    title = row.categoryName,
+                    subtitle = FormatUtils.formatDate(row.date),
+                    amountText = FormatUtils.formatAmount(row.amount, row.currencyCode, row.type),
+                    type = row.type,
+                )
+            }
+        }
     }.cachedIn(viewModelScope)
 
     val totals: StateFlow<MonitoringTotals> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->

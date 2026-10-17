@@ -25,8 +25,6 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -48,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,7 +56,9 @@ import uz.moneymanager.R
 import uz.moneymanager.domain.model.AppLanguage
 import uz.moneymanager.domain.model.AppPalette
 import uz.moneymanager.domain.model.ThemeMode
-import uz.moneymanager.ui.theme.getPalettePrimaryColor
+import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.getPaletteSwatchColor
+import uz.moneymanager.ui.theme.onBarContainer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,13 +87,13 @@ fun SettingsScreen(
                         )
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.barContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onBarContainer,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBarContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onBarContainer
                     )
                 )
-                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
+                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onBarContainer.copy(alpha = 0.2f))
             }
         }
     ) { padding ->
@@ -125,51 +126,86 @@ fun SettingsScreen(
             )
 
             // Palette selector
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface
             ) {
-                Text(
-                    text = stringResource(R.string.setting_palette),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    AppPalette.entries.forEach { p ->
-                        val color = getPalettePrimaryColor(p)
-                        val isSelected = palette == p
-                        val contentDesc = when (p) {
-                            AppPalette.OCEAN -> stringResource(R.string.palette_ocean)
-                            AppPalette.EMERALD -> stringResource(R.string.palette_emerald)
-                            AppPalette.VIOLET -> stringResource(R.string.palette_violet)
-                            AppPalette.SUNSET -> stringResource(R.string.palette_sunset)
-                            AppPalette.GRAPHITE -> stringResource(R.string.palette_graphite)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Palette,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.setting_palette),
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = stringResource(R.string.desc_palette),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .border(
-                                    width = if (isSelected) 3.dp else 1.dp,
-                                    color = if (isSelected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
-                                    shape = CircleShape
-                                )
-                                .clickable { viewModel.setPalette(p) }
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = contentDesc,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(22.dp)
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+                        AppPalette.entries.forEach { p ->
+                            val color = getPaletteSwatchColor(p, isDark)
+                            val isSelected = palette == p
+                            val name = when (p) {
+                                AppPalette.OCEAN -> stringResource(R.string.palette_ocean)
+                                AppPalette.EMERALD -> stringResource(R.string.palette_emerald)
+                                AppPalette.VIOLET -> stringResource(R.string.palette_violet)
+                                AppPalette.SUNSET -> stringResource(R.string.palette_sunset)
+                                AppPalette.GRAPHITE -> stringResource(R.string.palette_graphite)
+                            }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.clickable { viewModel.setPalette(p) }
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(44.dp)
+                                        .clip(CircleShape)
+                                        .background(color)
+                                        .border(
+                                            width = if (isSelected) 3.dp else 1.dp,
+                                            color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant,
+                                            shape = CircleShape
+                                        )
+                                ) {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = name,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = name,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -178,9 +214,11 @@ fun SettingsScreen(
             }
 
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 56.dp),
                 thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
             )
 
             val langText = when (currentLanguage) {
@@ -210,7 +248,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.MonetizationOn,
                 title = stringResource(R.string.title_currencies),
-                subtitle = stringResource(R.string.title_currencies),
+                subtitle = stringResource(R.string.desc_currencies),
                 onClick = onNavigateCurrencies,
                 showArrow = true
             )
@@ -218,7 +256,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.CurrencyExchange,
                 title = stringResource(R.string.title_exchange_rates),
-                subtitle = stringResource(R.string.title_exchange_rates),
+                subtitle = stringResource(R.string.desc_exchange_rates),
                 onClick = onNavigateRates,
                 showArrow = true
             )
@@ -226,7 +264,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Category,
                 title = stringResource(R.string.title_categories),
-                subtitle = stringResource(R.string.title_categories),
+                subtitle = stringResource(R.string.desc_categories),
                 onClick = onNavigateCategories,
                 showArrow = true
             )
@@ -270,7 +308,7 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showThemeDialog = false }) {
-                    Text(stringResource(R.string.action_close))
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -332,7 +370,7 @@ fun SettingsItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        color = MaterialTheme.colorScheme.surface
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(

@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -59,6 +61,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,55 +77,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import uz.moneymanager.R
 import uz.moneymanager.data.local.CategoryEntity
 import uz.moneymanager.data.local.CurrencyEntity
-import uz.moneymanager.data.local.TransactionListRow
 import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
 import uz.moneymanager.domain.Totals
 import uz.moneymanager.domain.model.TransactionType
 import uz.moneymanager.ui.theme.ExpenseColor
 import uz.moneymanager.ui.theme.IncomeColor
+import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.onBarContainer
 import java.math.BigDecimal
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-
-fun formatAmount(
-    amount: BigDecimal,
-    currencyCode: String,
-    type: TransactionType? = null
-): String {
-    val symbols = DecimalFormatSymbols(Locale.US).apply {
-        groupingSeparator = ' '
-    }
-    val df = DecimalFormat("#,##0.##", symbols)
-    val sign = when (type) {
-        TransactionType.INCOME -> "+"
-        TransactionType.EXPENSE -> "−"
-        null -> ""
-    }
-    return "$sign${df.format(amount)} $currencyCode"
-}
-
-object NumberFormatter {
-    private val wholeDf = DecimalFormat("#,##0", DecimalFormatSymbols(Locale.US).apply { groupingSeparator = ' ' })
-    private val decimalDf = DecimalFormat("#,##0.##", DecimalFormatSymbols(Locale.US).apply { groupingSeparator = ' ' })
-
-    fun format(value: BigDecimal): String {
-        return if (value.stripTrailingZeros().scale() <= 0) {
-            wholeDf.format(value)
-        } else {
-            decimalDf.format(value)
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -138,12 +111,17 @@ fun TransactionsScreen(
     val totals by viewModel.totals.collectAsState()
     val items = viewModel.transactions.collectAsLazyPagingItems()
 
-    var transactionToDelete by remember { mutableStateOf<TransactionListRow?>(null) }
+    var transactionToDelete by remember { mutableStateOf<TransactionUiItem?>(null) }
     var showSummarySheet by remember { mutableStateOf(false) }
+    var isAmountVisible by rememberSaveable { mutableStateOf(true) }
 
     val displayCurrency = currencies.firstOrNull { it.id == filter.displayCurrencyId } ?: defaultCurrency
+    val dCode = displayCurrency?.code ?: "UZS"
+    val fCode = defaultCurrency?.code ?: "UZS"
+    val showFallback = totals.fallback.count > 0 && displayCurrency?.id != defaultCurrency?.id
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             Column {
                 CenterAlignedTopAppBar(
@@ -155,12 +133,6 @@ fun TransactionsScreen(
                         )
                     },
                     actions = {
-                        IconButton(onClick = { showSummarySheet = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Visibility,
-                                contentDescription = stringResource(R.string.action_show_summary)
-                            )
-                        }
                         IconButton(onClick = { viewModel.resetFilters() }) {
                             Icon(
                                 imageVector = Icons.Default.RestartAlt,
@@ -169,13 +141,13 @@ fun TransactionsScreen(
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.barContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onBarContainer,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBarContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onBarContainer
                     )
                 )
-                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
+                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onBarContainer.copy(alpha = 0.2f))
             }
         },
         floatingActionButton = {
@@ -188,6 +160,63 @@ fun TransactionsScreen(
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.action_add)
                 )
+            }
+        },
+        bottomBar = {
+            // Footer: Jami summa
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clickable { showSummarySheet = true }
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = { isAmountVisible = !isAmountVisible },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (isAmountVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = stringResource(R.string.action_show_footer),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.action_show_footer),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        val totalText = if (isAmountVisible) {
+                            FormatUtils.formatAmount(totals.display.balance, dCode, includePositiveSign = true)
+                        } else {
+                            "••••••"
+                        }
+
+                        Text(
+                            text = totalText,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isAmountVisible) {
+                                if (totals.display.balance >= BigDecimal.ZERO) IncomeColor else ExpenseColor
+                            } else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
             }
         }
     ) { padding ->
@@ -225,13 +254,17 @@ fun TransactionsScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 80.dp),
+                        contentPadding = PaddingValues(bottom = 88.dp),
                         verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
-                        items(count = items.itemCount) { index ->
+                        items(
+                            count = items.itemCount,
+                            key = items.itemKey { it.id },
+                            contentType = items.itemContentType { "transaction_row" }
+                        ) { index ->
                             val item = items[index]
                             if (item != null) {
-                                TransactionItem(
+                                TransactionItemRow(
                                     item = item,
                                     onClick = { onNavigateToEdit(item.id) },
                                     onDelete = { transactionToDelete = item }
@@ -281,10 +314,6 @@ fun TransactionsScreen(
     }
 
     if (showSummarySheet) {
-        val dCode = displayCurrency?.code ?: "UZS"
-        val fCode = defaultCurrency?.code ?: "UZS"
-        val showFallback = totals.fallback.count > 0 && displayCurrency?.id != defaultCurrency?.id
-
         SummaryReportBottomSheet(
             onDismiss = { showSummarySheet = false },
             totals = totals,
@@ -297,12 +326,11 @@ fun TransactionsScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TransactionItem(
-    item: TransactionListRow,
+fun TransactionItemRow(
+    item: TransactionUiItem,
     onClick: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
     val isIncome = item.type == TransactionType.INCOME
     val amountColor = if (isIncome) IncomeColor else ExpenseColor
 
@@ -323,14 +351,14 @@ fun TransactionItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Chap tomon: 1-qator nom (kategoriya), 2-qator sana
+                // Chap tomon: 1-qator nom, 2-qator sana
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 12.dp)
                 ) {
                     Text(
-                        text = item.categoryName,
+                        text = item.title,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -339,15 +367,15 @@ fun TransactionItem(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = item.date.format(dateFormatter),
+                        text = item.subtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
-                // O'ng tomon: summa (bold, kirim/chiqim belgisi va rangi bilan)
+                // O'ng tomon: summa
                 Text(
-                    text = formatAmount(item.amount, item.currencyCode, item.type),
+                    text = item.amountText,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = amountColor,
@@ -400,7 +428,7 @@ fun TransactionFilterBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Display Currency Selector (Which currency to convert to)
+        // Display Currency Selector
         item {
             Box {
                 FilterChip(
@@ -460,7 +488,7 @@ fun TransactionFilterBar(
             }
         }
 
-        // Currency Filter (Only show transactions made in this currency)
+        // Currency Filter
         item {
             val selectedCurrencyFilter = currencies.firstOrNull { it.id == filter.currencyId }
             Box {
@@ -494,7 +522,7 @@ fun TransactionFilterBar(
             }
         }
 
-        // Type Filter (Income / Expense / All)
+        // Type Filter
         item {
             Box {
                 val typeLabel = when (filter.type) {
@@ -537,7 +565,7 @@ fun TransactionFilterBar(
             }
         }
 
-        // Date Range Filter (From / To)
+        // Date Range Filter
         item {
             val dateLabel = if (filter.from != null || filter.to != null) {
                 "${filter.from?.toString() ?: "..."} - ${filter.to?.toString() ?: "..."}"
@@ -597,7 +625,7 @@ fun SummaryReportBottomSheet(
     showFallback: Boolean,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var selectedTab by remember { mutableIntStateOf(0) } // 0 = Rows, 1 = Donut Chart
+    var selectedTab by remember { mutableIntStateOf(0) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -650,7 +678,7 @@ fun SummaryReportBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (selectedTab == 0) {
-                // Flat 3-row layout without nested cards
+                // Details (Flat 3-row layout)
                 FlatSummarySection(
                     title = stringResource(R.string.summary_total_title, totals.display.count),
                     subtitle = stringResource(R.string.summary_converted_subtitle, displayCode),
@@ -670,7 +698,7 @@ fun SummaryReportBottomSheet(
                     )
                 }
             } else {
-                // Aylana diagramma (Donut Chart)
+                // Donut Chart
                 SummaryDonutChartView(
                     totals = totals.display,
                     currencyCode = displayCode,
@@ -721,7 +749,7 @@ fun FlatSummarySection(
         // Kirim qatori
         SummaryRowItem(
             label = stringResource(R.string.label_income),
-            amount = "+${NumberFormatter.format(totals.income)} $currencyCode",
+            amount = FormatUtils.formatAmount(totals.income, currencyCode, TransactionType.INCOME),
             color = IncomeColor,
             isIncome = true
         )
@@ -730,7 +758,7 @@ fun FlatSummarySection(
         // Chiqim qatori
         SummaryRowItem(
             label = stringResource(R.string.label_expense),
-            amount = "−${NumberFormatter.format(totals.expense)} $currencyCode",
+            amount = FormatUtils.formatAmount(totals.expense, currencyCode, TransactionType.EXPENSE),
             color = ExpenseColor,
             isIncome = false
         )
@@ -738,10 +766,9 @@ fun FlatSummarySection(
 
         // Balans qatori
         val balColor = if (totals.balance >= BigDecimal.ZERO) IncomeColor else ExpenseColor
-        val balSign = if (totals.balance > BigDecimal.ZERO) "+" else if (totals.balance < BigDecimal.ZERO) "−" else ""
         SummaryRowItem(
             label = stringResource(R.string.label_balance),
-            amount = "$balSign${NumberFormatter.format(totals.balance.abs())} $currencyCode",
+            amount = FormatUtils.formatAmount(totals.balance, currencyCode, includePositiveSign = true),
             color = balColor,
             isBalance = true
         )
@@ -867,25 +894,28 @@ fun SummaryDonutChartView(
                 } else {
                     val incomeAngle = (incFloat / totalVolume) * 360f
                     val expenseAngle = (expFloat / totalVolume) * 360f
+                    val gapAngle = if (incPct > 0 && expPct > 0) 3f else 0f
+                    val adjInc = (incomeAngle - gapAngle).coerceAtLeast(0f)
+                    val adjExp = (expenseAngle - gapAngle).coerceAtLeast(0f)
 
                     drawArc(
                         color = incColor,
-                        startAngle = -90f,
-                        sweepAngle = incomeAngle,
+                        startAngle = -90f + gapAngle / 2,
+                        sweepAngle = adjInc,
                         useCenter = false,
-                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Butt)
+                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
                     )
                     drawArc(
                         color = expColor,
-                        startAngle = -90f + incomeAngle,
-                        sweepAngle = expenseAngle,
+                        startAngle = -90f + incomeAngle + gapAngle / 2,
+                        sweepAngle = adjExp,
                         useCenter = false,
-                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Butt)
+                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
                     )
                 }
             }
 
-            // Halqaning o'rtasi: Balans summasi va valyuta
+            // Donut markazi: Balans summasi va valyuta
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(horizontal = 24.dp)
@@ -898,60 +928,81 @@ fun SummaryDonutChartView(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
-                    val balSign = if (totals.balance > BigDecimal.ZERO) "+" else if (totals.balance < BigDecimal.ZERO) "−" else ""
                     val balColor = if (totals.balance >= BigDecimal.ZERO) incColor else expColor
                     Text(
-                        text = "$balSign${NumberFormatter.format(totals.balance.abs())}",
+                        text = FormatUtils.formatAmount(totals.balance, currencyCode, includePositiveSign = true),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = balColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(
-                        text = currencyCode,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Legend: Kirim va chiqim foizlari va summalari
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+        // Legenda: Har biri alohida qatorda (Column), chapda doiracha + yorliq + foiz, o'ngda summa (SpaceBetween)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(incColor, shape = CircleShape)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .background(incColor, shape = CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "$incomeLabel ($incPct%)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
                 Text(
-                    text = "$incomeLabel ($incPct%): +${NumberFormatter.format(totals.income)}",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = FormatUtils.formatAmount(totals.income, currencyCode, TransactionType.INCOME),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = incColor,
+                    maxLines = 1
                 )
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(expColor, shape = CircleShape)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .background(expColor, shape = CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "$expenseLabel ($expPct%)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
                 Text(
-                    text = "$expenseLabel ($expPct%): −${NumberFormatter.format(totals.expense)}",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = FormatUtils.formatAmount(totals.expense, currencyCode, TransactionType.EXPENSE),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = expColor,
+                    maxLines = 1
                 )
             }
         }
