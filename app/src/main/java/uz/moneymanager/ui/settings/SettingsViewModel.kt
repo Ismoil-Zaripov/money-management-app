@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import uz.moneymanager.data.repository.LanguageStore
 import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.domain.model.AppLanguage
+import uz.moneymanager.domain.model.AppPalette
 import uz.moneymanager.domain.model.ThemeMode
 import javax.inject.Inject
 
@@ -24,12 +25,21 @@ class SettingsViewModel @Inject constructor(
     val themeMode: StateFlow<ThemeMode> = settingsRepository.themeMode
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.SYSTEM)
 
+    val palette: StateFlow<AppPalette> = settingsRepository.palette
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppPalette.OCEAN)
+
     private val _currentLanguage = MutableStateFlow(languageStore.current())
     val currentLanguage: StateFlow<AppLanguage> = _currentLanguage.asStateFlow()
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
             settingsRepository.setThemeMode(mode)
+        }
+    }
+
+    fun setPalette(palette: AppPalette) {
+        viewModelScope.launch {
+            settingsRepository.setPalette(palette)
         }
     }
 

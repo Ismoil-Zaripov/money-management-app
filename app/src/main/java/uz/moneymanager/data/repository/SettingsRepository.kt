@@ -12,6 +12,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import uz.moneymanager.domain.model.AppLanguage
+import uz.moneymanager.domain.model.AppPalette
 import uz.moneymanager.domain.model.ThemeMode
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,8 +29,17 @@ class SettingsRepository @Inject constructor(
         dataStore.edit { it[THEME] = mode.name }
     }
 
+    val palette: Flow<AppPalette> = dataStore.data.map { prefs ->
+        prefs[PALETTE]?.let { runCatching { AppPalette.valueOf(it) }.getOrNull() } ?: AppPalette.OCEAN
+    }
+
+    suspend fun setPalette(palette: AppPalette) {
+        dataStore.edit { it[PALETTE] = palette.name }
+    }
+
     private companion object {
         val THEME = stringPreferencesKey("theme_mode")
+        val PALETTE = stringPreferencesKey("app_palette")
     }
 }
 

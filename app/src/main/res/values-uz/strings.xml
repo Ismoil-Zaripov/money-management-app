@@ -47,12 +47,16 @@
     <string name="empty_transactions">Tranzaksiyalar yo‘q</string>
 
     <!-- Footer / Totals -->
+    <string name="summary_total_title">Jami · %1$d ta tranzaksiya</string>
+    <string name="summary_fallback_title">Qolganlari · %1$d ta tranzaksiya</string>
+    <string name="summary_converted_subtitle">Kurslar bo‘yicha %1$s ga o‘girilgan</string>
     <string name="footer_title_display">Jami (%1$s - %2$d ta):</string>
     <string name="footer_title_fallback">Qolganlari (%1$s - %2$d ta):</string>
     <string name="label_income">Kirim</string>
     <string name="label_expense">Chiqim</string>
     <string name="label_balance">Balans</string>
     <string name="action_show_footer">Jami summa</string>
+    <string name="action_show_summary">Umumiy hisobot</string>
     <string name="title_summary_report">Umumiy hisobot</string>
     <string name="tab_numbers">Qatorlar</string>
     <string name="tab_chart">Aylana diagramma</string>
@@ -93,6 +97,14 @@
     <string name="theme_system">Tizim bo‘yicha</string>
     <string name="theme_light">Yorug‘</string>
     <string name="theme_dark">Qorong‘i</string>
+    <string name="title_transactions">Tranzaksiyalar</string>
+    <string name="setting_palette">Ranglar palitrasi</string>
+    <string name="palette_ocean">Okean</string>
+    <string name="palette_emerald">Zumrad</string>
+    <string name="palette_violet">Binafsha</string>
+    <string name="palette_sunset">Quyosh botishi</string>
+    <string name="palette_graphite">Grafit</string>
+
     <string name="lang_en">English</string>
     <string name="lang_uz">Oʻzbekcha</string>
     <string name="lang_ru">Русский</string>

@@ -1,5 +1,6 @@
 package uz.moneymanager
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -22,10 +23,15 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -38,7 +44,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.ui.categories.CategoriesScreen
 import uz.moneymanager.ui.currencies.CurrenciesScreen
-import uz.moneymanager.ui.monitoring.MonitoringScreen
 import uz.moneymanager.ui.navigation.BottomNavItem
 import uz.moneymanager.ui.navigation.Screen
 import uz.moneymanager.ui.rates.RatesScreen
@@ -55,6 +60,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var settingsRepository: SettingsRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
@@ -66,9 +72,26 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val themeMode by settingsRepository.themeMode.collectAsStateWithLifecycle(initialValue = null)
+            val palette by settingsRepository.palette.collectAsStateWithLifecycle(initialValue = null)
 
-            if (themeMode != null) {
-                MoneyManagerTheme(themeMode = themeMode!!) {
+            splashScreen.setKeepOnScreenCondition {
+                themeMode == null || palette == null
+            }
+
+            if (themeMode != null && palette != null) {
+                MoneyManagerTheme(themeMode = themeMode!!, palette = palette!!) {
+                    val view = LocalView.current
+                    if (!view.isInEditMode) {
+                        val primaryColor = MaterialTheme.colorScheme.primary
+                        val darkIcons = primaryColor.luminance() > 0.5f
+                        SideEffect {
+                            val window = (view.context as Activity).window
+                            val insetsController = WindowCompat.getInsetsController(window, view)
+                            insetsController.isAppearanceLightStatusBars = darkIcons
+                            insetsController.isAppearanceLightNavigationBars = darkIcons
+                        }
+                    }
+
                     MainAppContent()
                 }
             }
@@ -84,7 +107,6 @@ fun MainAppContent() {
 
     val bottomNavItems = listOf(
         BottomNavItem.Transactions,
-        BottomNavItem.Monitoring,
         BottomNavItem.Settings,
     )
 
@@ -142,12 +164,6 @@ fun MainAppContent() {
             composable(Screen.Transactions.route) {
                 TransactionsScreen(
                     onNavigateToCreate = { navController.navigate(Screen.TransactionForm.createRoute()) },
-                    onNavigateToEdit = { id -> navController.navigate(Screen.TransactionForm.createRoute(id)) }
-                )
-            }
-
-            composable(Screen.Monitoring.route) {
-                MonitoringScreen(
                     onNavigateToEdit = { id -> navController.navigate(Screen.TransactionForm.createRoute(id)) }
                 )
             }
