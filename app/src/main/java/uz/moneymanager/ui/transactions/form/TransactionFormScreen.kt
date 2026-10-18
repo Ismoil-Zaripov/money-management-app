@@ -1,11 +1,12 @@
 package uz.moneymanager.ui.transactions.form
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,7 +32,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -41,8 +41,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,7 +77,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -87,7 +86,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -95,9 +93,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.moneymanager.R
+import uz.moneymanager.data.local.CurrencyEntity
 import uz.moneymanager.domain.RateValidator
 import uz.moneymanager.domain.model.TransactionType
 import uz.moneymanager.ui.theme.ExpenseColor
@@ -112,6 +112,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 private val FieldShape = RoundedCornerShape(12.dp)
+private val ChipShape = RoundedCornerShape(8.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -146,7 +147,7 @@ fun TransactionFormScreen(
         }
     }
 
-    BackHandler(enabled = state.isDirty && !state.isSaving) {
+    BackHandler(enabled = state.isDirty && !state.isSaving && !state.showNoInternetDialog) {
         handleBack()
     }
 
@@ -164,8 +165,8 @@ fun TransactionFormScreen(
     }
 
     // Yangi tranzaksiyada summa avtomatik fokusda va klaviatura ochiq (tahrirlashda emas)
-    LaunchedEffect(state.isNew) {
-        if (state.isNew && !initialFocusRequested) {
+    LaunchedEffect(state.isNew, state.isLoading) {
+        if (state.isNew && !state.isLoading && !initialFocusRequested) {
             initialFocusRequested = true
             amountFocus.requestFocus()
             keyboard?.show()
@@ -230,58 +231,26 @@ fun TransactionFormScreen(
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 TypeSelector(type = state.type, onSelect = viewModel::setType)
 
-                // Summa + valyuta chip'i
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    AmountField(
-                        amount = state.amountText,
-                        onAmountChange = viewModel::setAmount,
-                        currencyCode = state.currency?.code.orEmpty(),
-                        color = typeColor,
-                        errorText = state.amountErrorRes?.let { stringResource(it) },
-                        modifier = Modifier
-                            .focusRequester(amountFocus)
-                            .onFocusLost(amountHadFocus, { amountHadFocus = true }, viewModel::onAmountBlur),
-                        onNext = { categoryFocus.requestFocus() }
-                    )
+                // Summa + biriktirilgan valyuta tanlagichi (faqat bitta joyda)
+                AmountField(
+                    amount = state.amountText,
+                    onAmountChange = viewModel::setAmount,
+                    currencyCode = state.currency?.code.orEmpty(),
+                    currencies = state.currencies,
+                    onSelectCurrency = viewModel::setCurrencyId,
+                    color = typeColor,
+                    errorText = state.amountErrorRes?.let { stringResource(it) },
+                    modifier = Modifier
+                        .focusRequester(amountFocus)
+                        .onFocusLost(amountHadFocus, { amountHadFocus = true }, viewModel::onAmountBlur),
+                    onNext = { categoryFocus.requestFocus() }
+                )
 
-                    Spacer(modifier = Modifier.size(8.dp))
-
-                    var currencyMenuExpanded by remember { mutableStateOf(false) }
-                    Box {
-                        AssistChip(
-                            onClick = { currencyMenuExpanded = true },
-                            label = { Text(state.currency?.code ?: stringResource(R.string.label_currency)) },
-                            trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = null, modifier = Modifier.size(18.dp))
-                            },
-                            shape = FieldShape,
-                            modifier = Modifier.heightIn(min = 48.dp)
-                        )
-                        DropdownMenu(
-                            expanded = currencyMenuExpanded,
-                            onDismissRequest = { currencyMenuExpanded = false }
-                        ) {
-                            state.currencies.forEach { curr ->
-                                DropdownMenuItem(
-                                    text = { Text("${curr.code} - ${curr.name}") },
-                                    onClick = {
-                                        viewModel.setCurrencyId(curr.id)
-                                        currencyMenuExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Info (Category): yozish mumkin bo'lgan ExposedDropdownMenu + tezkor chip'lar
+                // Kategoriya: yozish mumkin bo'lgan ExposedDropdownMenu + tezkor chip'lar
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     var categoryMenuExpanded by remember { mutableStateOf(false) }
                     val filteredCategories = remember(state.categoryText, state.allCategories) {
@@ -303,17 +272,20 @@ fun TransactionFormScreen(
                                 categoryMenuExpanded = true
                             },
                             label = { Text(stringResource(R.string.label_info)) },
-                            trailingIcon = {
-                                if (state.categoryText.isNotEmpty()) {
+                            trailingIcon = if (state.categoryText.isNotEmpty()) {
+                                {
                                     IconButton(onClick = {
                                         viewModel.setCategoryText("")
                                         categoryMenuExpanded = false
                                     }) {
-                                        Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.action_clear))
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            contentDescription = stringResource(R.string.action_clear)
+                                        )
                                     }
-                                } else {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuVisible)
                                 }
+                            } else {
+                                null
                             },
                             isError = showCategoryError,
                             supportingText = state.categoryErrorRes?.let { errRes ->
@@ -332,6 +304,7 @@ fun TransactionFormScreen(
                             modifier = Modifier
                                 .menuAnchor(MenuAnchorType.PrimaryEditable)
                                 .fillMaxWidth()
+                                .heightIn(min = 56.dp)
                                 .focusRequester(categoryFocus)
                                 .onFocusLost(categoryHadFocus, { categoryHadFocus = true }, viewModel::onCategoryBlur)
                         )
@@ -354,17 +327,18 @@ fun TransactionFormScreen(
                     if (state.categorySuggestions.isNotEmpty()) {
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(0.dp)
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             items(state.categorySuggestions, key = { it }) { name ->
-                                FilterChip(
-                                    selected = name.equals(state.categoryText.trim(), ignoreCase = true),
+                                val isSelected = name.equals(state.categoryText.trim(), ignoreCase = true)
+                                ThemedFilterChip(
+                                    selected = isSelected,
                                     onClick = {
                                         viewModel.setCategoryText(name)
                                         categoryMenuExpanded = false
                                     },
-                                    label = { Text(name, maxLines = 1) },
-                                    modifier = Modifier.heightIn(min = 48.dp)
+                                    label = name
                                 )
                             }
                         }
@@ -403,6 +377,20 @@ fun TransactionFormScreen(
         )
     }
 
+    // No Internet Dialog
+    if (state.showNoInternetDialog) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissNoInternetDialog,
+            title = { Text(stringResource(R.string.dialog_no_internet_title)) },
+            text = { Text(stringResource(R.string.dialog_no_internet_desc)) },
+            confirmButton = {
+                TextButton(onClick = viewModel::dismissNoInternetDialog) {
+                    Text(stringResource(R.string.action_understood))
+                }
+            }
+        )
+    }
+
     // Missing Rates Dialog
     missingRatesEvent?.let { event ->
         val rateInputs = remember(event) {
@@ -421,7 +409,7 @@ fun TransactionFormScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
                         stringResource(
@@ -486,6 +474,39 @@ private fun Modifier.onFocusLost(hadFocus: Boolean, onFocused: () -> Unit, onLos
         else if (hadFocus) onLost()
     }
 
+@Composable
+private fun ThemedFilterChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = {
+            Text(
+                text = label,
+                maxLines = 1,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+            )
+        },
+        shape = ChipShape,
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = selected,
+            selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+            selectedBorderWidth = 1.dp,
+        ),
+        modifier = modifier.heightIn(min = 48.dp)
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TypeSelector(type: TransactionType, onSelect: (TransactionType) -> Unit) {
@@ -495,22 +516,29 @@ private fun TypeSelector(type: TransactionType, onSelect: (TransactionType) -> U
     )
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         options.forEachIndexed { index, (option, labelRes) ->
+            val selected = type == option
             val semantic = if (option == TransactionType.INCOME) IncomeColor else ExpenseColor
-            // Matn rangi semantik rangning onSurface tomon biroz to'qlashtirilgan/yorqinlashtirilgan tusi:
-            // 14% tint fonida ham 4.5:1 kontrast saqlanadi (light va dark sxemalarda).
-            val content = lerp(semantic, MaterialTheme.colorScheme.onSurface, 0.3f)
             SegmentedButton(
-                selected = type == option,
+                selected = selected,
                 onClick = { onSelect(option) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                 colors = SegmentedButtonDefaults.colors(
-                    activeContainerColor = semantic.copy(alpha = 0.14f),
-                    activeContentColor = content,
+                    activeContainerColor = semantic.copy(alpha = 0.20f),
+                    activeContentColor = semantic,
                     activeBorderColor = semantic,
+                    inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    inactiveBorderColor = MaterialTheme.colorScheme.outlineVariant,
                 ),
-                modifier = Modifier.heightIn(min = 48.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .heightIn(min = 48.dp)
             ) {
-                Text(stringResource(labelRes), maxLines = 1)
+                Text(
+                    text = stringResource(labelRes),
+                    maxLines = 1,
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                )
             }
         }
     }
@@ -521,6 +549,8 @@ private fun AmountField(
     amount: String,
     onAmountChange: (String) -> Unit,
     currencyCode: String,
+    currencies: List<CurrencyEntity>,
+    onSelectCurrency: (Long) -> Unit,
     color: Color,
     errorText: String?,
     onNext: () -> Unit,
@@ -531,82 +561,168 @@ private fun AmountField(
     LaunchedEffect(amount) {
         if (amount != field.text) field = TextFieldValue(amount, TextRange(amount.length))
     }
+    var isFocused by remember { mutableStateOf(false) }
+    var currencyMenuExpanded by remember { mutableStateOf(false) }
+
     val decimalSeparator = remember { DecimalFormatSymbols.getInstance().decimalSeparator }
     val transformation = remember(decimalSeparator) { AmountVisualTransformation(decimalSeparator) }
     val amountLabel = stringResource(R.string.label_amount)
+    val currencyLabel = stringResource(R.string.label_currency)
 
-    // Uzun summa va katta shriftda (1.3x-2.0x) kesilmasligi uchun o'lcham kichrayadi
-    val effectiveLength = field.text.length * LocalDensity.current.fontScale
-    val baseStyle: TextStyle = when {
-        effectiveLength <= 10f -> MaterialTheme.typography.displaySmall
-        effectiveLength <= 15f -> MaterialTheme.typography.headlineMedium
-        effectiveLength <= 22f -> MaterialTheme.typography.titleLarge
-        else -> MaterialTheme.typography.titleMedium
+    val borderColor = when {
+        errorText != null -> MaterialTheme.colorScheme.error
+        isFocused -> color
+        else -> MaterialTheme.colorScheme.outlineVariant
     }
-    val textStyle = baseStyle.copy(color = color, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
+    val borderWidth = if (isFocused || errorText != null) 1.5.dp else 1.dp
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Surface(
+            shape = FieldShape,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            border = BorderStroke(borderWidth, borderColor),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            BasicTextField(
-                value = field,
-                onValueChange = { new ->
-                    val sanitized = AmountInput.sanitize(new.text, isPaste = new.text.length - field.text.length > 1)
-                    field = when (sanitized) {
-                        new.text -> new
-                        field.text -> field // rad etilgan belgi: matn va kursor o'zgarmaydi
-                        else -> {
-                            val removed = new.text.length - sanitized.length
-                            val cursor = (new.selection.end - removed).coerceIn(0, sanitized.length)
-                            TextFieldValue(sanitized, TextRange(cursor))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BoxWithConstraints(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val formattedLength = remember(field.text) {
+                        val len = field.text.length
+                        (len + (len - 1).coerceAtLeast(0) / 3).coerceAtLeast(1)
+                    }
+                    val density = LocalDensity.current
+                    val maxWidthDp = with(density) { constraints.maxWidth.toDp().value }
+                    val fontSizeSp = remember(formattedLength, maxWidthDp, density.fontScale) {
+                        val preferred = when {
+                            formattedLength <= 7 -> 32f
+                            formattedLength <= 10 -> 26f
+                            formattedLength <= 14 -> 22f
+                            formattedLength <= 18 -> 18f
+                            else -> 15f
+                        }
+                        val maxFit = (maxWidthDp / (formattedLength * 0.62f * density.fontScale)).coerceAtLeast(13f)
+                        minOf(preferred, maxFit)
+                    }
+
+                    val textStyle = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize = fontSizeSp.sp,
+                        lineHeight = (fontSizeSp * 1.2f).sp,
+                        color = color,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    )
+
+                    BasicTextField(
+                        value = field,
+                        onValueChange = { new ->
+                            val sanitized = AmountInput.sanitize(new.text, isPaste = new.text.length - field.text.length > 1)
+                            field = when (sanitized) {
+                                new.text -> new
+                                field.text -> field // rad etilgan belgi: matn va kursor o'zgarmaydi
+                                else -> {
+                                    val removed = new.text.length - sanitized.length
+                                    val cursor = (new.selection.end - removed).coerceIn(0, sanitized.length)
+                                    TextFieldValue(sanitized, TextRange(cursor))
+                                }
+                            }
+                            if (field.text != amount) onAmountChange(field.text)
+                        },
+                        textStyle = textStyle,
+                        singleLine = true,
+                        cursorBrush = SolidColor(color),
+                        visualTransformation = transformation,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(onNext = { onNext() }),
+                        modifier = modifier
+                            .onFocusChanged { isFocused = it.isFocused }
+                            .semantics { contentDescription = amountLabel }
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp),
+                        decorationBox = { inner ->
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (field.text.isEmpty()) {
+                                    Text(
+                                        text = "0",
+                                        style = textStyle.copy(color = color.copy(alpha = 0.38f)),
+                                    )
+                                }
+                                inner()
+                            }
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Box {
+                    Surface(
+                        onClick = { currencyMenuExpanded = true },
+                        shape = ChipShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.heightIn(min = 48.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .heightIn(min = 48.dp)
+                                .padding(horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = currencyCode.ifEmpty { currencyLabel },
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = currencyLabel,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                     }
-                    if (field.text != amount) onAmountChange(field.text)
-                },
-                textStyle = textStyle,
-                singleLine = true,
-                cursorBrush = SolidColor(color),
-                visualTransformation = transformation,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { onNext() }),
-                modifier = modifier
-                    .semantics { contentDescription = amountLabel }
-                    .weight(1f, fill = false)
-                    .width(IntrinsicSize.Max)
-                    .heightIn(min = 48.dp),
-                decorationBox = { inner ->
-                    Box(contentAlignment = Alignment.Center) {
-                        if (field.text.isEmpty()) {
-                            Text("0", style = textStyle.copy(color = color.copy(alpha = 0.4f)))
+
+                    DropdownMenu(
+                        expanded = currencyMenuExpanded,
+                        onDismissRequest = { currencyMenuExpanded = false }
+                    ) {
+                        currencies.forEach { curr ->
+                            DropdownMenuItem(
+                                text = { Text("${curr.code} - ${curr.name}") },
+                                onClick = {
+                                    onSelectCurrency(curr.id)
+                                    currencyMenuExpanded = false
+                                }
+                            )
                         }
-                        inner()
                     }
                 }
-            )
-            if (currencyCode.isNotEmpty()) {
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = currencyCode,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
             }
         }
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 48.dp),
-            thickness = if (errorText != null) 1.dp else 0.5.dp,
-            color = if (errorText != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant
-        )
+
         if (errorText != null) {
             Text(
                 text = errorText,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }
@@ -617,6 +733,7 @@ private fun AmountField(
 private fun DateSection(date: LocalDate, onDateChange: (LocalDate) -> Unit) {
     var showPicker by rememberSaveable { mutableStateOf(false) }
     val today = LocalDate.now()
+    val yesterday = today.minusDays(1)
     val dateLabel = stringResource(R.string.label_date)
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -627,30 +744,36 @@ private fun DateSection(date: LocalDate, onDateChange: (LocalDate) -> Unit) {
                 onValueChange = {},
                 readOnly = true,
                 label = { Text(dateLabel) },
-                trailingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.CalendarToday,
+                        contentDescription = dateLabel
+                    )
+                },
                 singleLine = true,
                 shape = FieldShape,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp)
             )
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .padding(top = 8.dp)
+                    .heightIn(min = 48.dp)
                     .clickable(role = Role.Button, onClickLabel = dateLabel) { showPicker = true }
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
+            ThemedFilterChip(
                 selected = date == today,
                 onClick = { onDateChange(today) },
-                label = { Text(stringResource(R.string.date_today)) },
-                modifier = Modifier.heightIn(min = 48.dp)
+                label = stringResource(R.string.date_today)
             )
-            FilterChip(
-                selected = date == today.minusDays(1),
-                onClick = { onDateChange(today.minusDays(1)) },
-                label = { Text(stringResource(R.string.date_yesterday)) },
-                modifier = Modifier.heightIn(min = 48.dp)
+            ThemedFilterChip(
+                selected = date == yesterday,
+                onClick = { onDateChange(yesterday) },
+                label = stringResource(R.string.date_yesterday)
             )
         }
     }

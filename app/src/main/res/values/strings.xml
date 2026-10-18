@@ -25,7 +25,7 @@
     <string name="type_expense">Expense</string>
     <string name="label_amount">Amount</string>
     <string name="label_currency">Currency</string>
-    <string name="label_info">Info (Category)</string>
+    <string name="label_info">Category</string>
     <string name="label_date">Date</string>
     <string name="date_today">Today</string>
     <string name="date_yesterday">Yesterday</string>
@@ -38,6 +38,11 @@
     <!-- Missing Rates Dialog -->
     <string name="dialog_missing_rates_title">Exchange Rates Required</string>
     <string name="dialog_missing_rates_desc">Before saving this transaction in %1$s for %2$s, exchange rates against other currencies must be defined. Values are prefilled from CBU.uz if available.</string>
+
+    <!-- No Internet Dialog -->
+    <string name="dialog_no_internet_title">No Internet</string>
+    <string name="dialog_no_internet_desc">Could not load today\'s exchange rates due to no internet connection.</string>
+    <string name="action_understood">Understood</string>
 
     <!-- Transactions / Filters -->
     <string name="filter_category">Category</string>
@@ -122,7 +127,7 @@
     <string name="err_amount_positive">Amount must be greater than zero</string>
     <string name="err_amount_decimals">Maximum 2 decimal places allowed</string>
     <string name="err_currency_required">Currency is required</string>
-    <string name="err_category_required">Category (Info) is required</string>
+    <string name="err_category_required">Category is required</string>
     <string name="err_category_too_long">Category name is too long</string>
     <string name="err_category_duplicate">Category \"%1$s\" already exists</string>
     <string name="err_category_in_use">Cannot delete: category \"%1$s\" is used in transactions</string>

@@ -25,7 +25,7 @@
     <string name="type_expense">Chiqim</string>
     <string name="label_amount">Summa</string>
     <string name="label_currency">Valyuta</string>
-    <string name="label_info">Info (Kategoriya)</string>
+    <string name="label_info">Kategoriya</string>
     <string name="label_date">Sana</string>
     <string name="date_today">Bugun</string>
     <string name="date_yesterday">Kecha</string>
@@ -38,6 +38,11 @@
     <!-- Missing Rates Dialog -->
     <string name="dialog_missing_rates_title">Valyuta kursi talab qilinadi</string>
     <string name="dialog_missing_rates_desc">%2$s sanasida %1$s bo‘yicha tranzaksiya yaratish uchun boshqa valyutalarga kurslar kiritilishi shart. CBU.uz ma’lumotlari avtomatik to‘ldirildi.</string>
+
+    <!-- No Internet Dialog -->
+    <string name="dialog_no_internet_title">Internet yo\'q</string>
+    <string name="dialog_no_internet_desc">Internet ulanish bo\'lmagani uchun bugungi kun valyutalar kursini yuklab bo\'lmadi.</string>
+    <string name="action_understood">Tushunarli</string>
 
     <!-- Transactions / Filters -->
     <string name="filter_category">Kategoriya</string>
@@ -118,7 +123,7 @@
     <string name="err_amount_positive">Summa noldan katta bo‘lishi kerak</string>
     <string name="err_amount_decimals">Ko‘pi bilan 2 ta o‘nlik xona bo‘lishi mumkin</string>
     <string name="err_currency_required">Valyuta tanlanishi shart</string>
-    <string name="err_category_required">Info (kategoriya) kiritilishi shart</string>
+    <string name="err_category_required">Kategoriya kiritilishi shart</string>
     <string name="err_category_too_long">Kategoriya nomi juda uzun</string>
     <string name="err_category_duplicate">\"%1$s\" nomli kategoriya allaqachon mavjud</string>
     <string name="err_category_in_use">O‘chirib bo‘lmaydi: \"%1$s\" tranzaksiyalarda ishlatilmoqda</string>

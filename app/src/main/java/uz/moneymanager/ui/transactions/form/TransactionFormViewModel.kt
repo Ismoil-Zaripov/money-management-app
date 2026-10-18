@@ -29,9 +29,11 @@ import uz.moneymanager.domain.AmountResult
 import uz.moneymanager.domain.AmountValidator
 import uz.moneymanager.domain.DomainException
 import uz.moneymanager.domain.model.TransactionType
+import java.io.IOException
 import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 sealed interface FormEvent {
     data object Saved : FormEvent
@@ -58,6 +60,7 @@ data class FormUiState(
     val categorySuggestions: List<String> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
+    val showNoInternetDialog: Boolean = false,
     val amountErrorRes: Int? = null,
     val categoryErrorRes: Int? = null,
     val canSave: Boolean = false,
@@ -87,6 +90,10 @@ class TransactionFormViewModel @Inject constructor(
     private var categoryTouched: Boolean
         get() = savedStateHandle[KEY_CATEGORY_TOUCHED] ?: false
         set(value) { savedStateHandle[KEY_CATEGORY_TOUCHED] = value }
+
+    private var showNoInternet: Boolean
+        get() = savedStateHandle[KEY_SHOW_NO_INTERNET] ?: false
+        set(value) { savedStateHandle[KEY_SHOW_NO_INTERNET] = value }
 
     private val currenciesFlow: StateFlow<List<CurrencyEntity>> = currencyRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -199,6 +206,7 @@ class TransactionFormViewModel @Inject constructor(
             categoryText = savedCategory,
             date = savedDate,
             isLoading = !isNew && !origLoaded,
+            showNoInternetDialog = showNoInternet,
         ).recompute()
     }
 
@@ -243,11 +251,14 @@ class TransactionFormViewModel @Inject constructor(
                 )
         }
 
+        val showAmountError = saveAttempted || (amountTouched && amountText.isNotEmpty())
+        val showCategoryError = saveAttempted || (categoryTouched && categoryText.isNotEmpty())
+
         return copy(
             currency = selectedCurrency,
-            amountErrorRes = if (saveAttempted || amountTouched) rawAmountError else null,
-            categoryErrorRes = if (saveAttempted || categoryTouched) rawCategoryError else null,
-            canSave = !isLoading && rawAmountError == null && rawCategoryError == null,
+            amountErrorRes = if (showAmountError) rawAmountError else null,
+            categoryErrorRes = if (showCategoryError) rawCategoryError else null,
+            canSave = !isLoading && rawAmountError == null && rawCategoryError == null && currencyId != null,
             isDirty = dirty,
         )
     }
@@ -294,6 +305,16 @@ class TransactionFormViewModel @Inject constructor(
         }
     }
 
+    fun dismissNoInternetDialog() {
+        showNoInternet = false
+        _uiState.update { it.copy(showNoInternetDialog = false) }
+    }
+
+    private fun presentNoInternetDialog() {
+        showNoInternet = true
+        _uiState.update { it.copy(showNoInternetDialog = true) }
+    }
+
     fun save(additionalRates: Map<Long, BigDecimal> = emptyMap()) {
         val current = _uiState.value
         if (current.isSaving || current.isLoading) return
@@ -308,7 +329,12 @@ class TransactionFormViewModel @Inject constructor(
         }
 
         val amountResult = AmountValidator.validate(validated.amountText)
-        if (amountResult is AmountResult.Invalid) return
+        if (amountResult is AmountResult.Invalid) {
+            if (amountResult.messageRes == R.string.err_amount_invalid) {
+                emitError(R.string.err_amount_invalid)
+            }
+            return
+        }
         val validAmount = (amountResult as AmountResult.Valid).value
 
         if (validated.categoryText.isBlank()) return
@@ -330,11 +356,21 @@ class TransactionFormViewModel @Inject constructor(
                         _events.emit(FormEvent.Saved)
                     }
                     is SaveResult.MissingRates -> {
-                        val suggestions = rateRepository.suggestFromCbu(
-                            base = result.base,
-                            quotes = result.missing,
-                            date = result.date,
-                        ).mapValues { it.value.toPlainString() }
+                        val suggestions = try {
+                            rateRepository.suggestFromCbu(
+                                base = result.base,
+                                quotes = result.missing,
+                                date = result.date,
+                            ).mapValues { it.value.toPlainString() }
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (_: IOException) {
+                            presentNoInternetDialog()
+                            return@launch
+                        } catch (_: Exception) {
+                            presentNoInternetDialog()
+                            return@launch
+                        }
 
                         _events.emit(
                             FormEvent.ShowMissingRates(
@@ -346,10 +382,12 @@ class TransactionFormViewModel @Inject constructor(
                         )
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: DomainException) {
                 _events.emit(FormEvent.Error(e.messageRes, e.args.toList()))
-            } catch (_: Exception) {
-                _events.emit(FormEvent.Error(R.string.err_amount_invalid))
+            } catch (_: IOException) {
+                presentNoInternetDialog()
             } finally {
                 _uiState.update { it.copy(isSaving = false) }
             }
@@ -372,6 +410,7 @@ class TransactionFormViewModel @Inject constructor(
         const val KEY_SAVE_ATTEMPTED = "form_save_attempted"
         const val KEY_AMOUNT_TOUCHED = "form_amount_touched"
         const val KEY_CATEGORY_TOUCHED = "form_category_touched"
+        const val KEY_SHOW_NO_INTERNET = "form_show_no_internet"
         const val KEY_ORIG_LOADED = "form_orig_loaded"
         const val KEY_ORIG_TYPE = "form_orig_type"
         const val KEY_ORIG_AMOUNT = "form_orig_amount"

@@ -25,7 +25,7 @@
     <string name="type_expense">Расход</string>
     <string name="label_amount">Сумма</string>
     <string name="label_currency">Валюта</string>
-    <string name="label_info">Инфо (Категория)</string>
+    <string name="label_info">Категория</string>
     <string name="label_date">Дата</string>
     <string name="date_today">Сегодня</string>
     <string name="date_yesterday">Вчера</string>
@@ -38,6 +38,11 @@
     <!-- Missing Rates Dialog -->
     <string name="dialog_missing_rates_title">Требуются курсы валют</string>
     <string name="dialog_missing_rates_desc">Для сохранения транзакции в %1$s на дату %2$s необходимо указать курсы к другим валютам. Доступные курсы предзаполнены с CBU.uz.</string>
+
+    <!-- No Internet Dialog -->
+    <string name="dialog_no_internet_title">Нет интернета</string>
+    <string name="dialog_no_internet_desc">Не удалось загрузить сегодняшние курсы валют из-за отсутствия подключения к интернету.</string>
+    <string name="action_understood">Понятно</string>
 
     <!-- Transactions / Filters -->
     <string name="filter_category">Категория</string>
@@ -118,7 +123,7 @@
     <string name="err_amount_positive">Сумма должна быть больше нуля</string>
     <string name="err_amount_decimals">Максимум 2 знака после запятой</string>
     <string name="err_currency_required">Выберите валюту</string>
-    <string name="err_category_required">Введите инфо (категорию)</string>
+    <string name="err_category_required">Введите категорию</string>
     <string name="err_category_too_long">Слишком длинное название категории</string>
     <string name="err_category_duplicate">Категория \"%1$s\" уже существует</string>
     <string name="err_category_in_use">Нельзя удалить: категория \"%1$s\" используется в транзакциях</string>
