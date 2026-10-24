@@ -1,6 +1,7 @@
 package uz.moneymanager.domain
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -90,5 +91,46 @@ class DomainRulesTest {
         assertEquals("1\u00A0234\u00A0567,89", transformed.text.text)
         assertEquals(transformed.text.length, transformed.offsetMapping.originalToTransformed(10))
         assertEquals(10, transformed.offsetMapping.transformedToOriginal(transformed.text.length))
+    }
+
+    @Test
+    fun description_empty_isValidAndStaysEmpty() {
+        val normalized = TransactionDescription.normalize("")
+        assertEquals("", normalized)
+        assertTrue(TransactionDescription.isValid(normalized))
+    }
+
+    @Test
+    fun description_onlyWhitespace_becomesEmptyAndIsValid() {
+        val normalized = TransactionDescription.normalize("   \t\n  ")
+        assertEquals("", normalized)
+        assertTrue(TransactionDescription.isValid(normalized))
+    }
+
+    @Test
+    fun description_normalText_isTrimmedAndValid() {
+        val normalized = TransactionDescription.normalize("  Bozordan meva  ")
+        assertEquals("Bozordan meva", normalized)
+        assertTrue(TransactionDescription.isValid(normalized))
+    }
+
+    @Test
+    fun description_exactlyMaxLength_isValid() {
+        val text = "a".repeat(TransactionDescription.MAX_LENGTH)
+        assertTrue(TransactionDescription.isValid(TransactionDescription.normalize(text)))
+    }
+
+    @Test
+    fun description_maxLengthWithSurroundingSpaces_isValidAfterTrim() {
+        val text = "  " + "a".repeat(TransactionDescription.MAX_LENGTH) + "  "
+        val normalized = TransactionDescription.normalize(text)
+        assertEquals(TransactionDescription.MAX_LENGTH, normalized.length)
+        assertTrue(TransactionDescription.isValid(normalized))
+    }
+
+    @Test
+    fun description_overMaxLength_isInvalid() {
+        val text = "a".repeat(TransactionDescription.MAX_LENGTH + 1)
+        assertFalse(TransactionDescription.isValid(TransactionDescription.normalize(text)))
     }
 }

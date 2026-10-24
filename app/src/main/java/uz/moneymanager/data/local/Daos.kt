@@ -165,7 +165,7 @@ private const val SNAPSHOT_JOINS = """
 
 private const val SELECT_ROWS = """
     SELECT t.id AS id, t.type AS type, t.amount AS amount, t.date AS date,
-           c.code AS currencyCode, cat.name AS categoryName,
+           c.code AS currencyCode, cat.name AS categoryName, t.description AS description,
            trD.rate AS displayRate, trF.rate AS fallbackRate
     FROM transactions t
     INNER JOIN currencies c ON c.id = t.currencyId

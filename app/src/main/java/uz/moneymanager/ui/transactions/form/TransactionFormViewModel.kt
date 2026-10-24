@@ -28,6 +28,7 @@ import uz.moneymanager.data.repository.TransactionRepository
 import uz.moneymanager.domain.AmountResult
 import uz.moneymanager.domain.AmountValidator
 import uz.moneymanager.domain.DomainException
+import uz.moneymanager.domain.TransactionDescription
 import uz.moneymanager.domain.model.TransactionType
 import java.io.IOException
 import java.math.BigDecimal
@@ -54,6 +55,7 @@ data class FormUiState(
     val currencyId: Long? = null,
     val currency: CurrencyEntity? = null,
     val categoryText: String = "",
+    val description: String = "",
     val date: LocalDate = LocalDate.now(),
     val currencies: List<CurrencyEntity> = emptyList(),
     val allCategories: List<CategoryEntity> = emptyList(),
@@ -63,6 +65,8 @@ data class FormUiState(
     val showNoInternetDialog: Boolean = false,
     val amountErrorRes: Int? = null,
     val categoryErrorRes: Int? = null,
+    /** Shown only when the trimmed description exceeds the limit; empty is always fine. */
+    val descriptionErrorRes: Int? = null,
     val canSave: Boolean = false,
     val isDirty: Boolean = false,
 )
@@ -156,12 +160,14 @@ class TransactionFormViewModel @Inject constructor(
                     savedStateHandle[KEY_ORIG_AMOUNT] = plainAmount
                     savedStateHandle[KEY_ORIG_CURRENCY_ID] = tx.currencyId
                     savedStateHandle[KEY_ORIG_CATEGORY] = tx.categoryName
+                    savedStateHandle[KEY_ORIG_DESCRIPTION] = tx.description
                     savedStateHandle[KEY_ORIG_DATE] = tx.date.toEpochDay()
 
                     savedStateHandle[KEY_TYPE] = tx.type.name
                     savedStateHandle[KEY_AMOUNT] = plainAmount
                     savedStateHandle[KEY_CURRENCY_ID] = tx.currencyId
                     savedStateHandle[KEY_CATEGORY] = tx.categoryName
+                    savedStateHandle[KEY_DESCRIPTION] = tx.description
                     savedStateHandle[KEY_DATE] = tx.date.toEpochDay()
 
                     _uiState.update {
@@ -170,6 +176,7 @@ class TransactionFormViewModel @Inject constructor(
                             amountText = plainAmount,
                             currencyId = tx.currencyId,
                             categoryText = tx.categoryName,
+                            description = tx.description,
                             date = tx.date,
                             isLoading = false,
                         ).recompute()
@@ -188,6 +195,7 @@ class TransactionFormViewModel @Inject constructor(
         val savedAmount = savedStateHandle.get<String>(KEY_AMOUNT) ?: ""
         val savedCurrencyId = savedStateHandle.get<Long>(KEY_CURRENCY_ID)
         val savedCategory = savedStateHandle.get<String>(KEY_CATEGORY) ?: ""
+        val savedDescription = savedStateHandle.get<String>(KEY_DESCRIPTION) ?: ""
         val savedDate = savedStateHandle.get<Long>(KEY_DATE)?.let(LocalDate::ofEpochDay) ?: LocalDate.now()
         val origLoaded = savedStateHandle.get<Boolean>(KEY_ORIG_LOADED) == true
 
@@ -204,6 +212,7 @@ class TransactionFormViewModel @Inject constructor(
             amountText = savedAmount,
             currencyId = savedCurrencyId,
             categoryText = savedCategory,
+            description = savedDescription,
             date = savedDate,
             isLoading = !isNew && !origLoaded,
             showNoInternetDialog = showNoInternet,
@@ -224,6 +233,11 @@ class TransactionFormViewModel @Inject constructor(
             is AmountResult.Valid -> null
         }
         val rawCategoryError = if (categoryText.isBlank()) R.string.err_category_required else null
+        val descriptionError = if (TransactionDescription.isValid(TransactionDescription.normalize(description))) {
+            null
+        } else {
+            R.string.err_description_too_long
+        }
         val selectedCurrency = currencies.firstOrNull { it.id == currencyId }
 
         val origType = savedStateHandle.get<String>(KEY_ORIG_TYPE)?.let {
@@ -232,11 +246,13 @@ class TransactionFormViewModel @Inject constructor(
         val origAmount = savedStateHandle.get<String>(KEY_ORIG_AMOUNT) ?: ""
         val origCurrencyId = savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID)
         val origCategory = savedStateHandle.get<String>(KEY_ORIG_CATEGORY) ?: ""
+        val origDescription = savedStateHandle.get<String>(KEY_ORIG_DESCRIPTION) ?: ""
         val origDate = savedStateHandle.get<Long>(KEY_ORIG_DATE)?.let(LocalDate::ofEpochDay) ?: LocalDate.now()
 
         val dirty = if (isNew) {
             amountText.isNotBlank() ||
                 categoryText.isNotBlank() ||
+                description.isNotBlank() ||
                 type != origType ||
                 date != origDate ||
                 (origCurrencyId != null && currencyId != null && currencyId != origCurrencyId)
@@ -247,6 +263,7 @@ class TransactionFormViewModel @Inject constructor(
                     amountText != origAmount ||
                     currencyId != origCurrencyId ||
                     categoryText.trim() != origCategory.trim() ||
+                    description.trim() != origDescription.trim() ||
                     date != origDate
                 )
         }
@@ -258,7 +275,9 @@ class TransactionFormViewModel @Inject constructor(
             currency = selectedCurrency,
             amountErrorRes = if (showAmountError) rawAmountError else null,
             categoryErrorRes = if (showCategoryError) rawCategoryError else null,
-            canSave = !isLoading && rawAmountError == null && rawCategoryError == null && currencyId != null,
+            descriptionErrorRes = descriptionError,
+            canSave = !isLoading && rawAmountError == null && rawCategoryError == null &&
+                descriptionError == null && currencyId != null,
             isDirty = dirty,
         )
     }
@@ -282,6 +301,11 @@ class TransactionFormViewModel @Inject constructor(
     fun setCategoryText(c: String) {
         savedStateHandle[KEY_CATEGORY] = c
         _uiState.update { it.copy(categoryText = c).recompute() }
+    }
+
+    fun setDescription(d: String) {
+        savedStateHandle[KEY_DESCRIPTION] = d
+        _uiState.update { it.copy(description = d).recompute() }
     }
 
     fun setDate(d: LocalDate) {
@@ -338,6 +362,7 @@ class TransactionFormViewModel @Inject constructor(
         val validAmount = (amountResult as AmountResult.Valid).value
 
         if (validated.categoryText.isBlank()) return
+        if (validated.descriptionErrorRes != null) return
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
@@ -349,6 +374,7 @@ class TransactionFormViewModel @Inject constructor(
                     currencyId = currId,
                     categoryName = validated.categoryText,
                     date = validated.date,
+                    description = validated.description,
                 )
 
                 when (val result = transactionRepository.save(input, additionalRates)) {
@@ -406,6 +432,7 @@ class TransactionFormViewModel @Inject constructor(
         const val KEY_AMOUNT = "form_amount"
         const val KEY_CURRENCY_ID = "form_currency_id"
         const val KEY_CATEGORY = "form_category"
+        const val KEY_DESCRIPTION = "form_description"
         const val KEY_DATE = "form_date"
         const val KEY_SAVE_ATTEMPTED = "form_save_attempted"
         const val KEY_AMOUNT_TOUCHED = "form_amount_touched"
@@ -416,6 +443,7 @@ class TransactionFormViewModel @Inject constructor(
         const val KEY_ORIG_AMOUNT = "form_orig_amount"
         const val KEY_ORIG_CURRENCY_ID = "form_orig_currency_id"
         const val KEY_ORIG_CATEGORY = "form_orig_category"
+        const val KEY_ORIG_DESCRIPTION = "form_orig_description"
         const val KEY_ORIG_DATE = "form_orig_date"
     }
 }

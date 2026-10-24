@@ -39,6 +39,8 @@ data class TransactionUiItem(
     val id: Long,
     val title: String,
     val subtitle: String,
+    /** Empty when the transaction has no description – the row then renders no extra line. */
+    val description: String,
     val amountText: String,
     val type: TransactionType,
 )
@@ -119,6 +121,7 @@ class TransactionsViewModel @Inject constructor(
                     id = row.id,
                     title = row.categoryName,
                     subtitle = FormatUtils.formatDate(row.date),
+                    description = row.description,
                     amountText = FormatUtils.formatAmount(row.amount, row.currencyCode, row.type),
                     type = row.type,
                 )

@@ -79,6 +79,16 @@ object CategoryNames {
     fun key(name: String): String = normalize(name).lowercase(Locale.ROOT)
 }
 
+/** Optional transaction description: empty is valid, length is checked after trimming. */
+object TransactionDescription {
+    const val MAX_LENGTH = 200
+
+    fun normalize(input: String): String = input.trim()
+
+    /** True when the already [normalize]d text fits into [MAX_LENGTH]. */
+    fun isValid(normalized: String): Boolean = normalized.length <= MAX_LENGTH
+}
+
 object CurrencyCodes {
     private val pattern = Regex("^[A-Z]{3,5}$")
     fun normalize(code: String): String = code.trim().uppercase(Locale.ROOT)

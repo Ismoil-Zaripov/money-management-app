@@ -99,6 +99,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.moneymanager.R
 import uz.moneymanager.data.local.CurrencyEntity
 import uz.moneymanager.domain.RateValidator
+import uz.moneymanager.domain.TransactionDescription
 import uz.moneymanager.domain.model.TransactionType
 import uz.moneymanager.ui.theme.ExpenseColor
 import uz.moneymanager.ui.theme.IncomeColor
@@ -346,6 +347,25 @@ fun TransactionFormScreen(
                 }
 
                 DateSection(date = state.date, onDateChange = viewModel::setDate)
+
+                // Tavsif: ixtiyoriy, xato faqat uzunlik chegarasidan oshganda ko'rinadi
+                OutlinedTextField(
+                    value = state.description,
+                    onValueChange = viewModel::setDescription,
+                    label = {
+                        Text(stringResource(R.string.label_optional, stringResource(R.string.label_description)))
+                    },
+                    isError = state.descriptionErrorRes != null,
+                    supportingText = state.descriptionErrorRes?.let { errRes ->
+                        { Text(stringResource(errRes, TransactionDescription.MAX_LENGTH)) }
+                    },
+                    maxLines = 4,
+                    shape = FieldShape,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 56.dp)
+                )
             }
         }
     }

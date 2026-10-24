@@ -20,6 +20,7 @@ import uz.moneymanager.domain.DomainException
 import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
 import uz.moneymanager.domain.TotalsCalculator
+import uz.moneymanager.domain.TransactionDescription
 import uz.moneymanager.domain.model.TransactionType
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -33,6 +34,7 @@ data class TransactionInput(
     val currencyId: Long,
     val categoryName: String,
     val date: LocalDate,
+    val description: String = "",
 )
 
 data class TransactionDetails(
@@ -42,6 +44,7 @@ data class TransactionDetails(
     val currencyId: Long,
     val categoryName: String,
     val date: LocalDate,
+    val description: String,
 )
 
 sealed interface SaveResult {
@@ -80,7 +83,7 @@ class TransactionRepository @Inject constructor(
     suspend fun getDetails(id: Long): TransactionDetails? {
         val t = dao.getById(id) ?: return null
         val category = categoryRepository.getById(t.categoryId) ?: return null
-        return TransactionDetails(t.id, t.type, t.amount, t.currencyId, category.name, t.date)
+        return TransactionDetails(t.id, t.type, t.amount, t.currencyId, category.name, t.date, t.description)
     }
 
     /**
@@ -94,6 +97,10 @@ class TransactionRepository @Inject constructor(
         db.withTransaction {
             if (input.amount.signum() <= 0) throw DomainException(R.string.err_amount_positive)
             if (input.date.isAfter(LocalDate.now())) throw DomainException(R.string.err_future_date)
+            val description = TransactionDescription.normalize(input.description)
+            if (!TransactionDescription.isValid(description)) {
+                throw DomainException(R.string.err_description_too_long, TransactionDescription.MAX_LENGTH)
+            }
             val currency = currencyDao.getById(input.currencyId)
                 ?: throw DomainException(R.string.err_currency_not_found)
 
@@ -111,6 +118,7 @@ class TransactionRepository @Inject constructor(
                         categoryId = category.id,
                         date = input.date,
                         createdAt = System.currentTimeMillis(),
+                        description = description,
                     )
                 )
                 writeSnapshot(id, currency.id, input.date)
@@ -128,6 +136,7 @@ class TransactionRepository @Inject constructor(
                         currencyId = currency.id,
                         categoryId = category.id,
                         date = input.date,
+                        description = description,
                     )
                 )
                 if (rateKeyChanged) {

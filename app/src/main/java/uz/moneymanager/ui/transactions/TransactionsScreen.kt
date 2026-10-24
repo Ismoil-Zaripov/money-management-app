@@ -355,7 +355,7 @@ fun TransactionItemRow(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Chap tomon: 1-qator nom, 2-qator sana
+                // Chap tomon: 1-qator nom, (ixtiyoriy) tavsif, oxirgi qator sana
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -369,6 +369,17 @@ fun TransactionItemRow(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    // Tavsif bo'sh bo'lsa, qator umuman chizilmaydi (bo'sh joy qolmaydi)
+                    if (item.description.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = item.description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = item.subtitle,

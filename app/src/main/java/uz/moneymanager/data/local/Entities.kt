@@ -90,6 +90,8 @@ data class TransactionEntity(
     val categoryId: Long,
     val date: LocalDate,
     val createdAt: Long,
+    /** Optional free text; empty string when not provided (column is NOT NULL DEFAULT ''). */
+    @ColumnInfo(defaultValue = "") val description: String = "",
 )
 
 /**
@@ -130,6 +132,7 @@ data class TransactionListRow(
     val date: LocalDate,
     val currencyCode: String,
     val categoryName: String,
+    val description: String,
     /** Snapshot rate to the display currency, null if the currency did not exist yet. */
     val displayRate: BigDecimal?,
     /** Snapshot rate to the national currency (UZS). */

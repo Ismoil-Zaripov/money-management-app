@@ -27,6 +27,8 @@
     <string name="label_currency">Valyuta</string>
     <string name="label_info">Kategoriya</string>
     <string name="label_date">Sana</string>
+    <string name="label_description">Tavsif</string>
+    <string name="label_optional">%1$s (ixtiyoriy)</string>
     <string name="date_today">Bugun</string>
     <string name="date_yesterday">Kecha</string>
     <string name="delete_transaction_confirm">Haqiqatan ham bu tranzaksiyani o‘chirmoqchimisiz?</string>
@@ -141,4 +143,5 @@
     <string name="err_transaction_not_found">Tranzaksiya topilmadi</string>
     <string name="err_edit_rates_missing">%2$s sanasi uchun %1$s bo‘yicha kurslar yo‘qligi sabab o‘zgartirib bo‘lmaydi</string>
     <string name="err_cbu_fetch_failed">CBU.uz dan kurslarni yuklab bo‘lmadi</string>
+    <string name="err_description_too_long">Tavsif ko‘pi bilan %1$d ta belgidan iborat bo‘lishi mumkin</string>
 </resources>
