@@ -7,6 +7,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,7 @@ import javax.inject.Singleton
 data class AppSettings(
     val themeMode: ThemeMode,
     val palette: AppPalette,
+    val contentFontSize: Int = SettingsRepository.DEFAULT_FONT_SIZE,
 )
 
 @Singleton
@@ -29,7 +31,8 @@ class SettingsRepository @Inject constructor(
     val settings: Flow<AppSettings> = dataStore.data.map { prefs ->
         val mode = prefs[THEME]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM
         val pal = prefs[PALETTE]?.let { runCatching { AppPalette.valueOf(it) }.getOrNull() } ?: AppPalette.EMERALD
-        AppSettings(themeMode = mode, palette = pal)
+        val size = prefs[FONT_SIZE]?.let { clampFontSize(it) } ?: DEFAULT_FONT_SIZE
+        AppSettings(themeMode = mode, palette = pal, contentFontSize = size)
     }
 
     val themeMode: Flow<ThemeMode> = settings.map { it.themeMode }
@@ -44,9 +47,23 @@ class SettingsRepository @Inject constructor(
         dataStore.edit { it[PALETTE] = palette.name }
     }
 
-    private companion object {
-        val THEME = stringPreferencesKey("theme_mode")
-        val PALETTE = stringPreferencesKey("app_palette")
+    val contentFontSize: Flow<Int> = settings.map { it.contentFontSize }
+
+    suspend fun setContentFontSize(size: Int) {
+        val clamped = clampFontSize(size)
+        dataStore.edit { it[FONT_SIZE] = clamped }
+    }
+
+    companion object {
+        const val DEFAULT_FONT_SIZE = 12
+        const val MIN_FONT_SIZE = 10
+        const val MAX_FONT_SIZE = 18
+
+        fun clampFontSize(size: Int): Int = size.coerceIn(MIN_FONT_SIZE, MAX_FONT_SIZE)
+
+        private val THEME = stringPreferencesKey("theme_mode")
+        private val PALETTE = stringPreferencesKey("app_palette")
+        private val FONT_SIZE = intPreferencesKey("content_font_size")
     }
 }
 

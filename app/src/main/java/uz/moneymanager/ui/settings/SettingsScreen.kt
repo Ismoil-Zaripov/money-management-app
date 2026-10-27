@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -32,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,6 +42,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,14 +53,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlin.math.roundToInt
 import uz.moneymanager.R
+import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.domain.model.AppLanguage
 import uz.moneymanager.domain.model.AppPalette
 import uz.moneymanager.domain.model.ThemeMode
 import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.computeContentLineHeight
+import uz.moneymanager.ui.theme.contentText
 import uz.moneymanager.ui.theme.getPaletteSwatchColor
 import uz.moneymanager.ui.theme.onBarContainer
 
@@ -71,6 +85,7 @@ fun SettingsScreen(
     val themeMode by viewModel.themeMode.collectAsState()
     val palette by viewModel.palette.collectAsState()
     val currentLanguage by viewModel.currentLanguage.collectAsState()
+    val contentFontSize by viewModel.contentFontSize.collectAsState()
 
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -106,9 +121,8 @@ fun SettingsScreen(
             // General section
             Text(
                 text = stringResource(R.string.settings_section_general),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
             )
 
@@ -145,13 +159,12 @@ fun SettingsScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(R.string.setting_palette),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.SemiBold
+                                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold)
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = stringResource(R.string.desc_palette),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.contentText,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -203,8 +216,12 @@ fun SettingsScreen(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = name,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    style = MaterialTheme.contentText.copy(
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        textAlign = TextAlign.Center
+                                    ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -212,6 +229,21 @@ fun SettingsScreen(
                     }
                 }
             }
+
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 56.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+            )
+
+            // Font size selector
+            FontSizeSettingItem(
+                savedSize = contentFontSize,
+                onSave = { viewModel.setContentFontSize(it) },
+                onReset = { viewModel.setContentFontSize(SettingsRepository.DEFAULT_FONT_SIZE) }
+            )
 
             HorizontalDivider(
                 modifier = Modifier
@@ -239,9 +271,8 @@ fun SettingsScreen(
             // Management section
             Text(
                 text = stringResource(R.string.settings_section_management),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
             )
 
@@ -301,7 +332,11 @@ fun SettingsScreen(
                                     showThemeDialog = false
                                 }
                             )
-                            Text(text, modifier = Modifier.padding(start = 8.dp))
+                            Text(
+                                text = text,
+                                style = MaterialTheme.contentText,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
                         }
                     }
                 }
@@ -344,7 +379,11 @@ fun SettingsScreen(
                                     showLanguageDialog = false
                                 }
                             )
-                            Text(text, modifier = Modifier.padding(start = 8.dp))
+                            Text(
+                                text = text,
+                                style = MaterialTheme.contentText,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
                         }
                     }
                 }
@@ -386,11 +425,11 @@ fun SettingsItem(
                     modifier = Modifier.padding(end = 16.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                    Text(text = title, style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold))
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.contentText,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -409,6 +448,119 @@ fun SettingsItem(
                 thickness = 0.5.dp,
                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
             )
+        }
+    }
+}
+
+@Composable
+fun FontSizeSettingItem(
+    savedSize: Int?,
+    onSave: (Int) -> Unit,
+    onReset: () -> Unit,
+) {
+    if (savedSize == null) return
+
+    var sliderPosition by remember(savedSize) { mutableFloatStateOf(savedSize.toFloat()) }
+    val currentSp = sliderPosition.roundToInt().coerceIn(SettingsRepository.MIN_FONT_SIZE, SettingsRepository.MAX_FONT_SIZE)
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier.size(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Aa",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.setting_font_size),
+                        style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold)
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(R.string.desc_font_size),
+                        style = MaterialTheme.contentText,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            val stateDesc = stringResource(R.string.font_size_value_sp, currentSp)
+            Slider(
+                value = sliderPosition,
+                onValueChange = { sliderPosition = it },
+                onValueChangeFinished = {
+                    onSave(currentSp)
+                },
+                valueRange = SettingsRepository.MIN_FONT_SIZE.toFloat()..SettingsRepository.MAX_FONT_SIZE.toFloat(),
+                steps = 7,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        stateDescription = stateDesc
+                    }
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.font_size_value_sp, currentSp),
+                    style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                TextButton(
+                    onClick = onReset,
+                    enabled = currentSp != SettingsRepository.DEFAULT_FONT_SIZE
+                ) {
+                    Text(text = stringResource(R.string.font_size_reset))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Jonli namuna qatori
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 10.dp)
+                ) {
+                    val sampleStyle = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = currentSp.sp,
+                        lineHeight = computeContentLineHeight(currentSp.toFloat()).sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = stringResource(R.string.font_size_sample),
+                        style = sampleStyle,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         }
     }
 }

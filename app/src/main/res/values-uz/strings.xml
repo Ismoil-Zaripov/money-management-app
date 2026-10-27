@@ -115,6 +115,13 @@
     <string name="palette_sunset">Shafaq</string>
     <string name="palette_graphite">Grafit</string>
 
+    <string name="setting_font_size">Shrift o‘lchami</string>
+    <string name="desc_font_size">Ilovadagi kontent matnlari o‘lchamini sozlash</string>
+    <string name="font_size_sample">Namuna: 1 250 000 UZS</string>
+    <string name="font_size_value_sp">%1$d sp</string>
+    <string name="font_size_reset">Standartga qaytarish</string>
+    <string name="font_size_accessibility">Shrift o‘lchami, %1$d sp</string>
+
     <string name="desc_currencies">Valyutalarni boshqarish va asosiy valyuta</string>
     <string name="desc_exchange_rates">Kunlik kurslar va CBU dan yuklash</string>
     <string name="desc_categories">Tranzaksiya kategoriyalari va ularni boshqarish</string>

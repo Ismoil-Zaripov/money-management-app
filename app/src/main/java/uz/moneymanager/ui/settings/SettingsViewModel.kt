@@ -28,6 +28,9 @@ class SettingsViewModel @Inject constructor(
     val palette: StateFlow<AppPalette> = settingsRepository.palette
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppPalette.OCEAN)
 
+    val contentFontSize: StateFlow<Int?> = settingsRepository.contentFontSize
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     private val _currentLanguage = MutableStateFlow(languageStore.current())
     val currentLanguage: StateFlow<AppLanguage> = _currentLanguage.asStateFlow()
 
@@ -40,6 +43,12 @@ class SettingsViewModel @Inject constructor(
     fun setPalette(palette: AppPalette) {
         viewModelScope.launch {
             settingsRepository.setPalette(palette)
+        }
+    }
+
+    fun setContentFontSize(size: Int) {
+        viewModelScope.launch {
+            settingsRepository.setContentFontSize(size)
         }
     }
 

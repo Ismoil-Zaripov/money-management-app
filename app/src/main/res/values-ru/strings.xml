@@ -115,6 +115,13 @@
     <string name="palette_sunset">Закат</string>
     <string name="palette_graphite">Графит</string>
 
+    <string name="setting_font_size">Размер шрифта</string>
+    <string name="desc_font_size">Настройка размера текста контента в приложении</string>
+    <string name="font_size_sample">Образец: 1 250 000 UZS</string>
+    <string name="font_size_value_sp">%1$d sp</string>
+    <string name="font_size_reset">Сбросить по умолчанию</string>
+    <string name="font_size_accessibility">Размер шрифта, %1$d sp</string>
+
     <string name="desc_currencies">Управление валютами и основной валютой</string>
     <string name="desc_exchange_rates">Курсы валют и загрузка с ЦБ РУз</string>
     <string name="desc_categories">Категории транзакций и управление ими</string>

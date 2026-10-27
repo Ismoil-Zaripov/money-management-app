@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -104,6 +106,7 @@ import uz.moneymanager.domain.model.TransactionType
 import uz.moneymanager.ui.theme.ExpenseColor
 import uz.moneymanager.ui.theme.IncomeColor
 import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.contentText
 import uz.moneymanager.ui.theme.onBarContainer
 import uz.moneymanager.ui.transactions.FormatUtils
 import java.math.BigDecimal
@@ -315,7 +318,7 @@ fun TransactionFormScreen(
                         ) {
                             filteredCategories.forEach { cat ->
                                 DropdownMenuItem(
-                                    text = { Text(cat.name) },
+                                    text = { Text(cat.name, style = MaterialTheme.contentText) },
                                     onClick = {
                                         viewModel.setCategoryText(cat.name)
                                         categoryMenuExpanded = false
@@ -375,7 +378,7 @@ fun TransactionFormScreen(
         AlertDialog(
             onDismissRequest = { showDiscardDialog = false },
             title = { Text(stringResource(R.string.discard_changes_title)) },
-            text = { Text(stringResource(R.string.discard_changes_desc)) },
+            text = { Text(stringResource(R.string.discard_changes_desc), style = MaterialTheme.contentText) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -402,7 +405,7 @@ fun TransactionFormScreen(
         AlertDialog(
             onDismissRequest = viewModel::dismissNoInternetDialog,
             title = { Text(stringResource(R.string.dialog_no_internet_title)) },
-            text = { Text(stringResource(R.string.dialog_no_internet_desc)) },
+            text = { Text(stringResource(R.string.dialog_no_internet_desc), style = MaterialTheme.contentText) },
             confirmButton = {
                 TextButton(onClick = viewModel::dismissNoInternetDialog) {
                     Text(stringResource(R.string.action_understood))
@@ -437,7 +440,7 @@ fun TransactionFormScreen(
                             event.base.code,
                             FormatUtils.formatDate(event.date)
                         ),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.contentText
                     )
 
                     event.missing.forEach { quote ->
@@ -447,7 +450,7 @@ fun TransactionFormScreen(
                             onValueChange = { str ->
                                 rateInputs[quote.id] = RateValidator.sanitize(str)
                             },
-                            label = { Text("1 ${event.base.code} = ? ${quote.code}") },
+                            label = { Text("1 ${event.base.code} = ? ${quote.code}", style = MaterialTheme.contentText) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             singleLine = true,
                             shape = FieldShape,
@@ -507,8 +510,10 @@ private fun ThemedFilterChip(
         label = {
             Text(
                 text = label,
-                maxLines = 1,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                style = MaterialTheme.contentText.copy(
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                ),
+                maxLines = 1
             )
         },
         shape = ChipShape,
@@ -523,7 +528,7 @@ private fun ThemedFilterChip(
             selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
             selectedBorderWidth = 1.dp,
         ),
-        modifier = modifier.heightIn(min = 48.dp)
+        modifier = modifier
     )
 }
 
@@ -725,7 +730,7 @@ private fun AmountField(
                     ) {
                         currencies.forEach { curr ->
                             DropdownMenuItem(
-                                text = { Text("${curr.code} - ${curr.name}") },
+                                text = { Text("${curr.code} - ${curr.name}", style = MaterialTheme.contentText) },
                                 onClick = {
                                     onSelectCurrency(curr.id)
                                     currencyMenuExpanded = false
@@ -748,7 +753,7 @@ private fun AmountField(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun DateSection(date: LocalDate, onDateChange: (LocalDate) -> Unit) {
     var showPicker by rememberSaveable { mutableStateOf(false) }
@@ -784,7 +789,7 @@ private fun DateSection(date: LocalDate, onDateChange: (LocalDate) -> Unit) {
                     .clickable(role = Role.Button, onClickLabel = dateLabel) { showPicker = true }
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ThemedFilterChip(
                 selected = date == today,
                 onClick = { onDateChange(today) },

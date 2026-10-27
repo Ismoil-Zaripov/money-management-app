@@ -98,6 +98,7 @@ import uz.moneymanager.domain.MonitoringTotals
 import uz.moneymanager.domain.Totals
 import uz.moneymanager.domain.model.TransactionType
 import uz.moneymanager.ui.theme.ExpenseColor
+import uz.moneymanager.ui.theme.contentText
 import uz.moneymanager.ui.theme.IncomeColor
 import uz.moneymanager.ui.theme.barContainer
 import uz.moneymanager.ui.theme.onBarContainer
@@ -176,19 +177,22 @@ fun TransactionsScreen(
                 color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .heightIn(min = 56.dp)
                     .clickable { showSummarySheet = true }
             ) {
-                Column(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                     Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp),
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
                             IconButton(
                                 onClick = { isAmountVisible = !isAmountVisible },
                                 modifier = Modifier.size(32.dp)
@@ -203,8 +207,7 @@ fun TransactionsScreen(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = stringResource(R.string.action_show_footer),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Medium),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -217,11 +220,13 @@ fun TransactionsScreen(
 
                         Text(
                             text = totalText,
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
+                            textAlign = TextAlign.End,
+                            maxLines = 2,
                             color = if (isAmountVisible) {
                                 if (totals.display.balance >= BigDecimal.ZERO) IncomeColor else ExpenseColor
-                            } else MaterialTheme.colorScheme.onSurface
+                            } else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                     }
                 }
@@ -256,7 +261,7 @@ fun TransactionsScreen(
                     Text(
                         text = stringResource(R.string.empty_transactions),
                         modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.contentText,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
@@ -322,7 +327,7 @@ fun TransactionsScreen(
         AlertDialog(
             onDismissRequest = { transactionToDelete = null },
             title = { Text(stringResource(R.string.action_delete)) },
-            text = { Text(stringResource(R.string.delete_transaction_confirm)) },
+            text = { Text(stringResource(R.string.delete_transaction_confirm), style = MaterialTheme.contentText) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -353,7 +358,7 @@ fun TransactionsScreen(
 }
 
 private val TransactionRowBaseStyle: TextStyle
-    @Composable get() = MaterialTheme.typography.bodySmall.copy(lineHeight = 16.sp)
+    @Composable get() = MaterialTheme.contentText
 
 @Composable
 fun TransactionDateHeader(
@@ -537,7 +542,12 @@ fun TransactionFilterBar(
                 FilterChip(
                     selected = true,
                     onClick = { showDisplayCurrencyMenu = true },
-                    label = { Text("${stringResource(R.string.display_currency)}: ${displayCurrency?.code ?: "UZS"}") },
+                    label = {
+                        Text(
+                            text = "${stringResource(R.string.display_currency)}: ${displayCurrency?.code ?: "UZS"}",
+                            style = MaterialTheme.contentText
+                        )
+                    },
                     colors = chipColors
                 )
                 DropdownMenu(
@@ -546,7 +556,7 @@ fun TransactionFilterBar(
                 ) {
                     currencies.forEach { c ->
                         DropdownMenuItem(
-                            text = { Text("${c.code} - ${c.name}") },
+                            text = { Text("${c.code} - ${c.name}", style = MaterialTheme.contentText) },
                             onClick = {
                                 onDisplayCurrencySelect(c.id)
                                 showDisplayCurrencyMenu = false
@@ -564,7 +574,12 @@ fun TransactionFilterBar(
                 FilterChip(
                     selected = filter.categoryId != null,
                     onClick = { showCategoryMenu = true },
-                    label = { Text("${stringResource(R.string.filter_category)}: ${selectedCategory?.name ?: stringResource(R.string.filter_all)}") },
+                    label = {
+                        Text(
+                            text = "${stringResource(R.string.filter_category)}: ${selectedCategory?.name ?: stringResource(R.string.filter_all)}",
+                            style = MaterialTheme.contentText
+                        )
+                    },
                     colors = chipColors
                 )
                 DropdownMenu(
@@ -572,7 +587,7 @@ fun TransactionFilterBar(
                     onDismissRequest = { showCategoryMenu = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.filter_all)) },
+                        text = { Text(stringResource(R.string.filter_all), style = MaterialTheme.contentText) },
                         onClick = {
                             onCategorySelect(null)
                             showCategoryMenu = false
@@ -580,7 +595,7 @@ fun TransactionFilterBar(
                     )
                     categories.forEach { cat ->
                         DropdownMenuItem(
-                            text = { Text(cat.name) },
+                            text = { Text(cat.name, style = MaterialTheme.contentText) },
                             onClick = {
                                 onCategorySelect(cat.id)
                                 showCategoryMenu = false
@@ -598,7 +613,12 @@ fun TransactionFilterBar(
                 FilterChip(
                     selected = filter.currencyId != null,
                     onClick = { showCurrencyFilterMenu = true },
-                    label = { Text("${stringResource(R.string.filter_currency)}: ${selectedCurrencyFilter?.code ?: stringResource(R.string.filter_all)}") },
+                    label = {
+                        Text(
+                            text = "${stringResource(R.string.filter_currency)}: ${selectedCurrencyFilter?.code ?: stringResource(R.string.filter_all)}",
+                            style = MaterialTheme.contentText
+                        )
+                    },
                     colors = chipColors
                 )
                 DropdownMenu(
@@ -606,7 +626,7 @@ fun TransactionFilterBar(
                     onDismissRequest = { showCurrencyFilterMenu = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.filter_all)) },
+                        text = { Text(stringResource(R.string.filter_all), style = MaterialTheme.contentText) },
                         onClick = {
                             onCurrencyFilterSelect(null)
                             showCurrencyFilterMenu = false
@@ -614,7 +634,7 @@ fun TransactionFilterBar(
                     )
                     currencies.forEach { c ->
                         DropdownMenuItem(
-                            text = { Text(c.code) },
+                            text = { Text(c.code, style = MaterialTheme.contentText) },
                             onClick = {
                                 onCurrencyFilterSelect(c.id)
                                 showCurrencyFilterMenu = false
@@ -636,7 +656,12 @@ fun TransactionFilterBar(
                 FilterChip(
                     selected = filter.type != null,
                     onClick = { showTypeMenu = true },
-                    label = { Text("${stringResource(R.string.filter_type)}: $typeLabel") },
+                    label = {
+                        Text(
+                            text = "${stringResource(R.string.filter_type)}: $typeLabel",
+                            style = MaterialTheme.contentText
+                        )
+                    },
                     colors = chipColors
                 )
                 DropdownMenu(
@@ -644,21 +669,21 @@ fun TransactionFilterBar(
                     onDismissRequest = { showTypeMenu = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.filter_all)) },
+                        text = { Text(stringResource(R.string.filter_all), style = MaterialTheme.contentText) },
                         onClick = {
                             onTypeSelect(null)
                             showTypeMenu = false
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.type_income)) },
+                        text = { Text(stringResource(R.string.type_income), style = MaterialTheme.contentText) },
                         onClick = {
                             onTypeSelect(TransactionType.INCOME)
                             showTypeMenu = false
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.type_expense)) },
+                        text = { Text(stringResource(R.string.type_expense), style = MaterialTheme.contentText) },
                         onClick = {
                             onTypeSelect(TransactionType.EXPENSE)
                             showTypeMenu = false
@@ -701,7 +726,7 @@ fun TransactionFilterBar(
                         currentFrom.dayOfMonth
                     ).show()
                 },
-                label = { Text(dateLabel) },
+                label = { Text(text = dateLabel, style = MaterialTheme.contentText) },
                 colors = chipColors,
                 trailingIcon = {
                     if (filter.from != null || filter.to != null) {
@@ -744,8 +769,7 @@ fun SummaryReportBottomSheet(
         ) {
             Text(
                 text = stringResource(R.string.title_summary_report),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -839,15 +863,14 @@ fun FlatSummarySection(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onSurface
         )
         if (subtitle != null) {
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.contentText,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -969,8 +992,7 @@ fun SummaryRowItem(
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (isBalance) FontWeight.Bold else FontWeight.Medium,
+                    style = MaterialTheme.contentText.copy(fontWeight = if (isBalance) FontWeight.Bold else FontWeight.Medium),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -978,8 +1000,7 @@ fun SummaryRowItem(
         amount = {
             Text(
                 text = amount,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
                 color = color,
                 maxLines = 1,
                 softWrap = false
@@ -1010,8 +1031,7 @@ private fun LegendRow(
                 Spacer(modifier = Modifier.width(LegendDotGap))
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (bold) FontWeight.Bold else FontWeight.Medium,
+                    style = MaterialTheme.contentText.copy(fontWeight = if (bold) FontWeight.Bold else FontWeight.Medium),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -1019,8 +1039,7 @@ private fun LegendRow(
         amount = {
             Text(
                 text = amount,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
                 color = amountColor,
                 maxLines = 1,
                 softWrap = false
@@ -1051,8 +1070,7 @@ fun SummaryDonutChartView(
         if (title != null) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(12.dp))

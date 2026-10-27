@@ -9,13 +9,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.domain.model.AppPalette
 import uz.moneymanager.domain.model.ThemeMode
 
@@ -42,6 +48,21 @@ val ColorScheme.barContainer: Color
 
 val ColorScheme.onBarContainer: Color
     get() = if (surface.luminance() < 0.5f) onPrimaryContainer else onPrimary
+
+val LocalContentFontSize = staticCompositionLocalOf { SettingsRepository.DEFAULT_FONT_SIZE }
+
+fun computeContentLineHeight(fontSizeSp: Float): Float = fontSizeSp * 4f / 3f
+
+val MaterialTheme.contentText: TextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() {
+        val size = LocalContentFontSize.current
+        return typography.bodySmall.copy(
+            fontSize = size.sp,
+            lineHeight = computeContentLineHeight(size.toFloat()).sp,
+        )
+    }
 
 @Composable
 fun SystemBarsEffect(statusBarBackground: Color, navBarBackground: Color) {
@@ -73,6 +94,7 @@ fun SystemBarsEffect(statusBarBackground: Color, navBarBackground: Color) {
 fun MoneyManagerTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
     palette: AppPalette = AppPalette.EMERALD,
+    contentFontSize: Int = SettingsRepository.DEFAULT_FONT_SIZE,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
@@ -93,6 +115,10 @@ fun MoneyManagerTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        content = content,
-    )
+    ) {
+        CompositionLocalProvider(
+            LocalContentFontSize provides contentFontSize,
+            content = content,
+        )
+    }
 }

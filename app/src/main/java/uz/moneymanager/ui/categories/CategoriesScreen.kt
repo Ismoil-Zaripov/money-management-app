@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -48,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.moneymanager.R
 import uz.moneymanager.data.local.CategoryWithUsage
 import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.contentText
 import uz.moneymanager.ui.theme.onBarContainer
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -115,7 +117,7 @@ fun CategoriesScreen(
                 Text(
                     text = stringResource(R.string.empty_categories),
                     modifier = Modifier.align(Alignment.Center),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.contentText,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
@@ -175,7 +177,7 @@ fun CategoriesScreen(
         AlertDialog(
             onDismissRequest = { categoryToDelete = null },
             title = { Text(stringResource(R.string.action_delete)) },
-            text = { Text(stringResource(R.string.delete_category_confirm, item.category.name)) },
+            text = { Text(stringResource(R.string.delete_category_confirm, item.category.name), style = MaterialTheme.contentText) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -209,20 +211,20 @@ fun CategoryCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 48.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = item.category.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = stringResource(R.string.category_tx_count, item.transactionCount),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.contentText,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

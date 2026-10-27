@@ -72,7 +72,11 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val settings by viewModel.settings.collectAsStateWithLifecycle()
             settings?.let { s ->
-                MoneyManagerTheme(themeMode = s.themeMode, palette = s.palette) {
+                MoneyManagerTheme(
+                    themeMode = s.themeMode,
+                    palette = s.palette,
+                    contentFontSize = s.contentFontSize
+                ) {
                     MainAppContent()
                 }
             }

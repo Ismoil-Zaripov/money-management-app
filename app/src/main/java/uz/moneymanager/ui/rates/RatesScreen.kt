@@ -5,16 +5,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -64,6 +68,7 @@ import uz.moneymanager.R
 import uz.moneymanager.data.local.ExchangeRateRow
 import uz.moneymanager.domain.RateValidator
 import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.contentText
 import uz.moneymanager.ui.theme.onBarContainer
 import uz.moneymanager.ui.transactions.FormatUtils
 import java.math.BigDecimal
@@ -190,8 +195,7 @@ fun RatesScreen(
             ) {
                 Text(
                     text = "${stringResource(R.string.label_date)}: ${FormatUtils.formatDate(date)}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Icon(
@@ -209,7 +213,7 @@ fun RatesScreen(
                     Text(
                         text = stringResource(R.string.empty_rates),
                         modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.contentText,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
@@ -265,7 +269,7 @@ fun RatesScreen(
                         ) {
                             currencies.forEach { c ->
                                 DropdownMenuItem(
-                                    text = { Text("${c.code} - ${c.name}") },
+                                    text = { Text("${c.code} - ${c.name}", style = MaterialTheme.contentText) },
                                     onClick = {
                                         baseId = c.id
                                         baseExpanded = false
@@ -298,7 +302,7 @@ fun RatesScreen(
                         ) {
                             currencies.forEach { c ->
                                 DropdownMenuItem(
-                                    text = { Text("${c.code} - ${c.name}") },
+                                    text = { Text("${c.code} - ${c.name}", style = MaterialTheme.contentText) },
                                     onClick = {
                                         quoteId = c.id
                                         quoteExpanded = false
@@ -311,7 +315,7 @@ fun RatesScreen(
                     OutlinedTextField(
                         value = rateText,
                         onValueChange = { rateText = RateValidator.sanitize(it) },
-                        label = { Text("1 ${baseCurr?.code ?: ""} = ? ${quoteCurr?.code ?: ""}") },
+                        label = { Text("1 ${baseCurr?.code ?: ""} = ? ${quoteCurr?.code ?: ""}", style = MaterialTheme.contentText) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -324,7 +328,7 @@ fun RatesScreen(
                             "...",
                             baseCurr?.code ?: ""
                         ),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.contentText,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -361,7 +365,10 @@ fun RatesScreen(
             title = { Text(stringResource(R.string.title_exchange_rates)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("1 ${item.baseCode} = ? ${item.quoteCode}")
+                    Text(
+                        text = "1 ${item.baseCode} = ? ${item.quoteCode}",
+                        style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold)
+                    )
                     OutlinedTextField(
                         value = rateText,
                         onValueChange = { rateText = RateValidator.sanitize(it) },
@@ -398,7 +405,7 @@ fun RatesScreen(
         AlertDialog(
             onDismissRequest = { rateToDelete = null },
             title = { Text(stringResource(R.string.action_delete)) },
-            text = { Text(stringResource(R.string.delete_rate_confirm, item.baseCode, item.quoteCode)) },
+            text = { Text(stringResource(R.string.delete_rate_confirm, item.baseCode, item.quoteCode), style = MaterialTheme.contentText) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -418,6 +425,7 @@ fun RatesScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RateCard(
     item: ExchangeRateRow,
@@ -435,27 +443,34 @@ fun RateCard(
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Rate text
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Rate text: katta shriftda qirqilmay, FlowRow orqali keyingi qatorga o'raladi
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                    ) {
+                        FlowRow(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
                             Text(
                                 text = "1 ${item.baseCode}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "  =  ",
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.contentText,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 text = "${formatRate(item.rate)} ${item.quoteCode}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -482,13 +497,15 @@ fun RateCard(
 
                 if (item.locked) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Badge(
-                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f),
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f),
                         contentColor = MaterialTheme.colorScheme.onErrorContainer
                     ) {
                         Text(
                             text = stringResource(R.string.rate_locked_badge),
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                            style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Medium),
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
                 }

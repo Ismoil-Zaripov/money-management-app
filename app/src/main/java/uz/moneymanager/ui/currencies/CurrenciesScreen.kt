@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -51,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.moneymanager.R
 import uz.moneymanager.data.local.CurrencyWithUsage
 import uz.moneymanager.ui.theme.barContainer
+import uz.moneymanager.ui.theme.contentText
 import uz.moneymanager.ui.theme.onBarContainer
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -230,7 +233,7 @@ fun CurrenciesScreen(
         AlertDialog(
             onDismissRequest = { currencyToDelete = null },
             title = { Text(stringResource(R.string.action_delete)) },
-            text = { Text(stringResource(R.string.delete_currency_confirm, item.currency.code)) },
+            text = { Text(stringResource(R.string.delete_currency_confirm, item.currency.code), style = MaterialTheme.contentText) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -264,6 +267,7 @@ fun CurrencyCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 48.dp)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -271,21 +275,28 @@ fun CurrencyCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = item.currency.code,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         if (item.currency.isDefault) {
                             Spacer(modifier = Modifier.width(8.dp))
-                            Badge {
-                                Text(stringResource(R.string.currency_default_badge))
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.currency_default_badge),
+                                    style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Medium),
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = item.currency.name,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.contentText,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

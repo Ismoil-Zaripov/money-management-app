@@ -116,6 +116,13 @@
     <string name="palette_sunset">Sunset</string>
     <string name="palette_graphite">Graphite</string>
 
+    <string name="setting_font_size">Font Size</string>
+    <string name="desc_font_size">Adjust content text size across the app</string>
+    <string name="font_size_sample">Sample: 1 250 000 UZS</string>
+    <string name="font_size_value_sp">%1$d sp</string>
+    <string name="font_size_reset">Reset to default</string>
+    <string name="font_size_accessibility">Font size, %1$d sp</string>
+
     <string name="desc_currencies">Manage currencies and default currency</string>
     <string name="desc_exchange_rates">Daily currency rates and CBU import</string>
     <string name="desc_categories">Categories used across transactions</string>
