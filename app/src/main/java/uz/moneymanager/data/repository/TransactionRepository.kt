@@ -16,6 +16,7 @@ import uz.moneymanager.data.local.TransactionDao
 import uz.moneymanager.data.local.TransactionEntity
 import uz.moneymanager.data.local.TransactionListRow
 import uz.moneymanager.data.local.TransactionRateEntity
+import uz.moneymanager.domain.DailyTotalsCalculator
 import uz.moneymanager.domain.DomainException
 import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
@@ -79,6 +80,12 @@ class TransactionRepository @Inject constructor(
             filter.categoryId, filter.currencyId, filter.type, filter.from, filter.to,
             displayCurrencyId, fallbackCurrencyId,
         ).map(TotalsCalculator::calculate).flowOn(Dispatchers.Default)
+
+    fun dailyTotals(filter: MonitoringFilter, displayCurrencyId: Long, fallbackCurrencyId: Long): Flow<Map<LocalDate, MonitoringTotals>> =
+        dao.dailyTotals(
+            filter.categoryId, filter.currencyId, filter.type, filter.from, filter.to,
+            displayCurrencyId, fallbackCurrencyId,
+        ).map(DailyTotalsCalculator::calculate).flowOn(Dispatchers.Default)
 
     suspend fun getDetails(id: Long): TransactionDetails? {
         val t = dao.getById(id) ?: return null

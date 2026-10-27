@@ -1,5 +1,6 @@
 package uz.moneymanager.domain
 
+import uz.moneymanager.data.local.DailyTotalsRow
 import uz.moneymanager.data.local.TotalsRow
 import uz.moneymanager.domain.model.TransactionType
 import java.math.BigDecimal
@@ -56,6 +57,17 @@ object TotalsCalculator {
             display = Totals(dIncome, dExpense, dCount),
             fallback = Totals(fIncome, fExpense, fCount),
         )
+    }
+}
+
+object DailyTotalsCalculator {
+    fun calculate(rows: List<DailyTotalsRow>): Map<LocalDate, MonitoringTotals> {
+        val map = mutableMapOf<LocalDate, MutableList<TotalsRow>>()
+        for (row in rows) {
+            val list = map.getOrPut(row.date) { mutableListOf() }
+            list.add(TotalsRow(row.type, row.amount, row.displayRate, row.fallbackRate))
+        }
+        return map.mapValues { (_, list) -> TotalsCalculator.calculate(list) }
     }
 }
 

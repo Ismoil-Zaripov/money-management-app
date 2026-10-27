@@ -177,6 +177,11 @@ private const val SELECT_TOTALS = """
     FROM transactions t
 """ + SNAPSHOT_JOINS
 
+private const val SELECT_DAILY_TOTALS = """
+    SELECT t.date AS date, t.type AS type, t.amount AS amount, trD.rate AS displayRate, trF.rate AS fallbackRate
+    FROM transactions t
+""" + SNAPSHOT_JOINS
+
 @Dao
 interface TransactionDao {
     @Insert
@@ -218,6 +223,17 @@ interface TransactionDao {
         displayCurrencyId: Long,
         fallbackCurrencyId: Long,
     ): Flow<List<TotalsRow>>
+
+    @Query(SELECT_DAILY_TOTALS + FILTER_WHERE)
+    fun dailyTotals(
+        categoryId: Long?,
+        currencyId: Long?,
+        type: TransactionType?,
+        fromDate: LocalDate?,
+        toDate: LocalDate?,
+        displayCurrencyId: Long,
+        fallbackCurrencyId: Long,
+    ): Flow<List<DailyTotalsRow>>
 
     @Query("SELECT currencyId FROM transactions ORDER BY createdAt DESC, id DESC LIMIT 1")
     suspend fun lastUsedCurrencyId(): Long?

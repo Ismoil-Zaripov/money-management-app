@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,21 +39,62 @@ import java.util.Locale
 import javax.inject.Inject
 
 @Immutable
-data class TransactionUiItem(
-    val id: Long,
-    val title: String,
-    val subtitle: String,
-    /** Empty when the transaction has no description – the row then renders no extra line. */
-    val description: String,
-    val amountText: String,
-    val originalAmountText: String? = null,
-    val type: TransactionType,
-)
+sealed interface TransactionListItemUiModel {
+    data class Header(
+        val date: LocalDate,
+        val dateText: String,
+    ) : TransactionListItemUiModel
+
+    data class Item(
+        val id: Long,
+        val title: String,
+        val amountText: String,
+        val originalAmountText: String? = null,
+        val type: TransactionType,
+        val date: LocalDate,
+    ) : TransactionListItemUiModel
+}
+
+typealias TransactionUiItem = TransactionListItemUiModel.Item
+
+object TransactionDateSeparator {
+    /**
+     * Determines whether a date header should be inserted between [before] and [after].
+     * Rule:
+     * - If [after] is null -> returns null (end of list, no header).
+     * - If [before] is null (start of list) OR [before.date] != [after.date] -> returns a [TransactionListItemUiModel.Header] for [after.date].
+     * - Otherwise (same date) -> returns null.
+     */
+    fun createSeparator(
+        before: TransactionListItemUiModel.Item?,
+        after: TransactionListItemUiModel.Item?,
+        dateFormatter: (LocalDate) -> String = { FormatUtils.formatHeaderDate(it) },
+    ): TransactionListItemUiModel.Header? {
+        return if (after != null && (before == null || before.date != after.date)) {
+            TransactionListItemUiModel.Header(
+                date = after.date,
+                dateText = dateFormatter(after.date),
+            )
+        } else {
+            null
+        }
+    }
+}
 
 object FormatUtils {
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
     fun formatDate(date: LocalDate): String = date.format(dateFormatter)
+
+    fun formatHeaderDate(
+        date: LocalDate,
+        locale: Locale = Locale.getDefault(),
+        now: LocalDate = LocalDate.now(),
+    ): String {
+        val pattern = if (date.year == now.year) "d MMMM" else "d MMMM yyyy"
+        val formatter = DateTimeFormatter.ofPattern(pattern, locale)
+        return date.format(formatter)
+    }
 
     fun formatAmount(
         amount: BigDecimal,
@@ -118,7 +160,11 @@ class TransactionsViewModel @Inject constructor(
         Triple(f, displayId, fallbackId)
     }
 
-    val transactions: Flow<PagingData<TransactionUiItem>> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
+    val dailyTotals: StateFlow<Map<LocalDate, MonitoringTotals>> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
+        transactionRepository.dailyTotals(f, displayId, fallbackId)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val transactions: Flow<PagingData<TransactionListItemUiModel>> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
         val currencyCodesFlow = currencies
             .filter { it.isNotEmpty() }
             .map { list ->
@@ -133,32 +179,35 @@ class TransactionsViewModel @Inject constructor(
         transactionRepository.paging(f, displayId, fallbackId)
             .cachedIn(viewModelScope)
             .combine(currencyCodesFlow) { pagingData, (dCode, fCode) ->
-                pagingData.map { row ->
-                    val converted = TransactionAmountCalculator.calculate(
-                        amount = row.amount,
-                        currencyCode = row.currencyCode,
-                        displayCurrencyCode = dCode,
-                        fallbackCurrencyCode = fCode,
-                        displayRate = row.displayRate,
-                        fallbackRate = row.fallbackRate,
-                    )
-                    TransactionUiItem(
-                        id = row.id,
-                        title = row.categoryName,
-                        subtitle = FormatUtils.formatDate(row.date),
-                        description = row.description,
-                        amountText = FormatUtils.formatAmount(converted.amount, converted.currencyCode, row.type),
-                        originalAmountText = converted.originalAmount?.let { origAmount ->
-                            FormatUtils.formatAmount(
-                                amount = origAmount.abs(),
-                                currencyCode = converted.originalCurrencyCode ?: row.currencyCode,
-                                type = null,
-                                includePositiveSign = false,
-                            )
-                        },
-                        type = row.type,
-                    )
-                }
+                pagingData
+                    .map { row ->
+                        val converted = TransactionAmountCalculator.calculate(
+                            amount = row.amount,
+                            currencyCode = row.currencyCode,
+                            displayCurrencyCode = dCode,
+                            fallbackCurrencyCode = fCode,
+                            displayRate = row.displayRate,
+                            fallbackRate = row.fallbackRate,
+                        )
+                        TransactionListItemUiModel.Item(
+                            id = row.id,
+                            title = row.categoryName,
+                            amountText = FormatUtils.formatAmount(converted.amount, converted.currencyCode, row.type),
+                            originalAmountText = converted.originalAmount?.let { origAmount ->
+                                FormatUtils.formatAmount(
+                                    amount = origAmount.abs(),
+                                    currencyCode = converted.originalCurrencyCode ?: row.currencyCode,
+                                    type = null,
+                                    includePositiveSign = false,
+                                )
+                            },
+                            type = row.type,
+                            date = row.date,
+                        )
+                    }
+                    .insertSeparators { before: TransactionListItemUiModel.Item?, after: TransactionListItemUiModel.Item? ->
+                        TransactionDateSeparator.createSeparator(before, after)
+                    }
             }
     }
 

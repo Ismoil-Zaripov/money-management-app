@@ -146,6 +146,14 @@ data class TotalsRow(
     val fallbackRate: BigDecimal?,
 )
 
+data class DailyTotalsRow(
+    val date: LocalDate,
+    val type: TransactionType,
+    val amount: BigDecimal,
+    val displayRate: BigDecimal?,
+    val fallbackRate: BigDecimal?,
+)
+
 data class CurrencyWithUsage(
     @Embedded val currency: CurrencyEntity,
     val transactionCount: Int,

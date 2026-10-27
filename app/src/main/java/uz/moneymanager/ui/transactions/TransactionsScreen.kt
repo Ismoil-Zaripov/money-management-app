@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -78,6 +79,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -113,9 +115,10 @@ fun TransactionsScreen(
     val categories by viewModel.categories.collectAsState()
     val defaultCurrency by viewModel.defaultCurrency.collectAsState()
     val totals by viewModel.totals.collectAsState()
+    val dailyTotals by viewModel.dailyTotals.collectAsState()
     val items = viewModel.transactions.collectAsLazyPagingItems()
 
-    var transactionToDelete by remember { mutableStateOf<TransactionUiItem?>(null) }
+    var transactionToDelete by remember { mutableStateOf<TransactionListItemUiModel.Item?>(null) }
     var showSummarySheet by remember { mutableStateOf(false) }
     var isAmountVisible by rememberSaveable { mutableStateOf(true) }
 
@@ -263,16 +266,36 @@ fun TransactionsScreen(
                     ) {
                         items(
                             count = items.itemCount,
-                            key = items.itemKey { it.id },
-                            contentType = items.itemContentType { "transaction_row" }
+                            key = items.itemKey { item ->
+                                when (item) {
+                                    is TransactionListItemUiModel.Header -> "h_${item.date}"
+                                    is TransactionListItemUiModel.Item -> "t_${item.id}"
+                                }
+                            },
+                            contentType = items.itemContentType { item ->
+                                when (item) {
+                                    is TransactionListItemUiModel.Header -> "header"
+                                    is TransactionListItemUiModel.Item -> "transaction_row"
+                                }
+                            }
                         ) { index ->
-                            val item = items[index]
-                            if (item != null) {
-                                TransactionItemRow(
-                                    item = item,
-                                    onClick = { onNavigateToEdit(item.id) },
-                                    onDelete = { transactionToDelete = item }
-                                )
+                            when (val item = items[index]) {
+                                is TransactionListItemUiModel.Header -> {
+                                    TransactionDateHeader(
+                                        dateText = item.dateText,
+                                        totals = dailyTotals[item.date],
+                                        displayCode = dCode,
+                                        fallbackCode = fCode,
+                                    )
+                                }
+                                is TransactionListItemUiModel.Item -> {
+                                    TransactionItemRow(
+                                        item = item,
+                                        onClick = { onNavigateToEdit(item.id) },
+                                        onDelete = { transactionToDelete = item }
+                                    )
+                                }
+                                null -> Unit
                             }
                         }
 
@@ -328,15 +351,104 @@ fun TransactionsScreen(
     }
 }
 
+@Composable
+fun TransactionDateHeader(
+    dateText: String,
+    totals: MonitoringTotals?,
+    displayCode: String,
+    fallbackCode: String,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = dateText,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    lineHeight = 16.sp,
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+
+            if (totals != null) {
+                val hasDisplay = totals.display.count > 0
+                val hasFallback = totals.fallback.count > 0 && displayCode != fallbackCode
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (hasDisplay) {
+                        val isIncome = totals.display.balance >= BigDecimal.ZERO
+                        Text(
+                            text = FormatUtils.formatAmount(totals.display.balance, displayCode, includePositiveSign = true),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                lineHeight = 16.sp,
+                            ),
+                            color = if (isIncome) IncomeColor else ExpenseColor,
+                            maxLines = 1
+                        )
+                    } else if (!hasFallback) {
+                        Text(
+                            text = FormatUtils.formatAmount(BigDecimal.ZERO, displayCode, includePositiveSign = false),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                lineHeight = 16.sp,
+                            ),
+                            color = IncomeColor,
+                            maxLines = 1
+                        )
+                    }
+
+                    if (hasFallback) {
+                        val isIncome = totals.fallback.balance >= BigDecimal.ZERO
+                        Text(
+                            text = FormatUtils.formatAmount(totals.fallback.balance, fallbackCode, includePositiveSign = true),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                lineHeight = 16.sp,
+                            ),
+                            color = if (isIncome) IncomeColor else ExpenseColor,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TransactionItemRow(
-    item: TransactionUiItem,
+    item: TransactionListItemUiModel.Item,
     onClick: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val isIncome = item.type == TransactionType.INCOME
     val amountColor = if (isIncome) IncomeColor else ExpenseColor
+
+    val nameStyle = MaterialTheme.typography.bodyMedium.copy(
+        fontWeight = FontWeight.SemiBold,
+        lineHeight = 18.sp,
+    )
+    val amountStyle = MaterialTheme.typography.bodyMedium.copy(
+        fontWeight = FontWeight.Bold,
+        lineHeight = 18.sp,
+    )
+    val originalAmountStyle = MaterialTheme.typography.bodySmall.copy(
+        lineHeight = 14.sp,
+    )
 
     Surface(
         modifier = Modifier
@@ -351,11 +463,12 @@ fun TransactionItemRow(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .heightIn(min = 40.dp)
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Chap tomon: 1-qator nom, (ixtiyoriy) tavsif, oxirgi qator sana
+                // Chap tomon: Kategoriya nomi va kerak bo'lsa asl summa
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -363,62 +476,36 @@ fun TransactionItemRow(
                 ) {
                     Text(
                         text = item.title,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
+                        style = nameStyle,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    // Tavsif bo'sh bo'lsa, qator umuman chizilmaydi (bo'sh joy qolmaydi)
-                    if (item.description.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(2.dp))
+                    if (item.originalAmountText != null) {
                         Text(
-                            text = item.description,
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = item.originalAmountText,
+                            style = originalAmountStyle,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = item.subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
 
                 // O'ng tomon: summa
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = item.amountText,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = amountColor,
-                        textAlign = TextAlign.End,
-                        maxLines = 1
-                    )
-                    if (item.originalAmountText != null) {
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = item.originalAmountText,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.End,
-                            maxLines = 1
-                        )
-                    }
-                }
+                Text(
+                    text = item.amountText,
+                    style = amountStyle,
+                    color = amountColor,
+                    textAlign = TextAlign.End,
+                    maxLines = 1
+                )
             }
 
             HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
             )
         }
     }
