@@ -58,3 +58,49 @@ object TotalsCalculator {
         )
     }
 }
+
+/**
+ * Result of converting a transaction amount using snapshot exchange rates.
+ * [originalAmount] and [originalCurrencyCode] are non-null only when the target currency
+ * differs from the transaction's original currency.
+ */
+data class ConvertedTransactionAmount(
+    val amount: BigDecimal,
+    val currencyCode: String,
+    val originalAmount: BigDecimal? = null,
+    val originalCurrencyCode: String? = null,
+)
+
+object TransactionAmountCalculator {
+    /**
+     * Converts a transaction amount following the exact same rules as [TotalsCalculator]:
+     * 1. If [displayRate] is present, convert to [displayCurrencyCode] (`amount * displayRate`).
+     * 2. Else if [fallbackRate] is present, convert to [fallbackCurrencyCode] (`amount * fallbackRate`).
+     * 3. Else, leave in the transaction's original [currencyCode] (`amount`).
+     *
+     * If the resulting currency differs from the original [currencyCode], the original
+     * amount and currency code are preserved in the result for secondary display.
+     */
+    fun calculate(
+        amount: BigDecimal,
+        currencyCode: String,
+        displayCurrencyCode: String,
+        fallbackCurrencyCode: String,
+        displayRate: BigDecimal?,
+        fallbackRate: BigDecimal?,
+    ): ConvertedTransactionAmount {
+        val (targetAmount, targetCode) = when {
+            displayRate != null -> amount.multiply(displayRate) to displayCurrencyCode
+            fallbackRate != null -> amount.multiply(fallbackRate) to fallbackCurrencyCode
+            else -> amount to currencyCode
+        }
+
+        val hasDifferentCurrency = currencyCode != targetCode
+        return ConvertedTransactionAmount(
+            amount = targetAmount,
+            currencyCode = targetCode,
+            originalAmount = if (hasDifferentCurrency) amount else null,
+            originalCurrencyCode = if (hasDifferentCurrency) currencyCode else null,
+        )
+    }
+}

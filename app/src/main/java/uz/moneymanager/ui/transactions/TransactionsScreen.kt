@@ -389,14 +389,28 @@ fun TransactionItemRow(
                 }
 
                 // O'ng tomon: summa
-                Text(
-                    text = item.amountText,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = amountColor,
-                    textAlign = TextAlign.End,
-                    maxLines = 1
-                )
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = item.amountText,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = amountColor,
+                        textAlign = TextAlign.End,
+                        maxLines = 1
+                    )
+                    if (item.originalAmountText != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = item.originalAmountText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.End,
+                            maxLines = 1
+                        )
+                    }
+                }
             }
 
             HorizontalDivider(

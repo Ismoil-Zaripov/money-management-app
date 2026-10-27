@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -25,6 +27,7 @@ import uz.moneymanager.data.repository.CurrencyRepository
 import uz.moneymanager.data.repository.TransactionRepository
 import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
+import uz.moneymanager.domain.TransactionAmountCalculator
 import uz.moneymanager.domain.model.TransactionType
 import java.math.BigDecimal
 import java.text.DecimalFormat
@@ -42,6 +45,7 @@ data class TransactionUiItem(
     /** Empty when the transaction has no description – the row then renders no extra line. */
     val description: String,
     val amountText: String,
+    val originalAmountText: String? = null,
     val type: TransactionType,
 )
 
@@ -115,19 +119,48 @@ class TransactionsViewModel @Inject constructor(
     }
 
     val transactions: Flow<PagingData<TransactionUiItem>> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
-        transactionRepository.paging(f, displayId, fallbackId).map { pagingData ->
-            pagingData.map { row ->
-                TransactionUiItem(
-                    id = row.id,
-                    title = row.categoryName,
-                    subtitle = FormatUtils.formatDate(row.date),
-                    description = row.description,
-                    amountText = FormatUtils.formatAmount(row.amount, row.currencyCode, row.type),
-                    type = row.type,
-                )
+        val currencyCodesFlow = currencies
+            .filter { it.isNotEmpty() }
+            .map { list ->
+                val fallbackCode = list.firstOrNull { it.id == fallbackId }?.code
+                    ?: list.firstOrNull { it.isDefault }?.code
+                    ?: list.firstOrNull()?.code
+                    ?: "UZS"
+                val displayCode = list.firstOrNull { it.id == displayId }?.code ?: fallbackCode
+                displayCode to fallbackCode
+            }.distinctUntilChanged()
+
+        transactionRepository.paging(f, displayId, fallbackId)
+            .cachedIn(viewModelScope)
+            .combine(currencyCodesFlow) { pagingData, (dCode, fCode) ->
+                pagingData.map { row ->
+                    val converted = TransactionAmountCalculator.calculate(
+                        amount = row.amount,
+                        currencyCode = row.currencyCode,
+                        displayCurrencyCode = dCode,
+                        fallbackCurrencyCode = fCode,
+                        displayRate = row.displayRate,
+                        fallbackRate = row.fallbackRate,
+                    )
+                    TransactionUiItem(
+                        id = row.id,
+                        title = row.categoryName,
+                        subtitle = FormatUtils.formatDate(row.date),
+                        description = row.description,
+                        amountText = FormatUtils.formatAmount(converted.amount, converted.currencyCode, row.type),
+                        originalAmountText = converted.originalAmount?.let { origAmount ->
+                            FormatUtils.formatAmount(
+                                amount = origAmount.abs(),
+                                currencyCode = converted.originalCurrencyCode ?: row.currencyCode,
+                                type = null,
+                                includePositiveSign = false,
+                            )
+                        },
+                        type = row.type,
+                    )
+                }
             }
-        }
-    }.cachedIn(viewModelScope)
+    }
 
     val totals: StateFlow<MonitoringTotals> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
         transactionRepository.totals(f, displayId, fallbackId)
