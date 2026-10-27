@@ -74,6 +74,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -351,6 +352,9 @@ fun TransactionsScreen(
     }
 }
 
+private val TransactionRowBaseStyle: TextStyle
+    @Composable get() = MaterialTheme.typography.bodySmall.copy(lineHeight = 16.sp)
+
 @Composable
 fun TransactionDateHeader(
     dateText: String,
@@ -358,6 +362,8 @@ fun TransactionDateHeader(
     displayCode: String,
     fallbackCode: String,
 ) {
+    val baseStyle = TransactionRowBaseStyle
+
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
         modifier = Modifier.fillMaxWidth()
@@ -371,10 +377,7 @@ fun TransactionDateHeader(
         ) {
             Text(
                 text = dateText,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    lineHeight = 16.sp,
-                ),
+                style = baseStyle.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
             )
@@ -391,20 +394,14 @@ fun TransactionDateHeader(
                         val isIncome = totals.display.balance >= BigDecimal.ZERO
                         Text(
                             text = FormatUtils.formatAmount(totals.display.balance, displayCode, includePositiveSign = true),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                lineHeight = 16.sp,
-                            ),
+                            style = baseStyle.copy(fontWeight = FontWeight.Bold),
                             color = if (isIncome) IncomeColor else ExpenseColor,
                             maxLines = 1
                         )
                     } else if (!hasFallback) {
                         Text(
                             text = FormatUtils.formatAmount(BigDecimal.ZERO, displayCode, includePositiveSign = false),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                lineHeight = 16.sp,
-                            ),
+                            style = baseStyle.copy(fontWeight = FontWeight.Bold),
                             color = IncomeColor,
                             maxLines = 1
                         )
@@ -414,10 +411,7 @@ fun TransactionDateHeader(
                         val isIncome = totals.fallback.balance >= BigDecimal.ZERO
                         Text(
                             text = FormatUtils.formatAmount(totals.fallback.balance, fallbackCode, includePositiveSign = true),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                lineHeight = 16.sp,
-                            ),
+                            style = baseStyle.copy(fontWeight = FontWeight.Bold),
                             color = if (isIncome) IncomeColor else ExpenseColor,
                             maxLines = 1
                         )
@@ -438,17 +432,10 @@ fun TransactionItemRow(
     val isIncome = item.type == TransactionType.INCOME
     val amountColor = if (isIncome) IncomeColor else ExpenseColor
 
-    val nameStyle = MaterialTheme.typography.bodyMedium.copy(
-        fontWeight = FontWeight.SemiBold,
-        lineHeight = 18.sp,
-    )
-    val amountStyle = MaterialTheme.typography.bodyMedium.copy(
-        fontWeight = FontWeight.Bold,
-        lineHeight = 18.sp,
-    )
-    val originalAmountStyle = MaterialTheme.typography.bodySmall.copy(
-        lineHeight = 14.sp,
-    )
+    val baseStyle = TransactionRowBaseStyle
+    val nameStyle = baseStyle.copy(fontWeight = FontWeight.SemiBold)
+    val amountStyle = baseStyle.copy(fontWeight = FontWeight.Bold)
+    val originalAmountStyle = baseStyle
 
     Surface(
         modifier = Modifier
@@ -463,7 +450,7 @@ fun TransactionItemRow(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 40.dp)
+                    .heightIn(min = 36.dp)
                     .padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
