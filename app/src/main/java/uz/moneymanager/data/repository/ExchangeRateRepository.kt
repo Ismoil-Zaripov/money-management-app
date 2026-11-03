@@ -95,8 +95,23 @@ class ExchangeRateRepository @Inject constructor(
     }
 
     /** Manual add/edit from the rates screen. Saves the reverse rate as well. */
-    suspend fun savePair(date: LocalDate, baseId: Long, quoteId: Long, rate: BigDecimal) =
-        db.withTransaction { savePairChecked(date, baseId, quoteId, rate) }
+    suspend fun savePair(
+        date: LocalDate,
+        baseId: Long,
+        quoteId: Long,
+        rate: BigDecimal,
+        originalDate: LocalDate? = null,
+    ) = db.withTransaction {
+        if (originalDate != null && originalDate != date) {
+            if (rateDao.isPairUsed(originalDate, baseId, quoteId)) {
+                throw DomainException(R.string.err_rate_locked)
+            }
+            savePairChecked(date, baseId, quoteId, rate)
+            rateDao.deletePair(originalDate, baseId, quoteId)
+        } else {
+            savePairChecked(date, baseId, quoteId, rate)
+        }
+    }
 
     /** Used inside the transaction-save DB transaction. */
     suspend fun saveRatesForBase(date: LocalDate, baseId: Long, rates: Map<Long, BigDecimal>) =

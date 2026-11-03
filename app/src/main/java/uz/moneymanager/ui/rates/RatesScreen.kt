@@ -1,6 +1,5 @@
 package uz.moneymanager.ui.rates
 
-import android.app.DatePickerDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,9 +27,10 @@ import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Badge
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -43,12 +43,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,6 +61,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -72,7 +75,9 @@ import uz.moneymanager.ui.theme.contentText
 import uz.moneymanager.ui.theme.onBarContainer
 import uz.moneymanager.ui.transactions.FormatUtils
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,6 +93,7 @@ fun RatesScreen(
     val rates by viewModel.rates.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
+    var showScreenDatePicker by remember { mutableStateOf(false) }
     var showAddDialog by remember { mutableStateOf(false) }
     var rateToEdit by remember { mutableStateOf<ExchangeRateRow?>(null) }
     var rateToDelete by remember { mutableStateOf<ExchangeRateRow?>(null) }
@@ -178,17 +184,7 @@ fun RatesScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        DatePickerDialog(
-                            context,
-                            { _, y, m, d -> viewModel.setDate(LocalDate.of(y, m + 1, d)) },
-                            date.year,
-                            date.monthValue - 1,
-                            date.dayOfMonth
-                        ).apply {
-                            datePicker.maxDate = System.currentTimeMillis()
-                        }.show()
-                    }
+                    .clickable { showScreenDatePicker = true }
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -235,10 +231,22 @@ fun RatesScreen(
         }
     }
 
+    if (showScreenDatePicker) {
+        RateDatePickerDialog(
+            initialDate = date,
+            onDateSelected = {
+                viewModel.setDate(it)
+                showScreenDatePicker = false
+            },
+            onDismiss = { showScreenDatePicker = false }
+        )
+    }
+
     // Add Rate Dialog
     if (showAddDialog) {
         var baseId by remember { mutableStateOf(currencies.firstOrNull { it.isDefault }?.id ?: currencies.firstOrNull()?.id) }
         var quoteId by remember { mutableStateOf(currencies.firstOrNull { !it.isDefault }?.id ?: currencies.lastOrNull()?.id) }
+        var rateDate by remember { mutableStateOf(LocalDate.now()) }
         var rateText by remember { mutableStateOf("") }
 
         AlertDialog(
@@ -246,6 +254,11 @@ fun RatesScreen(
             title = { Text(stringResource(R.string.action_add_rate)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    RateDateField(
+                        date = rateDate,
+                        onDateChange = { rateDate = it }
+                    )
+
                     // Base dropdown
                     var baseExpanded by remember { mutableStateOf(false) }
                     val baseCurr = currencies.firstOrNull { it.id == baseId }
@@ -340,7 +353,7 @@ fun RatesScreen(
                         val b = baseId
                         val q = quoteId
                         if (parsed != null && b != null && q != null) {
-                            viewModel.saveRate(b, q, parsed)
+                            viewModel.saveRate(b, q, parsed, date = rateDate)
                             showAddDialog = false
                         }
                     }
@@ -358,16 +371,21 @@ fun RatesScreen(
 
     // Edit Rate Dialog
     rateToEdit?.let { item ->
-        var rateText by remember { mutableStateOf(item.rate.toPlainString()) }
+        var rateDate by remember(item) { mutableStateOf(item.date) }
+        var rateText by remember(item) { mutableStateOf(item.rate.toPlainString()) }
 
         AlertDialog(
             onDismissRequest = { rateToEdit = null },
             title = { Text(stringResource(R.string.title_exchange_rates)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
                         text = "1 ${item.baseCode} = ? ${item.quoteCode}",
                         style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold)
+                    )
+                    RateDateField(
+                        date = rateDate,
+                        onDateChange = { rateDate = it }
                     )
                     OutlinedTextField(
                         value = rateText,
@@ -384,7 +402,13 @@ fun RatesScreen(
                     onClick = {
                         val parsed = RateValidator.parse(rateText)
                         if (parsed != null) {
-                            viewModel.saveRate(item.baseCurrencyId, item.quoteCurrencyId, parsed)
+                            viewModel.saveRate(
+                                baseId = item.baseCurrencyId,
+                                quoteId = item.quoteCurrencyId,
+                                rate = parsed,
+                                date = rateDate,
+                                originalDate = item.date,
+                            )
                             rateToEdit = null
                         }
                     }
@@ -409,7 +433,7 @@ fun RatesScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.deleteRate(item.baseCurrencyId, item.quoteCurrencyId)
+                        viewModel.deleteRate(item.baseCurrencyId, item.quoteCurrencyId, item.date)
                         rateToDelete = null
                     }
                 ) {
@@ -422,6 +446,92 @@ fun RatesScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun RateDateField(
+    date: LocalDate,
+    onDateChange: (LocalDate) -> Unit,
+) {
+    var showPicker by remember { mutableStateOf(false) }
+    val dateLabel = stringResource(R.string.label_date)
+
+    Box {
+        OutlinedTextField(
+            value = FormatUtils.formatDate(date),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(dateLabel) },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.CalendarToday,
+                    contentDescription = dateLabel
+                )
+            },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .padding(top = 8.dp)
+                .heightIn(min = 48.dp)
+                .clickable(role = Role.Button, onClickLabel = dateLabel) { showPicker = true }
+        )
+    }
+
+    if (showPicker) {
+        RateDatePickerDialog(
+            initialDate = date,
+            onDateSelected = {
+                onDateChange(it)
+                showPicker = false
+            },
+            onDismiss = { showPicker = false }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RateDatePickerDialog(
+    initialDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val today = LocalDate.now()
+    val todayUtcMillis = today.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+    val pickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+        selectableDates = remember(todayUtcMillis) {
+            object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis <= todayUtcMillis
+                override fun isSelectableYear(year: Int) = year <= today.year
+            }
+        }
+    )
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    pickerState.selectedDateMillis?.let { millis ->
+                        onDateSelected(Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate())
+                    } ?: onDismiss()
+                }
+            ) {
+                Text(stringResource(R.string.action_apply))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
+    ) {
+        DatePicker(state = pickerState)
     }
 }
 

@@ -54,9 +54,13 @@ class RatesViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     fun setDate(date: LocalDate) {
-        if (!date.isAfter(LocalDate.now())) {
-            _selectedDate.value = date
+        if (date.isAfter(LocalDate.now())) {
+            viewModelScope.launch {
+                _events.emit(RateEvent.Error(R.string.err_future_date))
+            }
+            return
         }
+        _selectedDate.value = date
     }
 
     fun importFromCbu() {
@@ -65,6 +69,8 @@ class RatesViewModel @Inject constructor(
             try {
                 val res = rateRepository.importFromCbu(_selectedDate.value)
                 _events.emit(RateEvent.CbuResult(res.added, res.existing, res.notFound))
+            } catch (e: DomainException) {
+                _events.emit(RateEvent.Error(e.messageRes, e.args.toList()))
             } catch (e: Exception) {
                 _events.emit(RateEvent.Error(R.string.err_cbu_fetch_failed))
             } finally {
@@ -73,10 +79,25 @@ class RatesViewModel @Inject constructor(
         }
     }
 
-    fun saveRate(baseId: Long, quoteId: Long, rate: BigDecimal) {
+    fun saveRate(
+        baseId: Long,
+        quoteId: Long,
+        rate: BigDecimal,
+        date: LocalDate = _selectedDate.value,
+        originalDate: LocalDate? = null,
+    ) {
         viewModelScope.launch {
             try {
-                rateRepository.savePair(_selectedDate.value, baseId, quoteId, rate)
+                if (date.isAfter(LocalDate.now())) throw DomainException(R.string.err_future_date)
+                if (rate.signum() <= 0) throw DomainException(R.string.err_rate_invalid)
+                rateRepository.savePair(
+                    date = date,
+                    baseId = baseId,
+                    quoteId = quoteId,
+                    rate = rate,
+                    originalDate = originalDate,
+                )
+                _selectedDate.value = date
                 _events.emit(RateEvent.Success)
             } catch (e: DomainException) {
                 _events.emit(RateEvent.Error(e.messageRes, e.args.toList()))
@@ -84,10 +105,10 @@ class RatesViewModel @Inject constructor(
         }
     }
 
-    fun deleteRate(baseId: Long, quoteId: Long) {
+    fun deleteRate(baseId: Long, quoteId: Long, date: LocalDate = _selectedDate.value) {
         viewModelScope.launch {
             try {
-                rateRepository.deletePair(_selectedDate.value, baseId, quoteId)
+                rateRepository.deletePair(date, baseId, quoteId)
                 _events.emit(RateEvent.Success)
             } catch (e: DomainException) {
                 _events.emit(RateEvent.Error(e.messageRes, e.args.toList()))
