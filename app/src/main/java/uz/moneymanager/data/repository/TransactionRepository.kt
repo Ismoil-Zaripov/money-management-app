@@ -12,6 +12,7 @@ import uz.moneymanager.R
 import uz.moneymanager.data.local.AppDatabase
 import uz.moneymanager.data.local.CurrencyDao
 import uz.moneymanager.data.local.CurrencyEntity
+import uz.moneymanager.data.local.PaymentMethodDao
 import uz.moneymanager.data.local.TransactionDao
 import uz.moneymanager.data.local.TransactionEntity
 import uz.moneymanager.data.local.TransactionListRow
@@ -34,6 +35,7 @@ data class TransactionInput(
     val amount: BigDecimal,
     val currencyId: Long,
     val categoryName: String,
+    val paymentMethodId: Long,
     val date: LocalDate,
     val description: String = "",
 )
@@ -44,6 +46,8 @@ data class TransactionDetails(
     val amount: BigDecimal,
     val currencyId: Long,
     val categoryName: String,
+    val paymentMethodId: Long,
+    val paymentMethodName: String,
     val date: LocalDate,
     val description: String,
 )
@@ -65,32 +69,34 @@ class TransactionRepository @Inject constructor(
     private val dao: TransactionDao,
     private val currencyDao: CurrencyDao,
     private val categoryRepository: CategoryRepository,
+    private val paymentMethodDao: PaymentMethodDao,
     private val rateRepository: ExchangeRateRepository,
 ) {
     fun paging(filter: MonitoringFilter, displayCurrencyId: Long, fallbackCurrencyId: Long): Flow<PagingData<TransactionListRow>> =
         Pager(PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false)) {
             dao.paging(
-                filter.categoryId, filter.currencyId, filter.type, filter.from, filter.to,
+                filter.categoryId, filter.currencyId, filter.paymentMethodId, filter.type, filter.from, filter.to,
                 displayCurrencyId, fallbackCurrencyId,
             )
         }.flow
 
     fun totals(filter: MonitoringFilter, displayCurrencyId: Long, fallbackCurrencyId: Long): Flow<MonitoringTotals> =
         dao.totals(
-            filter.categoryId, filter.currencyId, filter.type, filter.from, filter.to,
+            filter.categoryId, filter.currencyId, filter.paymentMethodId, filter.type, filter.from, filter.to,
             displayCurrencyId, fallbackCurrencyId,
         ).map(TotalsCalculator::calculate).flowOn(Dispatchers.Default)
 
     fun dailyTotals(filter: MonitoringFilter, displayCurrencyId: Long, fallbackCurrencyId: Long): Flow<Map<LocalDate, MonitoringTotals>> =
         dao.dailyTotals(
-            filter.categoryId, filter.currencyId, filter.type, filter.from, filter.to,
+            filter.categoryId, filter.currencyId, filter.paymentMethodId, filter.type, filter.from, filter.to,
             displayCurrencyId, fallbackCurrencyId,
         ).map(DailyTotalsCalculator::calculate).flowOn(Dispatchers.Default)
 
     suspend fun getDetails(id: Long): TransactionDetails? {
         val t = dao.getById(id) ?: return null
         val category = categoryRepository.getById(t.categoryId) ?: return null
-        return TransactionDetails(t.id, t.type, t.amount, t.currencyId, category.name, t.date, t.description)
+        val paymentMethod = paymentMethodDao.getById(t.paymentMethodId) ?: return null
+        return TransactionDetails(t.id, t.type, t.amount, t.currencyId, category.name, t.paymentMethodId, paymentMethod.name, t.date, t.description)
     }
 
     /**
@@ -110,6 +116,8 @@ class TransactionRepository @Inject constructor(
             }
             val currency = currencyDao.getById(input.currencyId)
                 ?: throw DomainException(R.string.err_currency_not_found)
+            val paymentMethod = paymentMethodDao.getById(input.paymentMethodId)
+                ?: throw DomainException(R.string.err_payment_method_not_found)
 
             if (input.id == null) {
                 if (newRates.isNotEmpty()) rateRepository.saveRatesForBase(input.date, currency.id, newRates)
@@ -123,6 +131,7 @@ class TransactionRepository @Inject constructor(
                         amount = input.amount,
                         currencyId = currency.id,
                         categoryId = category.id,
+                        paymentMethodId = paymentMethod.id,
                         date = input.date,
                         createdAt = System.currentTimeMillis(),
                         description = description,
@@ -142,6 +151,7 @@ class TransactionRepository @Inject constructor(
                         amount = input.amount,
                         currencyId = currency.id,
                         categoryId = category.id,
+                        paymentMethodId = paymentMethod.id,
                         date = input.date,
                         description = description,
                     )
@@ -157,6 +167,8 @@ class TransactionRepository @Inject constructor(
     suspend fun delete(id: Long) = dao.deleteById(id)
 
     suspend fun lastUsedCurrencyId(): Long? = dao.lastUsedCurrencyId()
+
+    suspend fun lastUsedPaymentMethodId(): Long? = dao.lastUsedPaymentMethodId()
 
     fun recentCategoryNames(limit: Int): Flow<List<String>> = dao.observeRecentCategoryNames(limit)
 

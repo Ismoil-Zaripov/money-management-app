@@ -22,6 +22,7 @@ import uz.moneymanager.data.local.AppDatabase
 import uz.moneymanager.data.local.CategoryDao
 import uz.moneymanager.data.local.CurrencyDao
 import uz.moneymanager.data.local.ExchangeRateDao
+import uz.moneymanager.data.local.PaymentMethodDao
 import uz.moneymanager.data.local.TransactionDao
 import uz.moneymanager.data.remote.CbuApi
 import java.util.concurrent.TimeUnit
@@ -34,12 +35,13 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.NAME)
-            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
             .addCallback(AppDatabase.SEED_CALLBACK)
             .build()
 
     @Provides fun provideCurrencyDao(db: AppDatabase): CurrencyDao = db.currencyDao()
     @Provides fun provideCategoryDao(db: AppDatabase): CategoryDao = db.categoryDao()
+    @Provides fun providePaymentMethodDao(db: AppDatabase): PaymentMethodDao = db.paymentMethodDao()
     @Provides fun provideExchangeRateDao(db: AppDatabase): ExchangeRateDao = db.exchangeRateDao()
     @Provides fun provideTransactionDao(db: AppDatabase): TransactionDao = db.transactionDao()
 

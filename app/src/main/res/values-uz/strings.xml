@@ -97,6 +97,25 @@
     <string name="category_tx_count">%1$d ta tranzaksiya</string>
     <string name="empty_categories">Kategoriyalar yo‘q</string>
 
+    <!-- Payment Methods Screen -->
+    <string name="title_payment_methods">To‘lov usullari</string>
+    <string name="action_add_payment_method">To‘lov usuli qo‘shish</string>
+    <string name="action_rename_payment_method">Nomini o‘zgartirish</string>
+    <string name="label_payment_method">To‘lov usuli</string>
+    <string name="label_payment_method_name">To‘lov usuli nomi</string>
+    <string name="delete_payment_method_confirm">\"%1$s\" to‘lov usulini o‘chirishni tasdiqlaysizmi?</string>
+    <string name="payment_method_tx_count">%1$d ta tranzaksiya</string>
+    <string name="empty_payment_methods">To‘lov usullari yo‘q</string>
+    <string name="desc_payment_methods">Tranzaksiyalarda ishlatiladigan to‘lov usullari</string>
+    <string name="filter_payment_method">To‘lov usuli</string>
+    <string name="payment_method_default_badge">Standart</string>
+    <string name="err_payment_method_required">To‘lov usuli tanlanishi shart</string>
+    <string name="err_payment_method_too_long">To‘lov usuli nomi juda uzun</string>
+    <string name="err_payment_method_duplicate">\"%1$s\" to‘lov usuli allaqachon mavjud</string>
+    <string name="err_payment_method_default_locked">Standart to‘lov usulini o‘chirib bo‘lmaydi</string>
+    <string name="err_payment_method_in_use">O‘chirib bo‘lmaydi: \"%1$s\" to‘lov usuli tranzaksiyalarda ishlatilgan</string>
+    <string name="err_payment_method_not_found">To‘lov usuli topilmadi</string>
+
     <!-- Settings Screen -->
     <string name="title_settings">Sozlamalar</string>
     <string name="settings_section_general">Umumiy</string>

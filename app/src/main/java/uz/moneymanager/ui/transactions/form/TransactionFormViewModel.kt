@@ -19,9 +19,11 @@ import kotlinx.coroutines.launch
 import uz.moneymanager.R
 import uz.moneymanager.data.local.CategoryEntity
 import uz.moneymanager.data.local.CurrencyEntity
+import uz.moneymanager.data.local.PaymentMethodEntity
 import uz.moneymanager.data.repository.CategoryRepository
 import uz.moneymanager.data.repository.CurrencyRepository
 import uz.moneymanager.data.repository.ExchangeRateRepository
+import uz.moneymanager.data.repository.PaymentMethodRepository
 import uz.moneymanager.data.repository.SaveResult
 import uz.moneymanager.data.repository.TransactionInput
 import uz.moneymanager.data.repository.TransactionRepository
@@ -55,11 +57,13 @@ data class FormUiState(
     val currencyId: Long? = null,
     val currency: CurrencyEntity? = null,
     val categoryText: String = "",
+    val paymentMethodId: Long? = null,
     val description: String = "",
     val date: LocalDate = LocalDate.now(),
     val currencies: List<CurrencyEntity> = emptyList(),
     val allCategories: List<CategoryEntity> = emptyList(),
     val categorySuggestions: List<String> = emptyList(),
+    val paymentMethods: List<PaymentMethodEntity> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val showNoInternetDialog: Boolean = false,
@@ -77,6 +81,7 @@ class TransactionFormViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     currencyRepository: CurrencyRepository,
     categoryRepository: CategoryRepository,
+    private val paymentMethodRepository: PaymentMethodRepository,
     private val rateRepository: ExchangeRateRepository,
 ) : ViewModel() {
 
@@ -108,6 +113,9 @@ class TransactionFormViewModel @Inject constructor(
     private val suggestionsFlow: StateFlow<List<String>> = transactionRepository.recentCategoryNames(RECENT_CATEGORY_LIMIT)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    private val paymentMethodsFlow: StateFlow<List<PaymentMethodEntity>> = paymentMethodRepository.observeAll()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private val _uiState = MutableStateFlow(buildInitialState())
     val uiState: StateFlow<FormUiState> = _uiState.asStateFlow()
 
@@ -115,31 +123,8 @@ class TransactionFormViewModel @Inject constructor(
     val events: SharedFlow<FormEvent> = _events.asSharedFlow()
 
     init {
-        // Fonda valyuta va kategoriya ro'yxatlarini yuklash (ekran ochilishini kutdirmaydi)
         viewModelScope.launch {
-            combine(currenciesFlow, categoriesFlow, suggestionsFlow) { currList, catList, recentList ->
-                Triple(currList, catList, recentList)
-            }.collect { (currList, catList, recentList) ->
-                _uiState.update { current ->
-                    val resolvedCurrencyId = current.currencyId ?: resolveInitialCurrencyId(currList)
-                    if (current.currencyId == null && resolvedCurrencyId != null) {
-                        savedStateHandle[KEY_CURRENCY_ID] = resolvedCurrencyId
-                        if (savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID) == null) {
-                            savedStateHandle[KEY_ORIG_CURRENCY_ID] = resolvedCurrencyId
-                        }
-                    }
-                    current.copy(
-                        currencyId = resolvedCurrencyId,
-                        currencies = currList,
-                        allCategories = catList,
-                        categorySuggestions = recentList,
-                    ).recompute()
-                }
-            }
-        }
-
-        if (isNew) {
-            viewModelScope.launch {
+            if (isNew) {
                 val lastUsedId = transactionRepository.lastUsedCurrencyId()
                 if (lastUsedId != null && savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID) == null) {
                     savedStateHandle[KEY_ORIG_CURRENCY_ID] = lastUsedId
@@ -148,9 +133,15 @@ class TransactionFormViewModel @Inject constructor(
                         _uiState.update { it.copy(currencyId = lastUsedId).recompute() }
                     }
                 }
-            }
-        } else if (savedStateHandle.get<Boolean>(KEY_ORIG_LOADED) != true) {
-            viewModelScope.launch {
+                val lastUsedPmId = transactionRepository.lastUsedPaymentMethodId()
+                if (lastUsedPmId != null && savedStateHandle.get<Long>(KEY_ORIG_PAYMENT_METHOD_ID) == null) {
+                    savedStateHandle[KEY_ORIG_PAYMENT_METHOD_ID] = lastUsedPmId
+                    if (savedStateHandle.get<Long>(KEY_PAYMENT_METHOD_ID) == null) {
+                        savedStateHandle[KEY_PAYMENT_METHOD_ID] = lastUsedPmId
+                        _uiState.update { it.copy(paymentMethodId = lastUsedPmId).recompute() }
+                    }
+                }
+            } else if (savedStateHandle.get<Boolean>(KEY_ORIG_LOADED) != true) {
                 _uiState.update { it.copy(isLoading = true).recompute() }
                 val tx = transactionRepository.getDetails(transactionId!!)
                 if (tx != null) {
@@ -160,6 +151,7 @@ class TransactionFormViewModel @Inject constructor(
                     savedStateHandle[KEY_ORIG_AMOUNT] = plainAmount
                     savedStateHandle[KEY_ORIG_CURRENCY_ID] = tx.currencyId
                     savedStateHandle[KEY_ORIG_CATEGORY] = tx.categoryName
+                    savedStateHandle[KEY_ORIG_PAYMENT_METHOD_ID] = tx.paymentMethodId
                     savedStateHandle[KEY_ORIG_DESCRIPTION] = tx.description
                     savedStateHandle[KEY_ORIG_DATE] = tx.date.toEpochDay()
 
@@ -167,6 +159,7 @@ class TransactionFormViewModel @Inject constructor(
                     savedStateHandle[KEY_AMOUNT] = plainAmount
                     savedStateHandle[KEY_CURRENCY_ID] = tx.currencyId
                     savedStateHandle[KEY_CATEGORY] = tx.categoryName
+                    savedStateHandle[KEY_PAYMENT_METHOD_ID] = tx.paymentMethodId
                     savedStateHandle[KEY_DESCRIPTION] = tx.description
                     savedStateHandle[KEY_DATE] = tx.date.toEpochDay()
 
@@ -176,6 +169,7 @@ class TransactionFormViewModel @Inject constructor(
                             amountText = plainAmount,
                             currencyId = tx.currencyId,
                             categoryText = tx.categoryName,
+                            paymentMethodId = tx.paymentMethodId,
                             description = tx.description,
                             date = tx.date,
                             isLoading = false,
@@ -183,6 +177,38 @@ class TransactionFormViewModel @Inject constructor(
                     }
                 } else {
                     _uiState.update { it.copy(isLoading = false).recompute() }
+                }
+            }
+
+            // Fonda valyuta, to'lov usuli va kategoriya ro'yxatlarini yuklash
+            combine(currenciesFlow, categoriesFlow, suggestionsFlow, paymentMethodsFlow) { currList, catList, recentList, pmList ->
+                FormDependencies(currList, catList, recentList, pmList)
+            }.collect { (currList, catList, recentList, pmList) ->
+                _uiState.update { current ->
+                    val resolvedCurrencyId = current.currencyId ?: resolveInitialCurrencyId(currList)
+                    if (current.currencyId == null && resolvedCurrencyId != null) {
+                        savedStateHandle[KEY_CURRENCY_ID] = resolvedCurrencyId
+                        if (savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID) == null) {
+                            savedStateHandle[KEY_ORIG_CURRENCY_ID] = resolvedCurrencyId
+                        }
+                    }
+
+                    val resolvedPaymentMethodId = current.paymentMethodId ?: resolveInitialPaymentMethodId(pmList)
+                    if (current.paymentMethodId == null && resolvedPaymentMethodId != null) {
+                        savedStateHandle[KEY_PAYMENT_METHOD_ID] = resolvedPaymentMethodId
+                        if (savedStateHandle.get<Long>(KEY_ORIG_PAYMENT_METHOD_ID) == null) {
+                            savedStateHandle[KEY_ORIG_PAYMENT_METHOD_ID] = resolvedPaymentMethodId
+                        }
+                    }
+
+                    current.copy(
+                        currencyId = resolvedCurrencyId,
+                        currencies = currList,
+                        allCategories = catList,
+                        categorySuggestions = recentList,
+                        paymentMethodId = resolvedPaymentMethodId,
+                        paymentMethods = pmList,
+                    ).recompute()
                 }
             }
         }
@@ -195,6 +221,7 @@ class TransactionFormViewModel @Inject constructor(
         val savedAmount = savedStateHandle.get<String>(KEY_AMOUNT) ?: ""
         val savedCurrencyId = savedStateHandle.get<Long>(KEY_CURRENCY_ID)
         val savedCategory = savedStateHandle.get<String>(KEY_CATEGORY) ?: ""
+        val savedPaymentMethodId = savedStateHandle.get<Long>(KEY_PAYMENT_METHOD_ID)
         val savedDescription = savedStateHandle.get<String>(KEY_DESCRIPTION) ?: ""
         val savedDate = savedStateHandle.get<Long>(KEY_DATE)?.let(LocalDate::ofEpochDay) ?: LocalDate.now()
         val origLoaded = savedStateHandle.get<Boolean>(KEY_ORIG_LOADED) == true
@@ -212,6 +239,7 @@ class TransactionFormViewModel @Inject constructor(
             amountText = savedAmount,
             currencyId = savedCurrencyId,
             categoryText = savedCategory,
+            paymentMethodId = savedPaymentMethodId,
             description = savedDescription,
             date = savedDate,
             isLoading = !isNew && !origLoaded,
@@ -225,6 +253,14 @@ class TransactionFormViewModel @Inject constructor(
         return (currList.firstOrNull { it.id == preferredId }
             ?: currList.firstOrNull { it.isDefault }
             ?: currList.first()).id
+    }
+
+    private fun resolveInitialPaymentMethodId(pmList: List<PaymentMethodEntity>): Long? {
+        if (pmList.isEmpty()) return null
+        val preferredId = savedStateHandle.get<Long>(KEY_ORIG_PAYMENT_METHOD_ID)
+        return (pmList.firstOrNull { it.id == preferredId }
+            ?: pmList.firstOrNull { it.isDefault }
+            ?: pmList.first()).id
     }
 
     private fun FormUiState.recompute(): FormUiState {
@@ -246,6 +282,7 @@ class TransactionFormViewModel @Inject constructor(
         val origAmount = savedStateHandle.get<String>(KEY_ORIG_AMOUNT) ?: ""
         val origCurrencyId = savedStateHandle.get<Long>(KEY_ORIG_CURRENCY_ID)
         val origCategory = savedStateHandle.get<String>(KEY_ORIG_CATEGORY) ?: ""
+        val origPaymentMethodId = savedStateHandle.get<Long>(KEY_ORIG_PAYMENT_METHOD_ID)
         val origDescription = savedStateHandle.get<String>(KEY_ORIG_DESCRIPTION) ?: ""
         val origDate = savedStateHandle.get<Long>(KEY_ORIG_DATE)?.let(LocalDate::ofEpochDay) ?: LocalDate.now()
 
@@ -255,13 +292,15 @@ class TransactionFormViewModel @Inject constructor(
                 description.isNotBlank() ||
                 type != origType ||
                 date != origDate ||
-                (origCurrencyId != null && currencyId != null && currencyId != origCurrencyId)
+                (origCurrencyId != null && currencyId != null && currencyId != origCurrencyId) ||
+                (origPaymentMethodId != null && paymentMethodId != null && paymentMethodId != origPaymentMethodId)
         } else {
             val loaded = savedStateHandle.get<Boolean>(KEY_ORIG_LOADED) == true
             loaded && (
                 type != origType ||
                     amountText != origAmount ||
                     currencyId != origCurrencyId ||
+                    paymentMethodId != origPaymentMethodId ||
                     categoryText.trim() != origCategory.trim() ||
                     description.trim() != origDescription.trim() ||
                     date != origDate
@@ -277,7 +316,7 @@ class TransactionFormViewModel @Inject constructor(
             categoryErrorRes = if (showCategoryError) rawCategoryError else null,
             descriptionErrorRes = descriptionError,
             canSave = !isLoading && rawAmountError == null && rawCategoryError == null &&
-                descriptionError == null && currencyId != null,
+                descriptionError == null && currencyId != null && paymentMethodId != null,
             isDirty = dirty,
         )
     }
@@ -301,6 +340,22 @@ class TransactionFormViewModel @Inject constructor(
     fun setCategoryText(c: String) {
         savedStateHandle[KEY_CATEGORY] = c
         _uiState.update { it.copy(categoryText = c).recompute() }
+    }
+
+    fun setPaymentMethodId(id: Long) {
+        savedStateHandle[KEY_PAYMENT_METHOD_ID] = id
+        _uiState.update { it.copy(paymentMethodId = id).recompute() }
+    }
+
+    fun addQuickPaymentMethod(name: String) {
+        viewModelScope.launch {
+            try {
+                val created = paymentMethodRepository.add(name)
+                setPaymentMethodId(created.id)
+            } catch (e: DomainException) {
+                _events.emit(FormEvent.Error(e.messageRes, e.args.toList()))
+            }
+        }
     }
 
     fun setDescription(d: String) {
@@ -352,6 +407,11 @@ class TransactionFormViewModel @Inject constructor(
             return
         }
 
+        val pmId = validated.paymentMethodId ?: run {
+            emitError(R.string.err_payment_method_required)
+            return
+        }
+
         val amountResult = AmountValidator.validate(validated.amountText)
         if (amountResult is AmountResult.Invalid) {
             if (amountResult.messageRes == R.string.err_amount_invalid) {
@@ -373,6 +433,7 @@ class TransactionFormViewModel @Inject constructor(
                     amount = validAmount,
                     currencyId = currId,
                     categoryName = validated.categoryText,
+                    paymentMethodId = pmId,
                     date = validated.date,
                     description = validated.description,
                 )
@@ -443,7 +504,16 @@ class TransactionFormViewModel @Inject constructor(
         const val KEY_ORIG_AMOUNT = "form_orig_amount"
         const val KEY_ORIG_CURRENCY_ID = "form_orig_currency_id"
         const val KEY_ORIG_CATEGORY = "form_orig_category"
+        const val KEY_ORIG_PAYMENT_METHOD_ID = "form_orig_payment_method_id"
+        const val KEY_PAYMENT_METHOD_ID = "form_payment_method_id"
         const val KEY_ORIG_DESCRIPTION = "form_orig_description"
         const val KEY_ORIG_DATE = "form_orig_date"
     }
 }
+
+private data class FormDependencies(
+    val currencies: List<CurrencyEntity>,
+    val categories: List<CategoryEntity>,
+    val suggestions: List<String>,
+    val paymentMethods: List<PaymentMethodEntity>,
+)

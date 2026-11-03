@@ -97,6 +97,25 @@
     <string name="category_tx_count">Транзакций: %1$d</string>
     <string name="empty_categories">Категории отсутствуют</string>
 
+    <!-- Payment Methods Screen -->
+    <string name="title_payment_methods">Способы оплаты</string>
+    <string name="action_add_payment_method">Добавить способ оплаты</string>
+    <string name="action_rename_payment_method">Переименовать способ оплаты</string>
+    <string name="label_payment_method">Способ оплаты</string>
+    <string name="label_payment_method_name">Название способа оплаты</string>
+    <string name="delete_payment_method_confirm">Вы уверены, что хотите удалить способ оплаты «%1$s»?</string>
+    <string name="payment_method_tx_count">%1$d транзакций</string>
+    <string name="empty_payment_methods">Нет способов оплаты</string>
+    <string name="desc_payment_methods">Способы оплаты в транзакциях</string>
+    <string name="filter_payment_method">Способ оплаты</string>
+    <string name="payment_method_default_badge">По умолчанию</string>
+    <string name="err_payment_method_required">Необходимо выбрать способ оплаты</string>
+    <string name="err_payment_method_too_long">Название способа оплаты слишком длинное</string>
+    <string name="err_payment_method_duplicate">Способ оплаты «%1$s» уже существует</string>
+    <string name="err_payment_method_default_locked">Способ оплаты по умолчанию нельзя удалить</string>
+    <string name="err_payment_method_in_use">Нельзя удалить: способ оплаты «%1$s» используется в транзакциях</string>
+    <string name="err_payment_method_not_found">Способ оплаты не найден</string>
+
     <!-- Settings Screen -->
     <string name="title_settings">Настройки</string>
     <string name="settings_section_general">Общие</string>

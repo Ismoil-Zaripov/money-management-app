@@ -87,6 +87,44 @@ interface CategoryDao {
 }
 
 @Dao
+interface PaymentMethodDao {
+    @Query("SELECT * FROM payment_methods ORDER BY isDefault DESC, name COLLATE NOCASE")
+    fun observeAll(): Flow<List<PaymentMethodEntity>>
+
+    @Query(
+        """
+        SELECT pm.*, (SELECT COUNT(*) FROM transactions t WHERE t.paymentMethodId = pm.id) AS transactionCount
+        FROM payment_methods pm ORDER BY pm.isDefault DESC, pm.name COLLATE NOCASE
+        """
+    )
+    fun observeWithUsage(): Flow<List<PaymentMethodWithUsage>>
+
+    @Query("SELECT * FROM payment_methods ORDER BY isDefault DESC, name COLLATE NOCASE")
+    suspend fun getAll(): List<PaymentMethodEntity>
+
+    @Query("SELECT * FROM payment_methods WHERE id = :id")
+    suspend fun getById(id: Long): PaymentMethodEntity?
+
+    @Query("SELECT * FROM payment_methods WHERE nameKey = :key LIMIT 1")
+    suspend fun findByKey(key: String): PaymentMethodEntity?
+
+    @Query("SELECT * FROM payment_methods WHERE isDefault = 1 LIMIT 1")
+    suspend fun getDefault(): PaymentMethodEntity?
+
+    @Insert
+    suspend fun insert(entity: PaymentMethodEntity): Long
+
+    @Update
+    suspend fun update(entity: PaymentMethodEntity)
+
+    @Query("DELETE FROM payment_methods WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM transactions WHERE paymentMethodId = :id")
+    suspend fun usageCount(id: Long): Int
+}
+
+@Dao
 interface ExchangeRateDao {
     @Query(
         """
@@ -151,6 +189,7 @@ interface ExchangeRateDao {
 private const val FILTER_WHERE = """
     WHERE (:categoryId IS NULL OR t.categoryId = :categoryId)
       AND (:currencyId IS NULL OR t.currencyId = :currencyId)
+      AND (:paymentMethodId IS NULL OR t.paymentMethodId = :paymentMethodId)
       AND (:type IS NULL OR t.type = :type)
       AND (:fromDate IS NULL OR t.date >= :fromDate)
       AND (:toDate IS NULL OR t.date <= :toDate)
@@ -165,11 +204,14 @@ private const val SNAPSHOT_JOINS = """
 
 private const val SELECT_ROWS = """
     SELECT t.id AS id, t.type AS type, t.amount AS amount, t.date AS date,
-           c.code AS currencyCode, cat.name AS categoryName, t.description AS description,
+           c.code AS currencyCode, cat.name AS categoryName,
+           pm.id AS paymentMethodId, pm.name AS paymentMethodName,
+           t.description AS description,
            trD.rate AS displayRate, trF.rate AS fallbackRate
     FROM transactions t
     INNER JOIN currencies c ON c.id = t.currencyId
     INNER JOIN categories cat ON cat.id = t.categoryId
+    INNER JOIN payment_methods pm ON pm.id = t.paymentMethodId
 """ + SNAPSHOT_JOINS
 
 private const val SELECT_TOTALS = """
@@ -206,6 +248,7 @@ interface TransactionDao {
     fun paging(
         categoryId: Long?,
         currencyId: Long?,
+        paymentMethodId: Long?,
         type: TransactionType?,
         fromDate: LocalDate?,
         toDate: LocalDate?,
@@ -217,6 +260,7 @@ interface TransactionDao {
     fun totals(
         categoryId: Long?,
         currencyId: Long?,
+        paymentMethodId: Long?,
         type: TransactionType?,
         fromDate: LocalDate?,
         toDate: LocalDate?,
@@ -228,6 +272,7 @@ interface TransactionDao {
     fun dailyTotals(
         categoryId: Long?,
         currencyId: Long?,
+        paymentMethodId: Long?,
         type: TransactionType?,
         fromDate: LocalDate?,
         toDate: LocalDate?,
@@ -237,6 +282,9 @@ interface TransactionDao {
 
     @Query("SELECT currencyId FROM transactions ORDER BY createdAt DESC, id DESC LIMIT 1")
     suspend fun lastUsedCurrencyId(): Long?
+
+    @Query("SELECT paymentMethodId FROM transactions ORDER BY createdAt DESC, id DESC LIMIT 1")
+    suspend fun lastUsedPaymentMethodId(): Long?
 
     /** Eng oxirgi ishlatilgan kategoriyalar (har biri bir marta), yangi tranzaksiya formasi uchun. */
     @Query(

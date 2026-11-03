@@ -79,6 +79,16 @@ object CategoryNames {
     fun key(name: String): String = normalize(name).lowercase(Locale.ROOT)
 }
 
+object PaymentMethodNames {
+    const val MAX_LENGTH = 50
+    private val spaces = Regex("\\s+")
+
+    fun normalize(name: String): String = name.trim().replace(spaces, " ")
+
+    /** Case-insensitive uniqueness key (works for Latin and Cyrillic). */
+    fun key(name: String): String = normalize(name).lowercase(Locale.ROOT)
+}
+
 /** Optional transaction description: empty is valid, length is checked after trimming. */
 object TransactionDescription {
     const val MAX_LENGTH = 200

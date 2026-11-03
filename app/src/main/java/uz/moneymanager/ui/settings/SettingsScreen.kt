@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,6 +81,7 @@ fun SettingsScreen(
     onNavigateCurrencies: () -> Unit,
     onNavigateRates: () -> Unit,
     onNavigateCategories: () -> Unit,
+    onNavigatePaymentMethods: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val themeMode by viewModel.themeMode.collectAsState()
@@ -297,6 +299,14 @@ fun SettingsScreen(
                 title = stringResource(R.string.title_categories),
                 subtitle = stringResource(R.string.desc_categories),
                 onClick = onNavigateCategories,
+                showArrow = true
+            )
+
+            SettingsItem(
+                icon = Icons.Default.Payments,
+                title = stringResource(R.string.title_payment_methods),
+                subtitle = stringResource(R.string.desc_payment_methods),
+                onClick = onNavigatePaymentMethods,
                 showArrow = true
             )
         }

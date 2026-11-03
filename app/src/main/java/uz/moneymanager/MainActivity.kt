@@ -44,6 +44,7 @@ import uz.moneymanager.ui.categories.CategoriesScreen
 import uz.moneymanager.ui.currencies.CurrenciesScreen
 import uz.moneymanager.ui.navigation.BottomNavItem
 import uz.moneymanager.ui.navigation.Screen
+import uz.moneymanager.ui.paymentmethods.PaymentMethodsScreen
 import uz.moneymanager.ui.rates.RatesScreen
 import uz.moneymanager.ui.settings.SettingsScreen
 import uz.moneymanager.ui.theme.MoneyManagerTheme
@@ -161,7 +162,8 @@ fun MainAppContent() {
                 SettingsScreen(
                     onNavigateCurrencies = { navController.navigate(Screen.Currencies.route) },
                     onNavigateRates = { navController.navigate(Screen.Rates.route) },
-                    onNavigateCategories = { navController.navigate(Screen.Categories.route) }
+                    onNavigateCategories = { navController.navigate(Screen.Categories.route) },
+                    onNavigatePaymentMethods = { navController.navigate(Screen.PaymentMethods.route) }
                 )
             }
 
@@ -214,6 +216,18 @@ fun MainAppContent() {
                 popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
             ) {
                 CategoriesScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Screen.PaymentMethods.route,
+                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
+                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
+            ) {
+                PaymentMethodsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

@@ -72,6 +72,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -133,6 +134,8 @@ fun TransactionFormScreen(
 
     var missingRatesEvent by remember { mutableStateOf<FormEvent.ShowMissingRates?>(null) }
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
+    var showAddPaymentMethodDialog by rememberSaveable { mutableStateOf(false) }
+    var newPaymentMethodName by rememberSaveable { mutableStateOf("") }
     var amountHadFocus by rememberSaveable { mutableStateOf(false) }
     var categoryHadFocus by rememberSaveable { mutableStateOf(false) }
     var initialFocusRequested by rememberSaveable { mutableStateOf(false) }
@@ -172,6 +175,7 @@ fun TransactionFormScreen(
     LaunchedEffect(state.isNew, state.isLoading) {
         if (state.isNew && !state.isLoading && !initialFocusRequested) {
             initialFocusRequested = true
+            withFrameNanos { }
             amountFocus.requestFocus()
             keyboard?.show()
         }
@@ -349,6 +353,40 @@ fun TransactionFormScreen(
                     }
                 }
 
+                // To'lov usuli: dinamik chip'lar va yangi to'lov usuli qo'shish
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.label_payment_method),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        items(state.paymentMethods, key = { it.id }) { pm ->
+                            val isSelected = pm.id == state.paymentMethodId
+                            ThemedFilterChip(
+                                selected = isSelected,
+                                onClick = { viewModel.setPaymentMethodId(pm.id) },
+                                label = pm.name
+                            )
+                        }
+                        item {
+                            ThemedFilterChip(
+                                selected = false,
+                                onClick = {
+                                    newPaymentMethodName = ""
+                                    showAddPaymentMethodDialog = true
+                                },
+                                label = "+ ${stringResource(R.string.action_add)}"
+                            )
+                        }
+                    }
+                }
+
                 DateSection(date = state.date, onDateChange = viewModel::setDate)
 
                 // Tavsif: ixtiyoriy, xato faqat uzunlik chegarasidan oshganda ko'rinadi
@@ -395,6 +433,43 @@ fun TransactionFormScreen(
             dismissButton = {
                 TextButton(onClick = { showDiscardDialog = false }) {
                     Text(stringResource(R.string.action_keep_editing))
+                }
+            }
+        )
+    }
+
+    // Add Payment Method Dialog
+    if (showAddPaymentMethodDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddPaymentMethodDialog = false },
+            title = { Text(stringResource(R.string.action_add_payment_method)) },
+            text = {
+                OutlinedTextField(
+                    value = newPaymentMethodName,
+                    onValueChange = { newPaymentMethodName = it },
+                    label = { Text(stringResource(R.string.label_payment_method_name)) },
+                    singleLine = true,
+                    shape = FieldShape,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val trimmed = newPaymentMethodName.trim()
+                        if (trimmed.isNotEmpty()) {
+                            viewModel.addQuickPaymentMethod(trimmed)
+                            showAddPaymentMethodDialog = false
+                        }
+                    },
+                    enabled = newPaymentMethodName.isNotBlank()
+                ) {
+                    Text(stringResource(R.string.action_save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddPaymentMethodDialog = false }) {
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )

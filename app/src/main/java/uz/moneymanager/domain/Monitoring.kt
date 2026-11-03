@@ -9,6 +9,7 @@ import java.time.LocalDate
 data class MonitoringFilter(
     val categoryId: Long? = null,
     val currencyId: Long? = null,
+    val paymentMethodId: Long? = null,
     val type: TransactionType? = null,
     val from: LocalDate? = null,
     val to: LocalDate? = null,

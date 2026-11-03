@@ -19,10 +19,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -93,6 +95,7 @@ import androidx.paging.compose.itemKey
 import uz.moneymanager.R
 import uz.moneymanager.data.local.CategoryEntity
 import uz.moneymanager.data.local.CurrencyEntity
+import uz.moneymanager.data.local.PaymentMethodEntity
 import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
 import uz.moneymanager.domain.Totals
@@ -115,6 +118,7 @@ fun TransactionsScreen(
     val filter by viewModel.filter.collectAsState()
     val currencies by viewModel.currencies.collectAsState()
     val categories by viewModel.categories.collectAsState()
+    val paymentMethods by viewModel.paymentMethods.collectAsState()
     val defaultCurrency by viewModel.defaultCurrency.collectAsState()
     val totals by viewModel.totals.collectAsState()
     val dailyTotals by viewModel.dailyTotals.collectAsState()
@@ -243,9 +247,11 @@ fun TransactionsScreen(
                 filter = filter,
                 currencies = currencies,
                 categories = categories,
+                paymentMethods = paymentMethods,
                 displayCurrency = displayCurrency,
                 onCategorySelect = { viewModel.setCategory(it) },
                 onCurrencyFilterSelect = { viewModel.setCurrencyFilter(it) },
+                onPaymentMethodSelect = { viewModel.setPaymentMethodFilter(it) },
                 onDisplayCurrencySelect = { viewModel.setDisplayCurrency(it) },
                 onTypeSelect = { viewModel.setType(it) },
                 onDateRangeSelect = { from, to -> viewModel.setDateRange(from, to) }
@@ -460,19 +466,39 @@ fun TransactionItemRow(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Chap tomon: Kategoriya nomi va kerak bo'lsa asl summa
+                // Chap tomon: Kategoriya nomi, to'lov usuli va kerak bo'lsa asl summa
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 12.dp)
                 ) {
-                    Text(
-                        text = item.title,
-                        style = nameStyle,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = item.title,
+                            style = nameStyle,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier.widthIn(max = 120.dp)
+                        ) {
+                            Text(
+                                text = item.paymentMethodName,
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                            )
+                        }
+                    }
                     if (item.originalAmountText != null) {
                         Text(
                             text = item.originalAmountText,
@@ -508,15 +534,18 @@ fun TransactionFilterBar(
     filter: MonitoringFilter,
     currencies: List<CurrencyEntity>,
     categories: List<CategoryEntity>,
+    paymentMethods: List<PaymentMethodEntity>,
     displayCurrency: CurrencyEntity?,
     onCategorySelect: (Long?) -> Unit,
     onCurrencyFilterSelect: (Long?) -> Unit,
+    onPaymentMethodSelect: (Long?) -> Unit,
     onDisplayCurrencySelect: (Long) -> Unit,
     onTypeSelect: (TransactionType?) -> Unit,
     onDateRangeSelect: (LocalDate?, LocalDate?) -> Unit,
 ) {
     val context = LocalContext.current
     var showCategoryMenu by remember { mutableStateOf(false) }
+    var showPaymentMethodMenu by remember { mutableStateOf(false) }
     var showCurrencyFilterMenu by remember { mutableStateOf(false) }
     var showDisplayCurrencyMenu by remember { mutableStateOf(false) }
     var showTypeMenu by remember { mutableStateOf(false) }
@@ -599,6 +628,45 @@ fun TransactionFilterBar(
                             onClick = {
                                 onCategorySelect(cat.id)
                                 showCategoryMenu = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Payment Method Filter
+        item {
+            val selectedPm = paymentMethods.firstOrNull { it.id == filter.paymentMethodId }
+            Box {
+                FilterChip(
+                    selected = filter.paymentMethodId != null,
+                    onClick = { showPaymentMethodMenu = true },
+                    label = {
+                        Text(
+                            text = "${stringResource(R.string.filter_payment_method)}: ${selectedPm?.name ?: stringResource(R.string.filter_all)}",
+                            style = MaterialTheme.contentText
+                        )
+                    },
+                    colors = chipColors
+                )
+                DropdownMenu(
+                    expanded = showPaymentMethodMenu,
+                    onDismissRequest = { showPaymentMethodMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.filter_all), style = MaterialTheme.contentText) },
+                        onClick = {
+                            onPaymentMethodSelect(null)
+                            showPaymentMethodMenu = false
+                        }
+                    )
+                    paymentMethods.forEach { pm ->
+                        DropdownMenuItem(
+                            text = { Text(pm.name, style = MaterialTheme.contentText) },
+                            onClick = {
+                                onPaymentMethodSelect(pm.id)
+                                showPaymentMethodMenu = false
                             }
                         )
                     }

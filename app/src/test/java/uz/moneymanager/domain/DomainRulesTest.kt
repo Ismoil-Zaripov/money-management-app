@@ -263,6 +263,7 @@ class DomainRulesTest {
         val item1 = TransactionListItemUiModel.Item(
             id = 1,
             title = "Ovqat",
+            paymentMethodName = "Cash",
             amountText = "−50 000 UZS",
             originalAmountText = null,
             type = TransactionType.EXPENSE,
@@ -271,6 +272,7 @@ class DomainRulesTest {
         val item2 = TransactionListItemUiModel.Item(
             id = 2,
             title = "Kiyim",
+            paymentMethodName = "Cash",
             amountText = "−100 000 UZS",
             originalAmountText = null,
             type = TransactionType.EXPENSE,
@@ -279,6 +281,7 @@ class DomainRulesTest {
         val item3 = TransactionListItemUiModel.Item(
             id = 3,
             title = "Maosh",
+            paymentMethodName = "Transfer",
             amountText = "+5 000 000 UZS",
             originalAmountText = null,
             type = TransactionType.INCOME,
@@ -366,5 +369,17 @@ class DomainRulesTest {
         val otherYear = LocalDate.of(2025, 10, 27)
         val formattedOther = FormatUtils.formatHeaderDate(otherYear, Locale.ENGLISH, now)
         assertEquals("27 October 2025", formattedOther)
+    }
+
+    @Test
+    fun testPaymentMethodNames_normalizationAndKey() {
+        assertEquals("Cash", PaymentMethodNames.normalize("  Cash  "))
+        assertEquals("Bank Transfer", PaymentMethodNames.normalize("Bank   Transfer"))
+        assertEquals("cash", PaymentMethodNames.key("Cash"))
+        assertEquals("cash", PaymentMethodNames.key("  CASH  "))
+        assertEquals("transfer", PaymentMethodNames.key("Transfer"))
+        assertEquals("transfer", PaymentMethodNames.key("  transfer  "))
+        assertEquals(PaymentMethodNames.key("Cash"), PaymentMethodNames.key("cash"))
+        assertEquals(50, PaymentMethodNames.MAX_LENGTH)
     }
 }

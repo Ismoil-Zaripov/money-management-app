@@ -23,8 +23,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uz.moneymanager.data.local.CategoryEntity
 import uz.moneymanager.data.local.CurrencyEntity
+import uz.moneymanager.data.local.PaymentMethodEntity
 import uz.moneymanager.data.repository.CategoryRepository
 import uz.moneymanager.data.repository.CurrencyRepository
+import uz.moneymanager.data.repository.PaymentMethodRepository
 import uz.moneymanager.data.repository.TransactionRepository
 import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
@@ -48,6 +50,7 @@ sealed interface TransactionListItemUiModel {
     data class Item(
         val id: Long,
         val title: String,
+        val paymentMethodName: String = "",
         val amountText: String,
         val originalAmountText: String? = null,
         val type: TransactionType,
@@ -129,6 +132,7 @@ class TransactionsViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val currencyRepository: CurrencyRepository,
     private val categoryRepository: CategoryRepository,
+    private val paymentMethodRepository: PaymentMethodRepository,
 ) : ViewModel() {
 
     private val _filter = MutableStateFlow(MonitoringFilter())
@@ -138,6 +142,9 @@ class TransactionsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val categories: StateFlow<List<CategoryEntity>> = categoryRepository.observeAll()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val paymentMethods: StateFlow<List<PaymentMethodEntity>> = paymentMethodRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val defaultCurrency: StateFlow<CurrencyEntity?> = currencies
@@ -192,6 +199,7 @@ class TransactionsViewModel @Inject constructor(
                         TransactionListItemUiModel.Item(
                             id = row.id,
                             title = row.categoryName,
+                            paymentMethodName = row.paymentMethodName,
                             amountText = FormatUtils.formatAmount(converted.amount, converted.currencyCode, row.type),
                             originalAmountText = converted.originalAmount?.let { origAmount ->
                                 FormatUtils.formatAmount(
@@ -217,6 +225,10 @@ class TransactionsViewModel @Inject constructor(
 
     fun setCategory(categoryId: Long?) {
         _filter.value = _filter.value.copy(categoryId = categoryId)
+    }
+
+    fun setPaymentMethodFilter(paymentMethodId: Long?) {
+        _filter.value = _filter.value.copy(paymentMethodId = paymentMethodId)
     }
 
     fun setCurrencyFilter(currencyId: Long?) {

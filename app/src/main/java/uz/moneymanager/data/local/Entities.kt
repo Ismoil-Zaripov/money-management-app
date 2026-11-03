@@ -33,6 +33,18 @@ data class CategoryEntity(
     val nameKey: String,
 )
 
+@Entity(
+    tableName = "payment_methods",
+    indices = [Index(value = ["nameKey"], unique = true)],
+)
+data class PaymentMethodEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    /** Normalized lower-case name used for uniqueness. */
+    val nameKey: String,
+    @ColumnInfo(defaultValue = "0") val isDefault: Boolean = false,
+)
+
 /** 1 [baseCurrencyId] = [rate] [quoteCurrencyId] on [date]. Always stored together with its reverse. */
 @Entity(
     tableName = "exchange_rates",
@@ -79,8 +91,14 @@ data class ExchangeRateEntity(
             childColumns = ["categoryId"],
             onDelete = ForeignKey.RESTRICT,
         ),
+        ForeignKey(
+            entity = PaymentMethodEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["paymentMethodId"],
+            onDelete = ForeignKey.RESTRICT,
+        ),
     ],
-    indices = [Index("currencyId"), Index("categoryId"), Index("date")],
+    indices = [Index("currencyId"), Index("categoryId"), Index("paymentMethodId"), Index("date")],
 )
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -88,6 +106,7 @@ data class TransactionEntity(
     val amount: BigDecimal,
     val currencyId: Long,
     val categoryId: Long,
+    val paymentMethodId: Long,
     val date: LocalDate,
     val createdAt: Long,
     /** Optional free text; empty string when not provided (column is NOT NULL DEFAULT ''). */
@@ -132,6 +151,8 @@ data class TransactionListRow(
     val date: LocalDate,
     val currencyCode: String,
     val categoryName: String,
+    val paymentMethodId: Long,
+    val paymentMethodName: String,
     val description: String,
     /** Snapshot rate to the display currency, null if the currency did not exist yet. */
     val displayRate: BigDecimal?,
@@ -166,6 +187,13 @@ data class CategoryWithUsage(
     @Embedded val category: CategoryEntity,
     val transactionCount: Int,
 )
+
+data class PaymentMethodWithUsage(
+    @Embedded val paymentMethod: PaymentMethodEntity,
+    val transactionCount: Int,
+) {
+    val isUsed: Boolean get() = transactionCount > 0
+}
 
 data class ExchangeRateRow(
     val id: Long,
