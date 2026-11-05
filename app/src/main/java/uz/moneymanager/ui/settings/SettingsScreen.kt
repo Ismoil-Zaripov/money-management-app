@@ -41,7 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -84,10 +84,10 @@ fun SettingsScreen(
     onNavigatePaymentMethods: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val themeMode by viewModel.themeMode.collectAsState()
-    val palette by viewModel.palette.collectAsState()
-    val currentLanguage by viewModel.currentLanguage.collectAsState()
-    val contentFontSize by viewModel.contentFontSize.collectAsState()
+    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val palette by viewModel.palette.collectAsStateWithLifecycle()
+    val currentLanguage by viewModel.currentLanguage.collectAsStateWithLifecycle()
+    val contentFontSize by viewModel.contentFontSize.collectAsStateWithLifecycle()
 
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }

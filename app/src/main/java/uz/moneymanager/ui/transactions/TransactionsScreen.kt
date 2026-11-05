@@ -59,7 +59,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -115,13 +115,13 @@ fun TransactionsScreen(
     onNavigateToEdit: (Long) -> Unit,
     viewModel: TransactionsViewModel = hiltViewModel(),
 ) {
-    val filter by viewModel.filter.collectAsState()
-    val currencies by viewModel.currencies.collectAsState()
-    val categories by viewModel.categories.collectAsState()
-    val paymentMethods by viewModel.paymentMethods.collectAsState()
-    val defaultCurrency by viewModel.defaultCurrency.collectAsState()
-    val totals by viewModel.totals.collectAsState()
-    val dailyTotals by viewModel.dailyTotals.collectAsState()
+    val filter by viewModel.filter.collectAsStateWithLifecycle()
+    val currencies by viewModel.currencies.collectAsStateWithLifecycle()
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
+    val paymentMethods by viewModel.paymentMethods.collectAsStateWithLifecycle()
+    val defaultCurrency by viewModel.defaultCurrency.collectAsStateWithLifecycle()
+    val totals by viewModel.totals.collectAsStateWithLifecycle()
+    val dailyTotals by viewModel.dailyTotals.collectAsStateWithLifecycle()
     val items = viewModel.transactions.collectAsLazyPagingItems()
 
     var transactionToDelete by remember { mutableStateOf<TransactionListItemUiModel.Item?>(null) }
