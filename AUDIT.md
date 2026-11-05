@@ -5,8 +5,8 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-05 (T04 ✅ tugadi: build, unit testlar va ekranda ko'rishni foydalanuvchi tasdiqladi)
-**Keyingi task:** `T05` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
+**Oxirgi yangilanish:** 2026-11-06 (T05 ✅ tugadi: build, unit testlar va ekranda barcha holatlarni foydalanuvchi tasdiqladi)
+**Keyingi task:** `T06` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
 
 ---
 
@@ -19,7 +19,7 @@
 | T02 | Palitralar (5 light + 5 dark) | ✅ | 2026-11-05 | 5277823 (A: palitralar fayllarga bo'lindi), d079b98 (B: yangi palitralar, fallback, testlar) |
 | T03 | Transactions ro'yxati | ✅ | 2026-11-05 | d5e70b5 (A: route/screen/components), d78339a (B: yangi dizayn) |
 | T04 | Filtrlar va sana oralig'i | ✅ | 2026-11-05 | 1fc21e3 (A: chiplar fayllarga bo'lindi), 9d48f40 (B: filtr sheetlari) |
-| T05 | Summary Report | ⬜ | | |
+| T05 | Summary Report | ✅ | 2026-11-06 | a5a12bb (A: summary/ paketi), 2a750f7 (B: yangi dizayn) |
 | T06 | New Transaction | ⬜ | | |
 | T07 | Edit Transaction | ⬜ | | |
 | T08 | Settings | ⬜ | | |
@@ -40,8 +40,8 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 |---|---|---|---|---|---|---|---|---|---|
 | Transactions ro'yxati (Screen 118) | ✅ | ⬜ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟨 | T03 |
 | Filtr sheetlari | ✅ | ➖ | ✅ | ✅ | ➖ | ✅ | ✅ | ✅ | T04 |
-| Summary Report — Details | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T05 |
-| Summary Report — Pie Chart | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T05 |
+| Summary Report — Details | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T05 |
+| Summary Report — Pie Chart | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T05 |
 | New Transaction (945 + VM 519) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T06 |
 | Edit Transaction | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T07 |
 | Settings (576) | ⬜ | ➖ | ⬜ | ⬜ | ➖ | ⬜ | ⬜ | ⬜ | T08 |
@@ -100,11 +100,14 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 3 | "View Transactions" havolasi (kategoriya FK xatosida) | T11 | ixtiyoriy |
 | 4 | T00: debug vs release qotishni qurilmada o'lchash va oldin/keyin raqamlarini yozish (Claude bu muhitda emulyator ishlata olmaydi) | T00 | foydalanuvchi o'lchaydi |
 | 5 | Gradle JDK 17/21 kerak: tizim JDK 25 da build yiqiladi ("25.0.1"); Android Studio JBR ishlatish | T00 | ma'lumot |
-| 6 | T03: Summary sheet/donut, `TransactionRow`, `TransactionList`, `TotalSummaryFooter` composable'lari ~80 qatordan uzun (sheet/donut ataylab o'zgarmay ko'chirildi) | T05 | T05 da qayta yoziladi |
+| 6 | T03: Summary sheet/donut T05 da qayta yozildi (har composable ≤80 qator). `TransactionRow`, `TransactionList`, `TotalSummaryFooter` ~80 qatordan uzun bo'lib qolgan bo'lishi mumkin, T05 da tegilmagan | T05 | summary qismi hal; qolgani T14 da tekshiriladi |
 | 7 | T03: ro'yxat qatori endi o'z valyutasida (AUDIT §4); kunlik sarlavhada balans o'rniga operatsiyalar soni. `TransactionListRow` ga `createdAt`, `categoryKey` qo'shildi (SELECT proyeksiyasi, sxema o'zgarmagan) | T03 | ma'lumot |
 | 8 | T03: androidTest (`PaymentMethodsComposeUiTest`) qurilmada ishga tushirilmagan; qurilmada ishga tushirishni foydalanuvchi hal qiladi (light/dark, empty, skeleton ekranda ko'rildi, muammo yo'q) | T03 | ochiq |
 | 9 | T04: dizayndagi 'All (45)/Income (12)/Expense (33)' sonlari yo'q (tur bo'yicha son hisoblanmaydi, ortiqcha so'rov yozilmadi); chiplarda faqat tanlangan nom ko'rinadi | T04 | ma'lumot |
 | 10 | T04: `PaymentMethodsComposeUiTest` filtr oqimi sheet'ga moslab yangilandi, lekin qurilmada ishga tushirilmagan; sheetlar va sana oralig'i ekranda ko'rildi, muammo yo'q | T04 | androidTest ochiq |
+| 11 | T05: Summary ekrani (Details va Pie, light/dark, Others bloki, empty donut) ekranda barcha holatlar foydalanuvchi tomonidan ko'rildi, muammo yo'q | T05 | hal qilindi (2026-11-06) |
+| 12 | T05: `Totals` ga `incomeCount`/`expenseCount` qo'shildi (foydalanuvchi qarori: hisoblab qo'shish); SQL va sxema o'zgarmadi, summalar bir xil. Ulush 1 kasrgacha (`summaryShares`), yig'indisi 100.0. 'Net Profit/Net Loss' badge balans ishorasidan chiqadi | T05 | ma'lumot |
+| 13 | T05: davr sarlavhasi, Export, Change Period QILINMADI (tasks.md bo'yicha; Export — keyingi versiya, №2) | T05 | ma'lumot |
 
 ---
 
@@ -118,3 +121,4 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 2026-11-05 | T02 | (A) Palettes.kt 363→25 qator, palitra boshiga alohida fayl; (B) AppPalette → EMERALD/OCEAN_TEAL/ROYAL_INDIGO/WARM_CORAL/GRAPHITE_MINT, 4 yangi light+dark sxema, Emerald dark yashil tusli fon, eski saqlangan nomlar uchun fallback, 3 tilda nomlar, kontrast va migratsiya testlari | T02 cross-cutting bloklar (palitralar, orqaga moslik) ✅ — build, testlar va ko'rishni foydalanuvchi tasdiqladi | keyin T03 | 5277823 (A), d079b98 (B) |
 | 2026-11-05 | T03 | (A) 1232 qatorli ekran → `feature/transactions/` (Route, stateless Screen, UiState/Event, component/dialog/sheet), FormatUtils → `core/format`; (B) yangi ro'yxat dizayni: MmTopBar/MmFab/MmCard qatorlar, ikonka xaritasi, sana pill + operatsiyalar soni, Total Summary pill, skeleton + empty, chiplarda (x); `operations_count` plural 3 tilda | Split, i18n, Perf ✅ (kod bo'yicha tekshirildi); build + unit testlar foydalanuvchi tomonidan yashil | ekranda light/dark, empty/skeleton ko'rish; androidTest; keyin T04 | d5e70b5 (A), d78339a (B) |
 | 2026-11-05 | T04 | (A) filtr chiplari bir fayl-bir komponent, tizim DatePickerDialog `sheet/` ga; (B) `CategoryFilterSheet`, `PaymentCurrencySheet`, `TypeFilterSheet`, `DateRangeSheet` (M3 DateRangePicker + presetlar), `FilterSheetHost`, `DateRangePreset`; chiplar sheet ochadi, (x) bilan tozalanadi; 8 yangi string 3 tilda; androidTest filtr oqimi yangilandi; `DateRangePresetTest` | Split, i18n, Perf ✅ (kod bo'yicha); (A) build foydalanuvchi tomonidan yashil | (B) build/test natijasi, ekranda ko'rish (light/dark), androidTest; keyin T05 | 1fc21e3 (A), 9d48f40 (B), c60b67e (test, audit) |
+| 2026-11-06 | T05 | (A) summary fayllari `sheet/summary/` paketiga, `LegendRow` alohida fayl; (B) Details: Total + base badge, Income/Expense kartalari (N items), Balance (Net) kartasi, Others guruhi + izoh; Pie: donut (markazda matn yo'q, yengil animatsiya), legend (ulush %, Balance 3-qator), Others bloki; yangi tab pill'lari; `Totals.incomeCount/expenseCount`; 9 string 3 tilda; `SummarySharesTest`, DomainRulesTest kengaytirildi | Split, Domain, Light, Dark, States, i18n, Perf, Tests ✅ (build, unit testlar va ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi) | keyin T06 | a5a12bb (A), 2a750f7 (B) |
