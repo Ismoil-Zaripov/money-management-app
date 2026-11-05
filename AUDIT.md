@@ -6,7 +6,7 @@
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
 **Oxirgi yangilanish:** 2026-11-05 (T00 qisman bajarildi)
-**Keyingi task:** `T00`
+**Keyingi task:** `T01` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4)
 
 ---
 
@@ -14,7 +14,7 @@
 
 | Task | Nomi | Holat | Sessiya sanasi | Commit(lar) |
 |---|---|---|---|---|
-| T00 | Performance baseline | 🟨 | 2026-11-05 | 19ce9ba (lifecycle collect); baseline profile — commit kutilmoqda |
+| T00 | Performance baseline | 🟨 | 2026-11-05 | 19ce9ba (lifecycle collect), 85ff3f6 (baseline profile) |
 | T01 | Design system + nav qobig'i | ⬜ | | |
 | T02 | Palitralar (5 light + 5 dark) | ⬜ | | |
 | T03 | Transactions ro'yxati | ⬜ | | |
@@ -107,4 +107,4 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | Sana | Task | Nima qilindi | Qaysi bloklar ✅ bo'ldi | Qolgan / keyingi qadam | Commit |
 |---|---|---|---|---|---|
 | 2026-11-05 | reja | Dizayn tahlil qilindi; ARCHITECTURE.md, tasks.md, AUDIT.md, AI_PROMPT.md yozildi | — | T00 dan boshlash | — |
-| 2026-11-05 | T00 | collectAsState -> collectAsStateWithLifecycle (Transactions 7, Settings 4); profileinstaller + baseline-prof.txt; assembleDebug, testDebugUnitTest, assembleRelease yashil (JBR JDK 21) | — (T00 qisman, bloklar ✅ emas) | qurilmada debug/release o'lchovi; Transactions UiState (T03); keyin T01 | 19ce9ba + baseline profile commit |
+| 2026-11-05 | T00 | collectAsState -> collectAsStateWithLifecycle (Transactions 7, Settings 4); profileinstaller + baseline-prof.txt; assembleDebug, testDebugUnitTest, assembleRelease yashil (JBR JDK 21) | — (T00 qisman, bloklar ✅ emas) | qurilmada debug/release o'lchovi; Transactions UiState (T03); keyin T01 | 19ce9ba, 85ff3f6 |
