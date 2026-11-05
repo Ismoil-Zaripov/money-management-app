@@ -170,6 +170,15 @@
     <string name="err_edit_rates_missing">Нельзя сменить на %1$s на дату %2$s: отсутствуют курсы</string>
     <string name="err_cbu_fetch_failed">Не удалось загрузить курсы с CBU.uz</string>
     <string name="err_description_too_long">Описание не должно превышать %1$d символов</string>
+    <!-- Filter sheets -->
+    <string name="sheet_category_title">Фильтр по категории</string>
+    <string name="sheet_search_categories">Поиск категорий…</string>
+    <string name="sheet_no_results">Ничего не найдено</string>
+    <string name="action_apply_count">Применить (%1$d)</string>
+    <string name="preset_this_month">Этот месяц</string>
+    <string name="preset_last_month">Прошлый месяц</string>
+    <string name="preset_last_30_days">Последние 30 дней</string>
+    <string name="preset_this_year">Этот год</string>
     <plurals name="operations_count">
         <item quantity="one">%d операция</item>
         <item quantity="few">%d операции</item>

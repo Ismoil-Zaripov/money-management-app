@@ -29,6 +29,8 @@ import uz.moneymanager.feature.transactions.ui.component.TransactionFilterBar
 import uz.moneymanager.feature.transactions.ui.component.TransactionList
 import uz.moneymanager.feature.transactions.ui.component.TransactionsTopBar
 import uz.moneymanager.feature.transactions.ui.dialog.DeleteTransactionDialog
+import uz.moneymanager.feature.transactions.ui.sheet.FilterSheet
+import uz.moneymanager.feature.transactions.ui.sheet.FilterSheetHost
 import uz.moneymanager.feature.transactions.ui.sheet.SummaryReportBottomSheet
 
 /** Stateless: ViewModel'ni bilmaydi. Faqat [uiState], [items] va callback'lar. */
@@ -42,6 +44,7 @@ fun TransactionsScreen(
 ) {
     var transactionToDelete by remember { mutableStateOf<TransactionListItemUiModel.Item?>(null) }
     var showSummarySheet by remember { mutableStateOf(false) }
+    var openFilterSheet by remember { mutableStateOf<FilterSheet?>(null) }
     var isAmountVisible by rememberSaveable { mutableStateOf(true) }
 
     val displayCode = uiState.displayCode
@@ -82,7 +85,8 @@ fun TransactionsScreen(
                 onPaymentMethodSelect = { onEvent(TransactionsEvent.PaymentMethodSelected(it)) },
                 onDisplayCurrencySelect = { onEvent(TransactionsEvent.DisplayCurrencySelected(it)) },
                 onTypeSelect = { onEvent(TransactionsEvent.TypeSelected(it)) },
-                onDateRangeSelect = { from, to -> onEvent(TransactionsEvent.DateRangeSelected(from, to)) }
+                onDateRangeSelect = { from, to -> onEvent(TransactionsEvent.DateRangeSelected(from, to)) },
+                onOpenSheet = { openFilterSheet = it }
             )
 
             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
@@ -105,6 +109,13 @@ fun TransactionsScreen(
             onDismiss = { transactionToDelete = null }
         )
     }
+
+    FilterSheetHost(
+        sheet = openFilterSheet,
+        uiState = uiState,
+        onEvent = onEvent,
+        onDismiss = { openFilterSheet = null }
+    )
 
     if (showSummarySheet) {
         SummaryReportBottomSheet(

@@ -175,6 +175,15 @@
     <string name="err_edit_rates_missing">Cannot change to %1$s on %2$s: missing exchange rates</string>
     <string name="err_cbu_fetch_failed">Failed to fetch rates from CBU.uz</string>
     <string name="err_description_too_long">Description must be at most %1$d characters</string>
+    <!-- Filter sheets -->
+    <string name="sheet_category_title">Filter by Category</string>
+    <string name="sheet_search_categories">Search categories…</string>
+    <string name="sheet_no_results">Nothing found</string>
+    <string name="action_apply_count">Apply (%1$d)</string>
+    <string name="preset_this_month">This Month</string>
+    <string name="preset_last_month">Last Month</string>
+    <string name="preset_last_30_days">Last 30 Days</string>
+    <string name="preset_this_year">This Year</string>
     <plurals name="operations_count">
         <item quantity="one">%d operation</item>
         <item quantity="other">%d operations</item>

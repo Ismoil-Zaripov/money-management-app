@@ -508,9 +508,10 @@ class PaymentMethodsComposeUiTest {
 
         composeTestRule.onNodeWithText(initialChipText).performScrollTo().assertIsDisplayed().performClick()
 
-        // In DropdownMenu, click "Transfer" (last node with text "Transfer" which is inside Popup)
+        // The chip opens the Payment/Currency sheet: pick "Transfer" (last node = inside the sheet), then Apply (1)
         val transferNodes = composeTestRule.onAllNodesWithText("Transfer")
         transferNodes[transferNodes.fetchSemanticsNodes().size - 1].performClick()
+        composeTestRule.onNodeWithText(context.getString(R.string.action_apply_count, 1)).performClick()
         composeTestRule.waitForIdle()
 
         // Filter chip now shows "Payment Method: Transfer" and only "Taksi" remains in the list
