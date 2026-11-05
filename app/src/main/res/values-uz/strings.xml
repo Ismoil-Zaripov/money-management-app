@@ -29,6 +29,17 @@
     <string name="label_date">Sana</string>
     <string name="label_description">Tavsif</string>
     <string name="label_optional">%1$s (ixtiyoriy)</string>
+    <string name="form_amount_income">Kirim summasi</string>
+    <string name="form_amount_expense">Chiqim summasi</string>
+    <string name="category_placeholder">Kategoriyani tanlang</string>
+    <string name="category_suggestions">Takliflar</string>
+    <string name="category_recent_count">%1$d ta so‘nggi</string>
+    <string name="category_create">“%1$s” yaratish</string>
+    <string name="label_transaction_date">Operatsiya sanasi</string>
+    <string name="date_future_locked">Kelajak sanalar yopiq</string>
+    <string name="hint_description">Chek izohi, do‘kon yoki eslatma qo‘shing…</string>
+    <string name="counter_format">%1$d / %2$d</string>
+    <string name="action_save_transaction">Operatsiyani saqlash</string>
     <string name="date_today">Bugun</string>
     <string name="date_yesterday">Kecha</string>
     <string name="delete_transaction_confirm">Haqiqatan ham bu tranzaksiyani o‘chirmoqchimisiz?</string>
@@ -194,5 +205,9 @@
     <plurals name="summary_items_count">
         <item quantity="one">%d ta</item>
         <item quantity="other">%d ta</item>
+    </plurals>
+    <plurals name="form_errors_hint">
+        <item quantity="one">Davom etish uchun yuqoridagi %d ta xatoni tuzating</item>
+        <item quantity="other">Davom etish uchun yuqoridagi %d ta xatoni tuzating</item>
     </plurals>
 </resources>

@@ -1,32 +1,22 @@
 package uz.moneymanager.feature.transactionform.ui.dialog
 
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmDialog
 import uz.moneymanager.core.designsystem.theme.contentText
 
 @Composable
 internal fun DiscardChangesDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.discard_changes_title)) },
-        text = { Text(stringResource(R.string.discard_changes_desc), style = MaterialTheme.contentText) },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(
-                    text = stringResource(R.string.action_discard),
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_keep_editing))
-            }
-        }
-    )
+    MmDialog(
+        title = stringResource(R.string.discard_changes_title),
+        confirmText = stringResource(R.string.action_discard),
+        dismissText = stringResource(R.string.action_keep_editing),
+        onConfirm = onConfirm,
+        onDismiss = onDismiss
+    ) {
+        Text(stringResource(R.string.discard_changes_desc), style = MaterialTheme.contentText)
+    }
 }

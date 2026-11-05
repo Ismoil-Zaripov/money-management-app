@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.theme.ExpenseColor
 import uz.moneymanager.core.designsystem.theme.IncomeColor
 import uz.moneymanager.domain.model.TransactionType
@@ -39,12 +40,13 @@ internal fun TransactionFormContent(
     ) {
         TransactionTypeSelector(type = state.type, onSelect = callbacks.onTypeChange)
 
-        // Summa + biriktirilgan valyuta tanlagichi (faqat bitta joyda)
+        // Summa + valyuta chip'lari (faqat bitta joyda)
         AmountCard(
+            label = stringResource(if (state.type == TransactionType.INCOME) R.string.form_amount_income else R.string.form_amount_expense),
             amount = state.amountText,
             onAmountChange = callbacks.onAmountChange,
-            currencyCode = state.currency?.code.orEmpty(),
             currencies = state.currencies,
+            selectedCurrencyId = state.currencyId,
             onSelectCurrency = callbacks.onCurrencySelect,
             color = typeColor,
             errorText = state.amountErrorRes?.let { stringResource(it) },

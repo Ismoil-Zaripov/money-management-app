@@ -9,14 +9,17 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -26,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.theme.contentText
 import uz.moneymanager.data.local.CategoryEntity
+import uz.moneymanager.domain.CategoryNames
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +45,7 @@ internal fun CategoryDropdownField(
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerLow
 
     ExposedDropdownMenuBox(
         expanded = menuVisible,
@@ -50,7 +55,8 @@ internal fun CategoryDropdownField(
         OutlinedTextField(
             value = text,
             onValueChange = onTextChange,
-            label = { Text(stringResource(R.string.label_info)) },
+            placeholder = { Text(stringResource(R.string.category_placeholder)) },
+            leadingIcon = { CategoryIconBadge(categoryKey = CategoryNames.key(text)) },
             trailingIcon = if (text.isNotEmpty()) {
                 {
                     IconButton(onClick = onClear) {
@@ -61,14 +67,20 @@ internal fun CategoryDropdownField(
                     }
                 }
             } else {
-                null
+                { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuVisible) }
             },
             isError = errorRes != null,
             supportingText = errorRes?.let { errRes ->
-                { Text(stringResource(errRes)) }
+                { FormErrorText(text = stringResource(errRes)) }
             },
             singleLine = true,
             shape = FormFieldShape,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = containerColor,
+                unfocusedContainerColor = containerColor,
+                errorContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f),
+                unfocusedBorderColor = Color.Transparent,
+            ),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
                 imeAction = ImeAction.Done

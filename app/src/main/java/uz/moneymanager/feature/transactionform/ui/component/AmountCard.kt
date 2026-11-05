@@ -1,12 +1,11 @@
 package uz.moneymanager.feature.transactionform.ui.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,13 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.data.local.CurrencyEntity
 
-/** Summa kartasi: katta summa maydoni + valyuta tanlagichi + xato matni. */
+/** Summa kartasi: "EXPENSE AMOUNT" yorlig'i, katta summa, valyuta chip'lari, xato. */
 @Composable
 internal fun AmountCard(
+    label: String,
     amount: String,
     onAmountChange: (String) -> Unit,
-    currencyCode: String,
     currencies: List<CurrencyEntity>,
+    selectedCurrencyId: Long?,
     onSelectCurrency: (Long) -> Unit,
     color: Color,
     errorText: String?,
@@ -38,50 +38,44 @@ internal fun AmountCard(
     val borderColor = when {
         errorText != null -> MaterialTheme.colorScheme.error
         isFocused -> color
-        else -> MaterialTheme.colorScheme.outlineVariant
+        else -> Color.Transparent
     }
-    val borderWidth = if (isFocused || errorText != null) 1.5.dp else 1.dp
+    val container = if (errorText != null) {
+        MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f)
+    } else {
+        MaterialTheme.colorScheme.surfaceContainerLow
+    }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Surface(
-            shape = FormFieldShape,
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
-            border = BorderStroke(borderWidth, borderColor),
+            shape = MaterialTheme.shapes.large,
+            color = container,
+            border = BorderStroke(1.5.dp, borderColor),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                AmountTextField(
-                    amount = amount,
-                    onAmountChange = onAmountChange,
-                    color = color,
-                    onNext = onNext,
-                    onFocusChange = { isFocused = it },
-                    modifier = modifier
+                Text(
+                    text = label.uppercase(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                CurrencyDropdown(
-                    currencyCode = currencyCode,
-                    currencies = currencies,
-                    onSelect = onSelectCurrency
-                )
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    AmountTextField(
+                        amount = amount,
+                        onAmountChange = onAmountChange,
+                        color = color,
+                        onNext = onNext,
+                        onFocusChange = { isFocused = it },
+                        modifier = modifier
+                    )
+                }
+                CurrencyChips(currencies = currencies, selectedId = selectedCurrencyId, onSelect = onSelectCurrency)
             }
         }
-
-        if (errorText != null) {
-            Text(
-                text = errorText,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
+        if (errorText != null) FormErrorText(text = errorText)
     }
 }

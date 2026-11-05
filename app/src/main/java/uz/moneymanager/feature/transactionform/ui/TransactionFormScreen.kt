@@ -3,6 +3,7 @@ package uz.moneymanager.feature.transactionform.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -52,7 +53,14 @@ internal fun TransactionFormScreen(
 
     Scaffold(
         topBar = { TransactionFormTopBar(isNew = state.isNew, onBack = callbacks.onBack) },
-        bottomBar = { SaveBar(isSaving = state.isSaving, enabled = state.canSave, onSave = callbacks.onSave) },
+        bottomBar = {
+            SaveBar(
+                isSaving = state.isSaving,
+                enabled = state.canSave,
+                errorCount = listOfNotNull(state.amountErrorRes, state.categoryErrorRes, state.descriptionErrorRes).size,
+                onSave = callbacks.onSave
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         if (state.isLoading) {

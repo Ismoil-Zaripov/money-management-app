@@ -29,6 +29,17 @@
     <string name="label_date">Дата</string>
     <string name="label_description">Описание</string>
     <string name="label_optional">%1$s (необязательно)</string>
+    <string name="form_amount_income">Сумма дохода</string>
+    <string name="form_amount_expense">Сумма расхода</string>
+    <string name="category_placeholder">Выберите категорию</string>
+    <string name="category_suggestions">Подсказки</string>
+    <string name="category_recent_count">%1$d недавних</string>
+    <string name="category_create">Создать «%1$s»</string>
+    <string name="label_transaction_date">Дата операции</string>
+    <string name="date_future_locked">Будущие даты недоступны</string>
+    <string name="hint_description">Добавьте заметку к чеку, магазин или комментарий…</string>
+    <string name="counter_format">%1$d / %2$d</string>
+    <string name="action_save_transaction">Сохранить операцию</string>
     <string name="date_today">Сегодня</string>
     <string name="date_yesterday">Вчера</string>
     <string name="delete_transaction_confirm">Вы уверены, что хотите удалить эту транзакцию?</string>
@@ -198,5 +209,11 @@
         <item quantity="few">%d записи</item>
         <item quantity="many">%d записей</item>
         <item quantity="other">%d записи</item>
+    </plurals>
+    <plurals name="form_errors_hint">
+        <item quantity="one">Исправьте %d выделенную ошибку выше, чтобы продолжить</item>
+        <item quantity="few">Исправьте %d выделенные ошибки выше, чтобы продолжить</item>
+        <item quantity="many">Исправьте %d выделенных ошибок выше, чтобы продолжить</item>
+        <item quantity="other">Исправьте %d выделенной ошибки выше, чтобы продолжить</item>
     </plurals>
 </resources>
