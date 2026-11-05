@@ -20,28 +20,24 @@ internal fun DataManagementSection(
         icon = Icons.Default.MonetizationOn,
         title = stringResource(R.string.title_currencies),
         subtitle = stringResource(R.string.desc_currencies),
-        onClick = onNavigateCurrencies,
-        showArrow = true
+        onClick = onNavigateCurrencies
     )
     SettingsItem(
         icon = Icons.Default.CurrencyExchange,
         title = stringResource(R.string.title_exchange_rates),
         subtitle = stringResource(R.string.desc_exchange_rates),
-        onClick = onNavigateRates,
-        showArrow = true
+        onClick = onNavigateRates
     )
     SettingsItem(
         icon = Icons.Default.Category,
         title = stringResource(R.string.title_categories),
         subtitle = stringResource(R.string.desc_categories),
-        onClick = onNavigateCategories,
-        showArrow = true
+        onClick = onNavigateCategories
     )
     SettingsItem(
         icon = Icons.Default.Payments,
         title = stringResource(R.string.title_payment_methods),
         subtitle = stringResource(R.string.desc_payment_methods),
-        onClick = onNavigatePaymentMethods,
-        showArrow = true
+        onClick = onNavigatePaymentMethods
     )
 }

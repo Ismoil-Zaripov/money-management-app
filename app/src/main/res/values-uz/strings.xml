@@ -162,6 +162,7 @@
     <string name="font_size_sample">Namuna: 1 250 000 UZS</string>
     <string name="font_size_value_sp">%1$d sp</string>
     <string name="font_size_reset">Standartga qaytarish</string>
+    <string name="font_size_reset_short">Tiklash</string>
     <string name="font_size_accessibility">Shrift o‘lchami, %1$d sp</string>
 
     <string name="desc_currencies">Valyutalarni boshqarish va asosiy valyuta</string>

@@ -13,40 +13,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmSectionHeader
+import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.feature.settings.presentation.SettingsUiState
 import uz.moneymanager.feature.settings.ui.component.DataManagementSection
 import uz.moneymanager.feature.settings.ui.component.FontSizeSetting
 import uz.moneymanager.feature.settings.ui.component.LanguageSelector
 import uz.moneymanager.feature.settings.ui.component.PalettePicker
-import uz.moneymanager.feature.settings.ui.component.SettingsDivider
-import uz.moneymanager.feature.settings.ui.component.SettingsSection
-import uz.moneymanager.feature.settings.ui.component.SettingsTopBar
+import uz.moneymanager.feature.settings.ui.component.SettingsCard
 import uz.moneymanager.feature.settings.ui.component.ThemeSelector
 
 @Composable
 fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
-    Scaffold(topBar = { SettingsTopBar() }) { padding ->
+    Scaffold(topBar = { MmTopBar(title = stringResource(R.string.title_settings)) }) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            SettingsSection(stringResource(R.string.settings_section_general))
-            ThemeSelector(state.themeMode, callbacks.onThemeChange)
-            PalettePicker(state.palette, callbacks.onPaletteChange)
-            SettingsDivider()
-            FontSizeSetting(state.contentFontSize, callbacks.onFontSizeChange, callbacks.onFontSizeReset)
-            SettingsDivider()
-            LanguageSelector(state.language, callbacks.onLanguageChange)
+            MmSectionHeader(stringResource(R.string.settings_section_general))
+            SettingsCard {
+                ThemeSelector(state.themeMode, callbacks.onThemeChange)
+                PalettePicker(state.palette, callbacks.onPaletteChange)
+                FontSizeSetting(state.contentFontSize, callbacks.onFontSizeChange, callbacks.onFontSizeReset)
+                LanguageSelector(state.language, callbacks.onLanguageChange)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            MmSectionHeader(stringResource(R.string.settings_section_management))
+            SettingsCard {
+                DataManagementSection(
+                    onNavigateCurrencies = callbacks.onNavigateCurrencies,
+                    onNavigateRates = callbacks.onNavigateRates,
+                    onNavigateCategories = callbacks.onNavigateCategories,
+                    onNavigatePaymentMethods = callbacks.onNavigatePaymentMethods,
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
-            SettingsSection(stringResource(R.string.settings_section_management))
-            DataManagementSection(
-                onNavigateCurrencies = callbacks.onNavigateCurrencies,
-                onNavigateRates = callbacks.onNavigateRates,
-                onNavigateCategories = callbacks.onNavigateCategories,
-                onNavigatePaymentMethods = callbacks.onNavigatePaymentMethods,
-            )
         }
     }
 }

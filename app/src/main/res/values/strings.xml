@@ -163,6 +163,11 @@
     <string name="font_size_sample">Sample: 1 250 000 UZS</string>
     <string name="font_size_value_sp">%1$d sp</string>
     <string name="font_size_reset">Reset to default</string>
+    <string name="font_size_reset_short">Reset</string>
+    <string name="font_size_glyph" translatable="false">A</string>
+    <string name="lang_short_en" translatable="false">EN</string>
+    <string name="lang_short_uz" translatable="false">UZ</string>
+    <string name="lang_short_ru" translatable="false">RU</string>
     <string name="font_size_accessibility">Font size, %1$d sp</string>
 
     <string name="desc_currencies">Manage currencies and default currency</string>
