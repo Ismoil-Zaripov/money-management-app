@@ -21,7 +21,7 @@ import uz.moneymanager.domain.PaymentMethodNames
 import uz.moneymanager.domain.model.TransactionType
 import uz.moneymanager.ui.paymentmethods.PaymentMethodEvent
 import uz.moneymanager.ui.paymentmethods.PaymentMethodsViewModel
-import uz.moneymanager.ui.transactions.TransactionsViewModel
+import uz.moneymanager.feature.transactions.presentation.TransactionsViewModel
 import uz.moneymanager.ui.transactions.form.FormEvent
 import uz.moneymanager.ui.transactions.form.TransactionFormViewModel
 import java.math.BigDecimal

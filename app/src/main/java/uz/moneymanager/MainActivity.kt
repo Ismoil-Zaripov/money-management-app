@@ -38,7 +38,7 @@ import uz.moneymanager.ui.settings.SettingsScreen
 import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.core.designsystem.theme.SystemBarsEffect
 import uz.moneymanager.core.designsystem.theme.barContainer
-import uz.moneymanager.ui.transactions.TransactionsScreen
+import uz.moneymanager.feature.transactions.ui.TransactionsRoute
 import uz.moneymanager.ui.transactions.form.TransactionFormScreen
 
 @AndroidEntryPoint
@@ -110,7 +110,7 @@ fun MainAppContent() {
             popExitTransition = { fadeOut(animationSpec = tween(90)) },
         ) {
             composable(Screen.Transactions.route) {
-                TransactionsScreen(
+                TransactionsRoute(
                     onNavigateToCreate = { navController.navigate(Screen.TransactionForm.createRoute()) },
                     onNavigateToEdit = { id -> navController.navigate(Screen.TransactionForm.createRoute(id)) }
                 )

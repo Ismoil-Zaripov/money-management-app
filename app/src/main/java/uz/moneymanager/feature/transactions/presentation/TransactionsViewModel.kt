@@ -1,6 +1,5 @@
-package uz.moneymanager.ui.transactions
+package uz.moneymanager.feature.transactions.presentation
 
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -8,6 +7,8 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import uz.moneymanager.core.format.FormatUtils
 import uz.moneymanager.data.local.CategoryEntity
 import uz.moneymanager.data.local.CurrencyEntity
 import uz.moneymanager.data.local.PaymentMethodEntity
@@ -32,99 +34,6 @@ import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
 import uz.moneymanager.domain.TransactionAmountCalculator
 import uz.moneymanager.domain.model.TransactionType
-import java.math.BigDecimal
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-import javax.inject.Inject
-
-@Immutable
-sealed interface TransactionListItemUiModel {
-    data class Header(
-        val date: LocalDate,
-        val dateText: String,
-    ) : TransactionListItemUiModel
-
-    data class Item(
-        val id: Long,
-        val title: String,
-        val paymentMethodName: String = "",
-        val amountText: String,
-        val originalAmountText: String? = null,
-        val type: TransactionType,
-        val date: LocalDate,
-    ) : TransactionListItemUiModel
-}
-
-typealias TransactionUiItem = TransactionListItemUiModel.Item
-
-object TransactionDateSeparator {
-    /**
-     * Determines whether a date header should be inserted between [before] and [after].
-     * Rule:
-     * - If [after] is null -> returns null (end of list, no header).
-     * - If [before] is null (start of list) OR [before.date] != [after.date] -> returns a [TransactionListItemUiModel.Header] for [after.date].
-     * - Otherwise (same date) -> returns null.
-     */
-    fun createSeparator(
-        before: TransactionListItemUiModel.Item?,
-        after: TransactionListItemUiModel.Item?,
-        dateFormatter: (LocalDate) -> String = { FormatUtils.formatHeaderDate(it) },
-    ): TransactionListItemUiModel.Header? {
-        return if (after != null && (before == null || before.date != after.date)) {
-            TransactionListItemUiModel.Header(
-                date = after.date,
-                dateText = dateFormatter(after.date),
-            )
-        } else {
-            null
-        }
-    }
-}
-
-object FormatUtils {
-    private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-
-    fun formatDate(date: LocalDate): String = date.format(dateFormatter)
-
-    fun formatHeaderDate(
-        date: LocalDate,
-        locale: Locale = Locale.getDefault(),
-        now: LocalDate = LocalDate.now(),
-    ): String {
-        val pattern = if (date.year == now.year) "d MMMM" else "d MMMM yyyy"
-        val formatter = DateTimeFormatter.ofPattern(pattern, locale)
-        return date.format(formatter)
-    }
-
-    fun formatAmount(
-        amount: BigDecimal,
-        currencyCode: String,
-        type: TransactionType? = null,
-        includePositiveSign: Boolean = false,
-    ): String {
-        val activeLocale = Locale.getDefault()
-        val localeSymbols = DecimalFormatSymbols.getInstance(activeLocale)
-        val symbols = DecimalFormatSymbols(activeLocale).apply {
-            groupingSeparator = '\u00A0'
-            decimalSeparator = localeSymbols.decimalSeparator
-        }
-        val df = DecimalFormat("#,##0.##", symbols)
-        val sign = when (type) {
-            TransactionType.INCOME -> "+"
-            TransactionType.EXPENSE -> "\u2212"
-            null -> when {
-                amount.signum() < 0 -> "\u2212"
-                amount.signum() > 0 && includePositiveSign -> "+"
-                else -> ""
-            }
-        }
-        val formattedValue = df.format(amount.abs())
-        return "$sign$formattedValue\u00A0$currencyCode"
-    }
-}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -222,6 +131,34 @@ class TransactionsViewModel @Inject constructor(
     val totals: StateFlow<MonitoringTotals> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
         transactionRepository.totals(f, displayId, fallbackId)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MonitoringTotals())
+
+    val uiState: StateFlow<TransactionsUiState> = combine(
+        combine(_filter, currencies, categories, paymentMethods, defaultCurrency) { f, cur, cat, pm, def ->
+            TransactionsUiState(
+                filter = f,
+                currencies = cur,
+                categories = cat,
+                paymentMethods = pm,
+                defaultCurrency = def,
+            )
+        },
+        totals,
+        dailyTotals,
+    ) { base, t, d -> base.copy(totals = t, dailyTotals = d) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TransactionsUiState())
+
+    fun onEvent(event: TransactionsEvent) {
+        when (event) {
+            is TransactionsEvent.CategorySelected -> setCategory(event.id)
+            is TransactionsEvent.CurrencyFilterSelected -> setCurrencyFilter(event.id)
+            is TransactionsEvent.PaymentMethodSelected -> setPaymentMethodFilter(event.id)
+            is TransactionsEvent.DisplayCurrencySelected -> setDisplayCurrency(event.id)
+            is TransactionsEvent.TypeSelected -> setType(event.type)
+            is TransactionsEvent.DateRangeSelected -> setDateRange(event.from, event.to)
+            is TransactionsEvent.DeleteConfirmed -> deleteTransaction(event.id)
+            TransactionsEvent.ResetFilters -> resetFilters()
+        }
+    }
 
     fun setCategory(categoryId: Long?) {
         _filter.value = _filter.value.copy(categoryId = categoryId)

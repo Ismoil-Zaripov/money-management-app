@@ -109,7 +109,7 @@ import uz.moneymanager.core.designsystem.theme.IncomeColor
 import uz.moneymanager.core.designsystem.theme.barContainer
 import uz.moneymanager.core.designsystem.theme.contentText
 import uz.moneymanager.core.designsystem.theme.onBarContainer
-import uz.moneymanager.ui.transactions.FormatUtils
+import uz.moneymanager.core.format.FormatUtils
 import java.math.BigDecimal
 import java.text.DecimalFormatSymbols
 import java.time.Instant

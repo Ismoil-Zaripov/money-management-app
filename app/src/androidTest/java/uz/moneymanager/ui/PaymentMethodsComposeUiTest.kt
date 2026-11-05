@@ -51,8 +51,8 @@ import uz.moneymanager.domain.model.TransactionType
 import uz.moneymanager.ui.paymentmethods.PaymentMethodsScreen
 import uz.moneymanager.ui.paymentmethods.PaymentMethodsViewModel
 import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
-import uz.moneymanager.ui.transactions.TransactionsScreen
-import uz.moneymanager.ui.transactions.TransactionsViewModel
+import uz.moneymanager.feature.transactions.ui.TransactionsRoute
+import uz.moneymanager.feature.transactions.presentation.TransactionsViewModel
 import uz.moneymanager.ui.transactions.form.TransactionFormScreen
 import uz.moneymanager.ui.transactions.form.TransactionFormViewModel
 import java.math.BigDecimal
@@ -484,7 +484,7 @@ class PaymentMethodsComposeUiTest {
 
         composeTestRule.setContent {
             MoneyManagerTheme {
-                TransactionsScreen(
+                TransactionsRoute(
                     onNavigateToCreate = {},
                     onNavigateToEdit = {},
                     viewModel = viewModel,
@@ -566,7 +566,7 @@ class PaymentMethodsComposeUiTest {
             MoneyManagerTheme {
                 androidx.compose.foundation.layout.Column {
                     androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.weight(1f)) {
-                        TransactionsScreen(
+                        TransactionsRoute(
                             onNavigateToCreate = {},
                             onNavigateToEdit = {},
                             viewModel = txViewModel,

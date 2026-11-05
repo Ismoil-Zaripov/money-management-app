@@ -73,7 +73,7 @@ import uz.moneymanager.domain.RateValidator
 import uz.moneymanager.core.designsystem.theme.barContainer
 import uz.moneymanager.core.designsystem.theme.contentText
 import uz.moneymanager.core.designsystem.theme.onBarContainer
-import uz.moneymanager.ui.transactions.FormatUtils
+import uz.moneymanager.core.format.FormatUtils
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate

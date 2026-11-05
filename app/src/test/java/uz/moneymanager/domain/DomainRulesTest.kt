@@ -9,9 +9,9 @@ import org.junit.Test
 import uz.moneymanager.data.local.DailyTotalsRow
 import uz.moneymanager.data.local.TotalsRow
 import uz.moneymanager.domain.model.TransactionType
-import uz.moneymanager.ui.transactions.FormatUtils
-import uz.moneymanager.ui.transactions.TransactionDateSeparator
-import uz.moneymanager.ui.transactions.TransactionListItemUiModel
+import uz.moneymanager.core.format.FormatUtils
+import uz.moneymanager.feature.transactions.presentation.TransactionDateSeparator
+import uz.moneymanager.feature.transactions.presentation.TransactionListItemUiModel
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.Locale
@@ -242,7 +242,7 @@ class DomainRulesTest {
     @Test
     fun testOriginalAmountFormatting_noPlusMinusSign() {
         // Asl summa formatlanganda + yoki - belgisi bo'lmasligi, faqat raqam va valyuta bo'lishi
-        val formatted = uz.moneymanager.ui.transactions.FormatUtils.formatAmount(
+        val formatted = uz.moneymanager.core.format.FormatUtils.formatAmount(
             amount = BigDecimal("100"),
             currencyCode = "USD",
             type = null,
