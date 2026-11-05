@@ -1,6 +1,5 @@
 package uz.moneymanager.feature.transactions.ui.component
 
-import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -18,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.theme.contentText
+import uz.moneymanager.feature.transactions.ui.sheet.showDateRangePicker
 
 @Composable
 internal fun DateRangeFilterChip(
@@ -34,29 +34,7 @@ internal fun DateRangeFilterChip(
 
     FilterChip(
         selected = from != null || to != null,
-        onClick = {
-            val now = LocalDate.now()
-            val currentFrom = from ?: now
-            DatePickerDialog(
-                context,
-                { _, y1, m1, d1 ->
-                    val fromDate = LocalDate.of(y1, m1 + 1, d1)
-                    DatePickerDialog(
-                        context,
-                        { _, y2, m2, d2 ->
-                            val toDate = LocalDate.of(y2, m2 + 1, d2)
-                            onDateRangeSelect(fromDate, toDate)
-                        },
-                        fromDate.year,
-                        fromDate.monthValue - 1,
-                        fromDate.dayOfMonth
-                    ).show()
-                },
-                currentFrom.year,
-                currentFrom.monthValue - 1,
-                currentFrom.dayOfMonth
-            ).show()
-        },
+        onClick = { showDateRangePicker(context, from) { f, t -> onDateRangeSelect(f, t) } },
         label = { Text(text = dateLabel, style = MaterialTheme.contentText) },
         trailingIcon = {
             if (from != null || to != null) {
