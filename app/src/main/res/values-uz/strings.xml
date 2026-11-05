@@ -59,6 +59,14 @@
     <string name="summary_total_title">Jami · %1$d ta tranzaksiya</string>
     <string name="summary_fallback_title">Qolganlari · %1$d ta tranzaksiya</string>
     <string name="summary_converted_subtitle">Kurslar bo‘yicha %1$s ga o‘girilgan</string>
+    <string name="summary_base_badge">%1$s bazaviy</string>
+    <string name="summary_direct_badge">%1$s to‘g‘ridan-to‘g‘ri</string>
+    <string name="summary_net_profit">Sof foyda</string>
+    <string name="summary_net_loss">Sof zarar</string>
+    <string name="summary_balance_net">Balans (sof)</string>
+    <string name="summary_fallback_note">Qolgan guruh: kursi yo‘q operatsiyalar, bevosita %1$s da hisoblangan.</string>
+    <string name="summary_cash_flow">Pul oqimi taqsimoti (%1$s)</string>
+    <string name="summary_share">ulushi %1$s</string>
     <string name="label_income">Kirim</string>
     <string name="label_expense">Chiqim</string>
     <string name="label_balance">Balans</string>
@@ -182,5 +190,9 @@
     <plurals name="operations_count">
         <item quantity="one">%d ta operatsiya</item>
         <item quantity="other">%d ta operatsiya</item>
+    </plurals>
+    <plurals name="summary_items_count">
+        <item quantity="one">%d ta</item>
+        <item quantity="other">%d ta</item>
     </plurals>
 </resources>

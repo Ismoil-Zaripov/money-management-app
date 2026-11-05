@@ -21,6 +21,8 @@ data class Totals(
     val income: BigDecimal = BigDecimal.ZERO,
     val expense: BigDecimal = BigDecimal.ZERO,
     val count: Int = 0,
+    val incomeCount: Int = 0,
+    val expenseCount: Int = 0,
 ) {
     val balance: BigDecimal get() = income - expense
 }
@@ -40,23 +42,35 @@ object TotalsCalculator {
         var dIncome = BigDecimal.ZERO
         var dExpense = BigDecimal.ZERO
         var dCount = 0
+        var dIncomeCount = 0
         var fIncome = BigDecimal.ZERO
         var fExpense = BigDecimal.ZERO
         var fCount = 0
+        var fIncomeCount = 0
         for (row in rows) {
             if (row.displayRate != null) {
                 val v = row.amount.multiply(row.displayRate)
-                if (row.type == TransactionType.INCOME) dIncome += v else dExpense += v
+                if (row.type == TransactionType.INCOME) {
+                    dIncome += v
+                    dIncomeCount++
+                } else {
+                    dExpense += v
+                }
                 dCount++
             } else if (row.fallbackRate != null) {
                 val v = row.amount.multiply(row.fallbackRate)
-                if (row.type == TransactionType.INCOME) fIncome += v else fExpense += v
+                if (row.type == TransactionType.INCOME) {
+                    fIncome += v
+                    fIncomeCount++
+                } else {
+                    fExpense += v
+                }
                 fCount++
             }
         }
         return MonitoringTotals(
-            display = Totals(dIncome, dExpense, dCount),
-            fallback = Totals(fIncome, fExpense, fCount),
+            display = Totals(dIncome, dExpense, dCount, dIncomeCount, dCount - dIncomeCount),
+            fallback = Totals(fIncome, fExpense, fCount, fIncomeCount, fCount - fIncomeCount),
         )
     }
 }

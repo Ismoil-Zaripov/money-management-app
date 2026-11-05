@@ -77,11 +77,15 @@ class DomainRulesTest {
         assertEquals(0, BigDecimal("75").compareTo(totals.display.expense))
         assertEquals(0, BigDecimal("75").compareTo(totals.display.balance))
         assertEquals(2, totals.display.count)
+        assertEquals(1, totals.display.incomeCount)
+        assertEquals(1, totals.display.expenseCount)
 
         // Fallback totals: Income: 200,000, Expense: 0, Balance: 200,000, Count: 1
         assertEquals(0, BigDecimal("200000").compareTo(totals.fallback.income))
         assertEquals(0, BigDecimal.ZERO.compareTo(totals.fallback.expense))
         assertEquals(1, totals.fallback.count)
+        assertEquals(1, totals.fallback.incomeCount)
+        assertEquals(0, totals.fallback.expenseCount)
     }
 
     @Test

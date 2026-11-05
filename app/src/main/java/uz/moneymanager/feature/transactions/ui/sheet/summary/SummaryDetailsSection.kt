@@ -1,19 +1,19 @@
 package uz.moneymanager.feature.transactions.ui.sheet.summary
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmBadge
 import uz.moneymanager.core.designsystem.theme.ExpenseColor
 import uz.moneymanager.core.designsystem.theme.IncomeColor
 import uz.moneymanager.core.designsystem.theme.contentText
@@ -21,53 +21,45 @@ import uz.moneymanager.core.format.FormatUtils
 import uz.moneymanager.domain.Totals
 import uz.moneymanager.domain.model.TransactionType
 
+/** Bitta guruh (display yoki fallback): sarlavha + badge + izoh + Income / Expense / Balance kartalari. */
 @Composable
-fun FlatSummarySection(
+internal fun SummaryDetailsSection(
     title: String,
-    subtitle: String?,
+    badge: String,
+    note: @Composable (() -> Unit)?,
     totals: Totals,
     currencyCode: String,
+    modifier: Modifier = Modifier,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = title,
-            style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        if (subtitle != null) {
-            Spacer(modifier = Modifier.height(2.dp))
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = subtitle,
-                style = MaterialTheme.contentText,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = title,
+                modifier = Modifier.weight(1f, fill = false),
+                style = MaterialTheme.contentText.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
             )
+            MmBadge(text = badge)
         }
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Kirim qatori
-        SummaryRowItem(
+        note?.invoke()
+        SummaryAmountCard(
             label = stringResource(R.string.label_income),
+            itemsCount = totals.incomeCount,
             amount = FormatUtils.formatAmount(totals.income, currencyCode, TransactionType.INCOME),
             color = IncomeColor,
             isIncome = true
         )
-        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-
-        // Chiqim qatori
-        SummaryRowItem(
+        SummaryAmountCard(
             label = stringResource(R.string.label_expense),
+            itemsCount = totals.expenseCount,
             amount = FormatUtils.formatAmount(totals.expense, currencyCode, TransactionType.EXPENSE),
             color = ExpenseColor,
             isIncome = false
         )
-        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-
-        // Balans qatori
-        SummaryRowItem(
-            label = stringResource(R.string.label_balance),
-            amount = FormatUtils.formatAmount(totals.balance, currencyCode, includePositiveSign = true),
-            color = balanceColor(totals.balance),
-            isBalance = true
-        )
+        SummaryBalanceCard(totals = totals, currencyCode = currencyCode)
     }
 }

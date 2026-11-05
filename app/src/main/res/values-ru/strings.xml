@@ -59,6 +59,14 @@
     <string name="summary_total_title">Всего · %1$d транзакций</string>
     <string name="summary_fallback_title">Остальные · %1$d транзакций</string>
     <string name="summary_converted_subtitle">Конвертировано в %1$s по курсу</string>
+    <string name="summary_base_badge">База %1$s</string>
+    <string name="summary_direct_badge">Напрямую в %1$s</string>
+    <string name="summary_net_profit">Чистая прибыль</string>
+    <string name="summary_net_loss">Чистый убыток</string>
+    <string name="summary_balance_net">Баланс (итог)</string>
+    <string name="summary_fallback_note">Остальная группа: операции без курса, рассчитаны напрямую в %1$s.</string>
+    <string name="summary_cash_flow">Распределение денежного потока (%1$s)</string>
+    <string name="summary_share">доля %1$s</string>
     <string name="label_income">Доход</string>
     <string name="label_expense">Расход</string>
     <string name="label_balance">Баланс</string>
@@ -184,5 +192,11 @@
         <item quantity="few">%d операции</item>
         <item quantity="many">%d операций</item>
         <item quantity="other">%d операции</item>
+    </plurals>
+    <plurals name="summary_items_count">
+        <item quantity="one">%d запись</item>
+        <item quantity="few">%d записи</item>
+        <item quantity="many">%d записей</item>
+        <item quantity="other">%d записи</item>
     </plurals>
 </resources>

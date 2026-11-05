@@ -2,6 +2,7 @@ package uz.moneymanager.feature.transactions.ui.sheet.summary
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,10 +26,12 @@ internal fun LegendRow(
     amount: String,
     amountColor: Color,
     dotColor: Color?,
+    modifier: Modifier = Modifier,
+    caption: String? = null,
     bold: Boolean = false,
 ) {
     AdaptiveAmountRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         stackedIndent = LegendDotSize + LegendDotGap,
         label = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -38,11 +41,20 @@ internal fun LegendRow(
                         .then(if (dotColor != null) Modifier.background(dotColor, CircleShape) else Modifier)
                 )
                 Spacer(modifier = Modifier.width(LegendDotGap))
-                Text(
-                    text = label,
-                    style = MaterialTheme.contentText.copy(fontWeight = if (bold) FontWeight.Bold else FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Column {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.contentText.copy(fontWeight = if (bold) FontWeight.Bold else FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (caption != null) {
+                        Text(
+                            text = caption,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         },
         amount = {

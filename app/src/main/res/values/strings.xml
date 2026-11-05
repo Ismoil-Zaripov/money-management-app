@@ -60,6 +60,14 @@
     <string name="summary_total_title">Total · %1$d transactions</string>
     <string name="summary_fallback_title">Others · %1$d transactions</string>
     <string name="summary_converted_subtitle">Converted to %1$s based on rates</string>
+    <string name="summary_base_badge">%1$s Base</string>
+    <string name="summary_direct_badge">%1$s Direct</string>
+    <string name="summary_net_profit">Net Profit</string>
+    <string name="summary_net_loss">Net Loss</string>
+    <string name="summary_balance_net">Balance (Net)</string>
+    <string name="summary_fallback_note">Fallback group: transactions without exchange rates, calculated directly in %1$s.</string>
+    <string name="summary_cash_flow">Cash flow distribution (%1$s)</string>
+    <string name="summary_share">%1$s share</string>
     <string name="label_income">Income</string>
     <string name="label_expense">Expense</string>
     <string name="label_balance">Balance</string>
@@ -187,5 +195,9 @@
     <plurals name="operations_count">
         <item quantity="one">%d operation</item>
         <item quantity="other">%d operations</item>
+    </plurals>
+    <plurals name="summary_items_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
     </plurals>
 </resources>
