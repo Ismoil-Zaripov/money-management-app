@@ -5,8 +5,8 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-06 (T09 ✅ tugadi: (A) build yashil, (B) ekranda ko'rishni foydalanuvchi tasdiqladi)
-**Keyingi task:** `T10` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
+**Oxirgi yangilanish:** 2026-11-06 (T10 🟨: (A) va (B) build yashil; ekranni foydalanuvchi ko'rib chiqdi; yangi `RateFormatTest` natijasi kutilmoqda)
+**Keyingi task:** `T10` yakuni (ekranda ko'rish + testlar), keyin `T11` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
 
 ---
 
@@ -24,7 +24,7 @@
 | T07 | Edit Transaction | ✅ | 2026-11-06 | (B) shu commit |
 | T08 | Settings | ✅ | 2026-11-06 | bde7d9c (A: route/screen/components), 56fcce2 (B: yangi dizayn) |
 | T09 | Currencies | ✅ | 2026-11-06 | ebd6afc (A: route/screen/dialoglar), shu commit (B: yangi dizayn) |
-| T10 | Exchange Rates | ⬜ | | |
+| T10 | Exchange Rates | 🟨 | 2026-11-06 | 76c0668 (A: route/screen/dialoglar), 61646f9 (B: yangi dizayn), (C) shu commit |
 | T11 | Categories | ⬜ | | |
 | T12 | Payment Methods | ⬜ | | |
 | T13 | Palette ekrani (ixtiyoriy) | ⬜ | | |
@@ -46,7 +46,7 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | Edit Transaction | 🟨 | ⬜ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T07 |
 | Settings (576 → 17 fayl, ≤95 qator) | ✅ | ➖ | ✅ | ✅ | ➖ | ✅ | ✅ | ⬜ | T08 |
 | Currencies (332 → 12 fayl, ≤83 qator) | ✅ | ➖ | ✅ | ✅ | ➖ | ✅ | ✅ | ⬜ | T09 |
-| Exchange Rates (644) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T10 |
+| Exchange Rates (644 → 15 fayl, ≤127 qator) | 🟨 | ➖ | ✅ | ⬜ | 🟨 | ✅ | ✅ | 🟨 | T10 |
 | Categories (258) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T11 |
 | Payment Methods (353) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T12 |
 | Palette ekrani (ixtiyoriy) | ➖ | ➖ | ⬜ | ⬜ | ➖ | ⬜ | ➖ | ➖ | T13 |
@@ -115,6 +115,8 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 18 | T07: foydalanuvchi qarori talab qilinmadi. `#id` va yaratilgan vaqt haqiqiy (`TransactionDetails.createdAt`, sxema o'zgarmadi); 'Linked to N records' mavjud `observeWithUsage()` dan; o'chirish `MmDialog` bilan tasdiqlanadi. Yangi unit test qo'shilmadi (delete oqimi uchun VM testi ochiq) | T07 | ochiq (T07 da build/unit testlar va ekran tasdiqlandi) |
 | 19 | T08: (B) ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi. Segment balandligi 40dp (<48dp). Yangi test qo'shilmadi. `font_size_reset` stringi endi ishlatilmaydi (o'chirilmadi). Dizayndagi 'Personal Account', 'System Dialogs Preview', 'Total Summary' QILINMADI (tasks.md bo'yicha) | T08 | ochiq |
 | 20 | T09: tasks.md talabiga ko'ra default valyutada edit tugmasi UI'da o'chirilgan (avval nomni tahrirlash mumkin edi); repository qoidasi o'zgarmadi. Dizayndagi 'Active/M3 Rule Sheets' tabi va uydirma tavsiflar QILINMADI; 'Data integrity' banneri qo'shildi (matni `err_currency_in_use` bilan mos). Yangi test qo'shilmadi | T09 | ma'lumot |
+| 21 | T10: foydalanuvchi qarori: kartada 'N transactions linked' QILINMADI (`ExchangeRateRow` da faqat `locked`; DAO tegilmadi). Dizayndagi 'Live CBU.uz / 09:30', 'Manual/Recent/Fixed' badge'lari, valyuta belgisi tile'lari QILINMADI. Import xatosi banner emas, snackbar + 'Retry' (`err_cbu_fetch_failed`); `MmDialog` da qizil 'Delete' tugmasi yo'q | T10 | ma'lumot |
+| 22 | T10: `RatesRoute` composable ~100 qator (>80), `AddRateDialog` ~85; Add va Edit dialog alohida qoldi (tasks.md `AddEditRateDialog`). Ekranni foydalanuvchi ko'rib chiqdi (2026-11-06, muammo aytilmadi; dark/empty/xato holatlari alohida aytilmadi, shuning uchun Dark ⬜, States 🟨). Yangi `RateFormatTest` natijasi foydalanuvchidan kutilmoqda | T10 | ochiq |
 
 ---
 
@@ -133,3 +135,4 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 2026-11-06 | T07 | (A) kerak bo'lmadi (T06 bajargan); (B) tahrirlash rejimi: `TransactionInfoCard` (`ID #`, yaratilgan sana/vaqt, trash), 'Save Changes', 'Delete this transaction' + `DeleteTransactionConfirmDialog`, `FormEvent.Deleted`, VM `delete()`, kategoriya yorlig'ida 'N ta yozuvga bog'langan' (plural); 5 string 3 tilda | i18n ✅ (3 tilda 5 tadan kalit, kod bo'yicha); Light, Dark, States, Perf, Tests ✅ (build, unit testlar va ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi); Split 🟨 (VM 514) | VM bo'lish (№15); keyin T08 | shu commit |
 | 2026-11-06 | T08 | (A) 576 qatorli ekran `feature/settings/` ga: presentation (VM, `SettingsUiState`) + ui (Route, stateless Screen, Callbacks) + komponentlar; (B) Theme (☀/🌙/auto) va Language (EN/UZ/RU) — bir qatorli segmentlar, dialoglarsiz; palette 5 doira (nomsiz, a11y bilan), font size: badge + namuna + Reset + A…A slayder; Data Management kartalari, `MmTopBar`; 1 string 3 tilda + 4 tarjimasiz | Split, i18n, Perf ✅ (kod bo'yicha); (A) build foydalanuvchi tomonidan yashil; Light, Dark ✅ (ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi) | keyin T09 | bde7d9c (A), 56fcce2 (B) |
 | 2026-11-06 | T09 | (A) 332 qatorli ekran `feature/currencies/` ga: presentation (VM, `CurrenciesUiState`, `CurrencyEvent`) + ui (Route, stateless Screen) + komponentlar/dialoglar; (B) kartalar (kod tile, nom, Default badge, N ta operatsiya chipi, qulf izohi, edit/delete holatlari), integrity banner, `MmTopBar`, `MmExtendedFab`, `MmDialog`; 4 string (1 plural) 3 tilda | Split, Light, Dark, i18n, Perf ✅ (build va ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi); Tests ⬜ | keyin T10 | ebd6afc (A), shu commit (B) |
+| 2026-11-06 | T10 | (A) 644 qatorli ekran `feature/rates/` ga: presentation (VM, `RatesUiState`, `RateEvent`) + ui (Route, stateless Screen) + komponentlar/dialoglar; (B) sana navigatori (‹ › Today), 'Import CBU' tugmasi, 'Registered Rates · N pairs', kartalar (teskari qator, Locked badge), `MmTopBar`, `MmExtendedFab`, `MmDialog`, jonli teskari kurs izohi, bo'sh holat + 'Fetch from CBU.uz', xatoda Retry; 10 string 3 tilda; (C) `RateFormatTest`, 3 til kalitlari tekshirildi | i18n ✅ (skript: 3 tilda barcha yangi kalitlar bor); Perf ✅ (kod bo'yicha: lifecycle collect, key/contentType); (A),(B) build foydalanuvchi tomonidan success | dark/empty/xato holatini ko'rish, `RateFormatTest` natijasi (№22); keyin T11 | 76c0668 (A), 61646f9 (B), shu commit (C) |
