@@ -184,11 +184,11 @@ fun SettingsScreen(
                             val color = getPaletteSwatchColor(p, isDark)
                             val isSelected = palette == p
                             val name = when (p) {
-                                AppPalette.OCEAN -> stringResource(R.string.palette_ocean)
+                                AppPalette.OCEAN_TEAL -> stringResource(R.string.palette_ocean_teal)
                                 AppPalette.EMERALD -> stringResource(R.string.palette_emerald)
-                                AppPalette.VIOLET -> stringResource(R.string.palette_violet)
-                                AppPalette.SUNSET -> stringResource(R.string.palette_sunset)
-                                AppPalette.GRAPHITE -> stringResource(R.string.palette_graphite)
+                                AppPalette.ROYAL_INDIGO -> stringResource(R.string.palette_royal_indigo)
+                                AppPalette.WARM_CORAL -> stringResource(R.string.palette_warm_coral)
+                                AppPalette.GRAPHITE_MINT -> stringResource(R.string.palette_graphite_mint)
                             }
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,

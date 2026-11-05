@@ -128,11 +128,11 @@
     <string name="title_transactions">Tranzaksiyalar</string>
     <string name="setting_palette">Ranglar palitrasi</string>
     <string name="desc_palette">Ilova uchun asosiy rang palitrasi</string>
-    <string name="palette_ocean">Okean</string>
+    <string name="palette_ocean_teal">Okean feruzasi</string>
     <string name="palette_emerald">Zumrad</string>
-    <string name="palette_violet">Binafsha</string>
-    <string name="palette_sunset">Shafaq</string>
-    <string name="palette_graphite">Grafit</string>
+    <string name="palette_royal_indigo">Qirollik indigosi</string>
+    <string name="palette_warm_coral">Iliq marjon</string>
+    <string name="palette_graphite_mint">Grafit yalpiz</string>
 
     <string name="setting_font_size">Shrift o‘lchami</string>
     <string name="desc_font_size">Ilovadagi kontent matnlari o‘lchamini sozlash</string>

@@ -129,11 +129,11 @@
     <string name="title_transactions">Transactions</string>
     <string name="setting_palette">Color Palette</string>
     <string name="desc_palette">Select an accent color palette</string>
-    <string name="palette_ocean">Ocean</string>
+    <string name="palette_ocean_teal">Ocean Teal</string>
     <string name="palette_emerald">Emerald</string>
-    <string name="palette_violet">Violet</string>
-    <string name="palette_sunset">Sunset</string>
-    <string name="palette_graphite">Graphite</string>
+    <string name="palette_royal_indigo">Royal Indigo</string>
+    <string name="palette_warm_coral">Warm Coral</string>
+    <string name="palette_graphite_mint">Graphite Mint</string>
 
     <string name="setting_font_size">Font Size</string>
     <string name="desc_font_size">Adjust content text size across the app</string>

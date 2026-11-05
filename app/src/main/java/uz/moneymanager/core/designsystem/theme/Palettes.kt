@@ -4,22 +4,13 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import uz.moneymanager.domain.model.AppPalette
 
-fun getPaletteColorScheme(palette: AppPalette, darkTheme: Boolean): ColorScheme {
-    return when (palette) {
-        AppPalette.OCEAN -> if (darkTheme) OceanDarkScheme else OceanLightScheme
-        AppPalette.EMERALD -> if (darkTheme) EmeraldDarkScheme else EmeraldLightScheme
-        AppPalette.VIOLET -> if (darkTheme) VioletDarkScheme else VioletLightScheme
-        AppPalette.SUNSET -> if (darkTheme) SunsetDarkScheme else SunsetLightScheme
-        AppPalette.GRAPHITE -> if (darkTheme) GraphiteDarkScheme else GraphiteLightScheme
-    }
+fun getPaletteColorScheme(palette: AppPalette, darkTheme: Boolean): ColorScheme = when (palette) {
+    AppPalette.EMERALD -> if (darkTheme) EmeraldDarkScheme else EmeraldLightScheme
+    AppPalette.OCEAN_TEAL -> if (darkTheme) OceanTealDarkScheme else OceanTealLightScheme
+    AppPalette.ROYAL_INDIGO -> if (darkTheme) RoyalIndigoDarkScheme else RoyalIndigoLightScheme
+    AppPalette.WARM_CORAL -> if (darkTheme) WarmCoralDarkScheme else WarmCoralLightScheme
+    AppPalette.GRAPHITE_MINT -> if (darkTheme) GraphiteMintDarkScheme else GraphiteMintLightScheme
 }
 
-fun getPaletteSwatchColor(palette: AppPalette, darkTheme: Boolean): Color {
-    return when (palette) {
-        AppPalette.OCEAN -> if (darkTheme) Color(0xFFA9C0FF) else Color(0xFF1D4ED8)
-        AppPalette.EMERALD -> if (darkTheme) Color(0xFF6CDBAC) else Color(0xFF006C4C)
-        AppPalette.VIOLET -> if (darkTheme) Color(0xFFCBBEFF) else Color(0xFF5A3FD1)
-        AppPalette.SUNSET -> if (darkTheme) Color(0xFFFFB1C8) else Color(0xFFB8235A)
-        AppPalette.GRAPHITE -> if (darkTheme) Color(0xFFB9C7E8) else Color(0xFF243049)
-    }
-}
+fun getPaletteSwatchColor(palette: AppPalette, darkTheme: Boolean): Color =
+    getPaletteColorScheme(palette, darkTheme).primary

@@ -26,7 +26,7 @@ class SettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.SYSTEM)
 
     val palette: StateFlow<AppPalette> = settingsRepository.palette
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppPalette.OCEAN)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppPalette.DEFAULT)
 
     val contentFontSize: StateFlow<Int?> = settingsRepository.contentFontSize
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)

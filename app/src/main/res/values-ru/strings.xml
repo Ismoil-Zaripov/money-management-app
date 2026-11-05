@@ -128,11 +128,11 @@
     <string name="title_transactions">Транзакции</string>
     <string name="setting_palette">Цветовая палитра</string>
     <string name="desc_palette">Выбор цветовой палитры приложения</string>
-    <string name="palette_ocean">Океан</string>
+    <string name="palette_ocean_teal">Океанская бирюза</string>
     <string name="palette_emerald">Изумруд</string>
-    <string name="palette_violet">Фиолетовый</string>
-    <string name="palette_sunset">Закат</string>
-    <string name="palette_graphite">Графит</string>
+    <string name="palette_royal_indigo">Королевский индиго</string>
+    <string name="palette_warm_coral">Тёплый коралл</string>
+    <string name="palette_graphite_mint">Графитовая мята</string>
 
     <string name="setting_font_size">Размер шрифта</string>
     <string name="desc_font_size">Настройка размера текста контента в приложении</string>

@@ -30,7 +30,7 @@ class SettingsRepository @Inject constructor(
 ) {
     val settings: Flow<AppSettings> = dataStore.data.map { prefs ->
         val mode = prefs[THEME]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM
-        val pal = prefs[PALETTE]?.let { runCatching { AppPalette.valueOf(it) }.getOrNull() } ?: AppPalette.EMERALD
+        val pal = AppPalette.fromStored(prefs[PALETTE])
         val size = prefs[FONT_SIZE]?.let { clampFontSize(it) } ?: DEFAULT_FONT_SIZE
         AppSettings(themeMode = mode, palette = pal, contentFontSize = size)
     }
