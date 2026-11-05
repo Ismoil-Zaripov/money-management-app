@@ -39,7 +39,7 @@ import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.core.designsystem.theme.SystemBarsEffect
 import uz.moneymanager.core.designsystem.theme.barContainer
 import uz.moneymanager.feature.transactions.ui.TransactionsRoute
-import uz.moneymanager.ui.transactions.form.TransactionFormScreen
+import uz.moneymanager.feature.transactionform.ui.TransactionFormRoute
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -137,7 +137,7 @@ fun MainAppContent() {
                 popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
                 popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
             ) {
-                TransactionFormScreen(
+                TransactionFormRoute(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

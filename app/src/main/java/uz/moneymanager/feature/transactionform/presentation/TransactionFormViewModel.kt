@@ -1,10 +1,14 @@
-package uz.moneymanager.ui.transactions.form
+package uz.moneymanager.feature.transactionform.presentation
 
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.IOException
+import java.math.BigDecimal
+import java.time.LocalDate
+import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -32,48 +36,6 @@ import uz.moneymanager.domain.AmountValidator
 import uz.moneymanager.domain.DomainException
 import uz.moneymanager.domain.TransactionDescription
 import uz.moneymanager.domain.model.TransactionType
-import java.io.IOException
-import java.math.BigDecimal
-import java.time.LocalDate
-import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
-
-sealed interface FormEvent {
-    data object Saved : FormEvent
-    data class Error(val messageRes: Int, val args: List<Any> = emptyList()) : FormEvent
-    data class ShowMissingRates(
-        val base: CurrencyEntity,
-        val date: LocalDate,
-        val missing: List<CurrencyEntity>,
-        val suggestedRates: Map<Long, String>,
-    ) : FormEvent
-}
-
-@Immutable
-data class FormUiState(
-    val isNew: Boolean = true,
-    val type: TransactionType = TransactionType.EXPENSE,
-    val amountText: String = "",
-    val currencyId: Long? = null,
-    val currency: CurrencyEntity? = null,
-    val categoryText: String = "",
-    val paymentMethodId: Long? = null,
-    val description: String = "",
-    val date: LocalDate = LocalDate.now(),
-    val currencies: List<CurrencyEntity> = emptyList(),
-    val allCategories: List<CategoryEntity> = emptyList(),
-    val categorySuggestions: List<String> = emptyList(),
-    val paymentMethods: List<PaymentMethodEntity> = emptyList(),
-    val isLoading: Boolean = false,
-    val isSaving: Boolean = false,
-    val showNoInternetDialog: Boolean = false,
-    val amountErrorRes: Int? = null,
-    val categoryErrorRes: Int? = null,
-    /** Shown only when the trimmed description exceeds the limit; empty is always fine. */
-    val descriptionErrorRes: Int? = null,
-    val canSave: Boolean = false,
-    val isDirty: Boolean = false,
-)
 
 @HiltViewModel
 class TransactionFormViewModel @Inject constructor(

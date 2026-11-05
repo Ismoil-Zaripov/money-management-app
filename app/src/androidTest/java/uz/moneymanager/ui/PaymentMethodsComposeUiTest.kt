@@ -53,8 +53,8 @@ import uz.moneymanager.ui.paymentmethods.PaymentMethodsViewModel
 import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.feature.transactions.ui.TransactionsRoute
 import uz.moneymanager.feature.transactions.presentation.TransactionsViewModel
-import uz.moneymanager.ui.transactions.form.TransactionFormScreen
-import uz.moneymanager.ui.transactions.form.TransactionFormViewModel
+import uz.moneymanager.feature.transactionform.ui.TransactionFormRoute
+import uz.moneymanager.feature.transactionform.presentation.TransactionFormViewModel
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.Locale
@@ -401,7 +401,7 @@ class PaymentMethodsComposeUiTest {
 
         composeTestRule.setContent {
             MoneyManagerTheme {
-                TransactionFormScreen(
+                TransactionFormRoute(
                     onNavigateBack = {},
                     viewModel = viewModel,
                 )
