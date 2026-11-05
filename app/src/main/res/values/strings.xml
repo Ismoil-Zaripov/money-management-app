@@ -98,6 +98,13 @@
     <string name="label_currency_code">Currency Code (e.g. USD)</string>
     <string name="label_currency_name">Currency Name</string>
     <string name="currency_default_badge">Default (National)</string>
+    <plurals name="currency_transactions_count">
+        <item quantity="one">%d transaction</item>
+        <item quantity="other">%d transactions</item>
+    </plurals>
+    <string name="currency_locked_hint">System locked for consistency</string>
+    <string name="currency_integrity_title">Data integrity</string>
+    <string name="currency_integrity_body">Currencies used in transactions or exchange rates cannot be deleted.</string>
     <string name="delete_currency_confirm">Are you sure you want to delete %1$s?</string>
 
     <!-- Exchange Rates Screen -->

@@ -97,6 +97,15 @@
     <string name="label_currency_code">Код валюты (напр. USD)</string>
     <string name="label_currency_name">Название валюты</string>
     <string name="currency_default_badge">Основная (Нац.)</string>
+    <plurals name="currency_transactions_count">
+        <item quantity="one">%d операция</item>
+        <item quantity="few">%d операции</item>
+        <item quantity="many">%d операций</item>
+        <item quantity="other">%d операции</item>
+    </plurals>
+    <string name="currency_locked_hint">Заблокировано системой</string>
+    <string name="currency_integrity_title">Целостность данных</string>
+    <string name="currency_integrity_body">Валюту, используемую в операциях или курсах, удалить нельзя.</string>
     <string name="delete_currency_confirm">Вы уверены, что хотите удалить валюту %1$s?</string>
 
     <!-- Exchange Rates Screen -->

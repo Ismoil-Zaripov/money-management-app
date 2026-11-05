@@ -97,6 +97,13 @@
     <string name="label_currency_code">Valyuta kodi (masalan USD)</string>
     <string name="label_currency_name">Valyuta nomi</string>
     <string name="currency_default_badge">Asosiy (Milliy)</string>
+    <plurals name="currency_transactions_count">
+        <item quantity="one">%d ta operatsiya</item>
+        <item quantity="other">%d ta operatsiya</item>
+    </plurals>
+    <string name="currency_locked_hint">Tizim tomonidan qulflangan</string>
+    <string name="currency_integrity_title">Ma‘lumotlar yaxlitligi</string>
+    <string name="currency_integrity_body">Operatsiyalar yoki kurslarda ishlatilgan valyutani o‘chirib bo‘lmaydi.</string>
     <string name="delete_currency_confirm">%1$s valyutasini o‘chirishni tasdiqlaysizmi?</string>
 
     <!-- Exchange Rates Screen -->
