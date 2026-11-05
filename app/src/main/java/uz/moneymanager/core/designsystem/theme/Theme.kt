@@ -33,11 +33,13 @@ val ExpenseDark = Color(0xFFEF5350)
 
 val IncomeColor: Color
     @Composable
-    get() = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) IncomeDark else IncomeLight
+    @ReadOnlyComposable
+    get() = LocalMoneyColors.current.income
 
 val ExpenseColor: Color
     @Composable
-    get() = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) ExpenseDark else ExpenseLight
+    @ReadOnlyComposable
+    get() = LocalMoneyColors.current.expense
 
 /**
  * Bar colors: in light mode bar = primary and content = onPrimary.
@@ -118,6 +120,7 @@ fun MoneyManagerTheme(
     ) {
         CompositionLocalProvider(
             LocalContentFontSize provides contentFontSize,
+            LocalMoneyColors provides if (darkTheme) DarkMoneyColors else LightMoneyColors,
             content = content,
         )
     }
