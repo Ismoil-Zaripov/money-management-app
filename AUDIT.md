@@ -5,8 +5,8 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-06 (T05 ✅ tugadi: build, unit testlar va ekranda barcha holatlarni foydalanuvchi tasdiqladi)
-**Keyingi task:** `T06` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
+**Oxirgi yangilanish:** 2026-11-06 (T06 ✅ tugadi: build, unit testlar va ekranda ko'rishni foydalanuvchi tasdiqladi)
+**Keyingi task:** `T07` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
 
 ---
 
@@ -20,7 +20,7 @@
 | T03 | Transactions ro'yxati | ✅ | 2026-11-05 | d5e70b5 (A: route/screen/components), d78339a (B: yangi dizayn) |
 | T04 | Filtrlar va sana oralig'i | ✅ | 2026-11-05 | 1fc21e3 (A: chiplar fayllarga bo'lindi), 9d48f40 (B: filtr sheetlari) |
 | T05 | Summary Report | ✅ | 2026-11-06 | a5a12bb (A: summary/ paketi), 2a750f7 (B: yangi dizayn) |
-| T06 | New Transaction | ⬜ | | |
+| T06 | New Transaction | ✅ | 2026-11-06 | 127e7e5 (A: route/screen/components), da3740a (B: yangi dizayn) |
 | T07 | Edit Transaction | ⬜ | | |
 | T08 | Settings | ⬜ | | |
 | T09 | Currencies | ⬜ | | |
@@ -42,7 +42,7 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | Filtr sheetlari | ✅ | ➖ | ✅ | ✅ | ➖ | ✅ | ✅ | ✅ | T04 |
 | Summary Report — Details | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T05 |
 | Summary Report — Pie Chart | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T05 |
-| New Transaction (945 + VM 519) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T06 |
+| New Transaction (Screen 92 + 27 fayl; VM 481) | 🟨 | ⬜ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T06 |
 | Edit Transaction | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T07 |
 | Settings (576) | ⬜ | ➖ | ⬜ | ⬜ | ➖ | ⬜ | ⬜ | ⬜ | T08 |
 | Currencies (332) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T09 |
@@ -108,6 +108,10 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 11 | T05: Summary ekrani (Details va Pie, light/dark, Others bloki, empty donut) ekranda barcha holatlar foydalanuvchi tomonidan ko'rildi, muammo yo'q | T05 | hal qilindi (2026-11-06) |
 | 12 | T05: `Totals` ga `incomeCount`/`expenseCount` qo'shildi (foydalanuvchi qarori: hisoblab qo'shish); SQL va sxema o'zgarmadi, summalar bir xil. Ulush 1 kasrgacha (`summaryShares`), yig'indisi 100.0. 'Net Profit/Net Loss' badge balans ishorasidan chiqadi | T05 | ma'lumot |
 | 13 | T05: davr sarlavhasi, Export, Change Period QILINMADI (tasks.md bo'yicha; Export — keyingi versiya, №2) | T05 | ma'lumot |
+| 14 | T06: build + unit testlar va ekranda ko'rish (light/dark, xato holatlari, dialoglar) foydalanuvchi tomonidan tasdiqlandi | T06 | hal qilindi (2026-11-06) |
+| 15 | T06: `TransactionFormViewModel.kt` 481 qator (>300), `TransactionFormRoute` composable ~105 qator (>80); VM hali Room entity'larini (`CurrencyEntity`, `CategoryEntity`, `PaymentMethodEntity`) ishlatadi, shuning uchun Domain ⬜ | T06 | ochiq (T07 yoki T14 da) |
+| 16 | T06: foydalanuvchi qarori: kategoriya yozib kiritiladi (saqlashda yaratiladi), 'Create “X”' qatori mavjud bo'lmagan nom uchun chiqadi; kartaning ikkinchi qatori ('Daily Living…'), '42k UZS avg', preview tablari, summa oldidagi '−/+' belgisi QILINMADI. Tavsif hisoblagichi haqiqiy `MAX_LENGTH` (200) ni ko'rsatadi (dizaynda 120) | T06 | ma'lumot |
+| 17 | T06: `categoryIcon` hali `feature/transactions/ui/component/` da, `transactionform` shuni import qiladi; `core/` ga ko'chirish T11 (Categories) da hal qilinadi. `PaymentMethodsComposeUiTest` `TransactionFormRoute` ga moslandi, qurilmada ishga tushirilmagan | T06 | ma'lumot |
 
 ---
 
@@ -122,3 +126,4 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 2026-11-05 | T03 | (A) 1232 qatorli ekran → `feature/transactions/` (Route, stateless Screen, UiState/Event, component/dialog/sheet), FormatUtils → `core/format`; (B) yangi ro'yxat dizayni: MmTopBar/MmFab/MmCard qatorlar, ikonka xaritasi, sana pill + operatsiyalar soni, Total Summary pill, skeleton + empty, chiplarda (x); `operations_count` plural 3 tilda | Split, i18n, Perf ✅ (kod bo'yicha tekshirildi); build + unit testlar foydalanuvchi tomonidan yashil | ekranda light/dark, empty/skeleton ko'rish; androidTest; keyin T04 | d5e70b5 (A), d78339a (B) |
 | 2026-11-05 | T04 | (A) filtr chiplari bir fayl-bir komponent, tizim DatePickerDialog `sheet/` ga; (B) `CategoryFilterSheet`, `PaymentCurrencySheet`, `TypeFilterSheet`, `DateRangeSheet` (M3 DateRangePicker + presetlar), `FilterSheetHost`, `DateRangePreset`; chiplar sheet ochadi, (x) bilan tozalanadi; 8 yangi string 3 tilda; androidTest filtr oqimi yangilandi; `DateRangePresetTest` | Split, i18n, Perf ✅ (kod bo'yicha); (A) build foydalanuvchi tomonidan yashil | (B) build/test natijasi, ekranda ko'rish (light/dark), androidTest; keyin T05 | 1fc21e3 (A), 9d48f40 (B), c60b67e (test, audit) |
 | 2026-11-06 | T05 | (A) summary fayllari `sheet/summary/` paketiga, `LegendRow` alohida fayl; (B) Details: Total + base badge, Income/Expense kartalari (N items), Balance (Net) kartasi, Others guruhi + izoh; Pie: donut (markazda matn yo'q, yengil animatsiya), legend (ulush %, Balance 3-qator), Others bloki; yangi tab pill'lari; `Totals.incomeCount/expenseCount`; 9 string 3 tilda; `SummarySharesTest`, DomainRulesTest kengaytirildi | Split, Domain, Light, Dark, States, i18n, Perf, Tests ✅ (build, unit testlar va ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi) | keyin T06 | a5a12bb (A), 2a750f7 (B) |
+| 2026-11-06 | T06 | (A) 945 qatorli forma `feature/transactionform/` ga: presentation (VM, FormUiState, FormEvent, AmountInput) + ui (Route, stateless Screen, Content, Callbacks) + 17 komponent/dialog fayli; (B) yangi dizayn: Income\|Expense pill, summa kartasi + valyuta chiplari, kategoriya (ikonka, takliflar kartasi, Create qatori), sana chiplari, tavsif hisoblagichi, sticky 'Save Transaction' + xatolar soni, MmTopBar/MmDialog; 12 string 3 tilda | Light, Dark, States, i18n, Perf, Tests ✅ (build, unit testlar va ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi); Split 🟨 (VM 481) | VM bo'lish (№15); keyin T07 | 127e7e5 (A), da3740a (B) |
