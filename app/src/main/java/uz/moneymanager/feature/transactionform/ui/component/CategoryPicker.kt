@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.transactionform.ui.component
 
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -25,7 +26,9 @@ internal fun CategoryPicker(
     onCategoryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     fieldModifier: Modifier = Modifier,
+    linkedCount: Int? = null,
 ) {
+    val resources = LocalContext.current.resources
     val focusManager = LocalFocusManager.current
     var menuExpanded by remember { mutableStateOf(false) }
     val filteredCategories = remember(categoryText, allCategories) {
@@ -39,7 +42,10 @@ internal fun CategoryPicker(
     }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        FormSectionLabel(title = stringResource(R.string.label_info))
+        FormSectionLabel(
+            title = stringResource(R.string.label_info),
+            trailing = linkedCount?.let { resources.getQuantityString(R.plurals.category_linked_records, it, it) }
+        )
         CategoryDropdownField(
             text = categoryText,
             categories = filteredCategories,

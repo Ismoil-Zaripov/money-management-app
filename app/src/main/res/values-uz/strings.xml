@@ -40,6 +40,10 @@
     <string name="hint_description">Chek izohi, do‘kon yoki eslatma qo‘shing…</string>
     <string name="counter_format">%1$d / %2$d</string>
     <string name="action_save_transaction">Operatsiyani saqlash</string>
+    <string name="action_save_changes">O‘zgarishlarni saqlash</string>
+    <string name="action_delete_transaction">Operatsiyani o‘chirish</string>
+    <string name="edit_transaction_id">ID #%1$d</string>
+    <string name="edit_created_at">Yaratilgan: %1$s</string>
     <string name="date_today">Bugun</string>
     <string name="date_yesterday">Kecha</string>
     <string name="delete_transaction_confirm">Haqiqatan ham bu tranzaksiyani o‘chirmoqchimisiz?</string>
@@ -209,5 +213,9 @@
     <plurals name="form_errors_hint">
         <item quantity="one">Davom etish uchun yuqoridagi %d ta xatoni tuzating</item>
         <item quantity="other">Davom etish uchun yuqoridagi %d ta xatoni tuzating</item>
+    </plurals>
+    <plurals name="category_linked_records">
+        <item quantity="one">%d ta yozuvga bog‘langan</item>
+        <item quantity="other">%d ta yozuvga bog‘langan</item>
     </plurals>
 </resources>

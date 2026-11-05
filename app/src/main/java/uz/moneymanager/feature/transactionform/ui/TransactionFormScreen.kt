@@ -1,5 +1,7 @@
 package uz.moneymanager.feature.transactionform.ui
 
+import androidx.compose.ui.res.stringResource
+import uz.moneymanager.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -58,7 +60,9 @@ internal fun TransactionFormScreen(
                 isSaving = state.isSaving,
                 enabled = state.canSave,
                 errorCount = listOfNotNull(state.amountErrorRes, state.categoryErrorRes, state.descriptionErrorRes).size,
-                onSave = callbacks.onSave
+                saveLabel = stringResource(if (state.isNew) R.string.action_save_transaction else R.string.action_save_changes),
+                onSave = callbacks.onSave,
+                onDelete = if (state.isNew) null else callbacks.onDeleteClick
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }

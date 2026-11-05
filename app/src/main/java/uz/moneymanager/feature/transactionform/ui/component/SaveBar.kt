@@ -1,5 +1,8 @@
 package uz.moneymanager.feature.transactionform.ui.component
 
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +33,14 @@ import uz.moneymanager.R
 
 /** Pastdagi sticky "Save Transaction" paneli; xato bo'lsa tugma ostida xatolar soni haqida matn. */
 @Composable
-internal fun SaveBar(isSaving: Boolean, enabled: Boolean, errorCount: Int, onSave: () -> Unit) {
+internal fun SaveBar(
+    isSaving: Boolean,
+    enabled: Boolean,
+    errorCount: Int,
+    saveLabel: String,
+    onSave: () -> Unit,
+    onDelete: (() -> Unit)? = null,
+) {
     val resources = LocalContext.current.resources
     Surface(color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -59,7 +69,7 @@ internal fun SaveBar(isSaving: Boolean, enabled: Boolean, errorCount: Int, onSav
                     Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = stringResource(R.string.action_save_transaction),
+                        text = saveLabel,
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1
                     )
@@ -72,6 +82,17 @@ internal fun SaveBar(isSaving: Boolean, enabled: Boolean, errorCount: Int, onSav
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )
+            }
+            if (onDelete != null) {
+                TextButton(
+                    onClick = onDelete,
+                    enabled = !isSaving,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.action_delete_transaction))
+                }
             }
         }
     }

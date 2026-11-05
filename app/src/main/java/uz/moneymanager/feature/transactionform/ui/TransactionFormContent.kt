@@ -1,5 +1,7 @@
 package uz.moneymanager.feature.transactionform.ui
 
+import uz.moneymanager.domain.CategoryNames
+import uz.moneymanager.feature.transactionform.ui.component.TransactionInfoCard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -38,6 +40,14 @@ internal fun TransactionFormContent(
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        if (!state.isNew) {
+            TransactionInfoCard(
+                id = state.transactionId,
+                createdAt = state.createdAt,
+                onDelete = callbacks.onDeleteClick
+            )
+        }
+
         TransactionTypeSelector(type = state.type, onSelect = callbacks.onTypeChange)
 
         // Summa + valyuta chip'lari (faqat bitta joyda)
@@ -60,7 +70,8 @@ internal fun TransactionFormContent(
             suggestions = state.categorySuggestions,
             errorRes = state.categoryErrorRes,
             onCategoryChange = callbacks.onCategoryChange,
-            fieldModifier = categoryModifier
+            fieldModifier = categoryModifier,
+            linkedCount = if (state.isNew) null else state.categoryUsage[CategoryNames.key(state.categoryText)]?.takeIf { it > 0 }
         )
 
         PaymentMethodChips(

@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.transactionform.ui
 
+import uz.moneymanager.feature.transactionform.ui.dialog.DeleteTransactionConfirmDialog
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -38,6 +39,7 @@ fun TransactionFormRoute(
     var missingRatesEvent by remember { mutableStateOf<FormEvent.ShowMissingRates?>(null) }
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
     var showAddPaymentMethodDialog by rememberSaveable { mutableStateOf(false) }
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
     var newPaymentMethodName by rememberSaveable { mutableStateOf("") }
 
     val handleBack = {
@@ -58,7 +60,7 @@ fun TransactionFormRoute(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                is FormEvent.Saved -> currentOnNavigateBack()
+                is FormEvent.Saved, is FormEvent.Deleted -> currentOnNavigateBack()
                 is FormEvent.Error -> {
                     val msg = context.getString(event.messageRes, *event.args.toTypedArray())
                     snackbarHostState.showSnackbar(msg)
@@ -75,6 +77,7 @@ fun TransactionFormRoute(
             keyboard?.hide()
             viewModel.save()
         },
+        onDeleteClick = { showDeleteDialog = true },
         onTypeChange = viewModel::setType,
         onAmountChange = viewModel::setAmount,
         onAmountBlur = viewModel::onAmountBlur,
@@ -99,6 +102,15 @@ fun TransactionFormRoute(
                 currentOnNavigateBack()
             },
             onDismiss = { showDiscardDialog = false }
+        )
+    }
+    if (showDeleteDialog) {
+        DeleteTransactionConfirmDialog(
+            onConfirm = {
+                showDeleteDialog = false
+                viewModel.delete()
+            },
+            onDismiss = { showDeleteDialog = false }
         )
     }
     if (showAddPaymentMethodDialog) {

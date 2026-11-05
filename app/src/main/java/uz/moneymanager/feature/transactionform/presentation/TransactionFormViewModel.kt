@@ -1,5 +1,7 @@
 package uz.moneymanager.feature.transactionform.presentation
 
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -78,6 +80,11 @@ class TransactionFormViewModel @Inject constructor(
     private val paymentMethodsFlow: StateFlow<List<PaymentMethodEntity>> = paymentMethodRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    private val categoryUsageFlow: StateFlow<Map<String, Int>> =
+        (if (isNew) flowOf(emptyMap())
+        else categoryRepository.observeWithUsage().map { list -> list.associate { it.category.nameKey to it.transactionCount } })
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
     private val _uiState = MutableStateFlow(buildInitialState())
     val uiState: StateFlow<FormUiState> = _uiState.asStateFlow()
 
@@ -116,6 +123,7 @@ class TransactionFormViewModel @Inject constructor(
                     savedStateHandle[KEY_ORIG_PAYMENT_METHOD_ID] = tx.paymentMethodId
                     savedStateHandle[KEY_ORIG_DESCRIPTION] = tx.description
                     savedStateHandle[KEY_ORIG_DATE] = tx.date.toEpochDay()
+                    savedStateHandle[KEY_CREATED_AT] = tx.createdAt
 
                     savedStateHandle[KEY_TYPE] = tx.type.name
                     savedStateHandle[KEY_AMOUNT] = plainAmount
@@ -134,6 +142,7 @@ class TransactionFormViewModel @Inject constructor(
                             paymentMethodId = tx.paymentMethodId,
                             description = tx.description,
                             date = tx.date,
+                            createdAt = tx.createdAt,
                             isLoading = false,
                         ).recompute()
                     }
@@ -143,9 +152,9 @@ class TransactionFormViewModel @Inject constructor(
             }
 
             // Fonda valyuta, to'lov usuli va kategoriya ro'yxatlarini yuklash
-            combine(currenciesFlow, categoriesFlow, suggestionsFlow, paymentMethodsFlow) { currList, catList, recentList, pmList ->
-                FormDependencies(currList, catList, recentList, pmList)
-            }.collect { (currList, catList, recentList, pmList) ->
+            combine(currenciesFlow, categoriesFlow, suggestionsFlow, paymentMethodsFlow, categoryUsageFlow) { currList, catList, recentList, pmList, usage ->
+                FormDependencies(currList, catList, recentList, pmList, usage)
+            }.collect { (currList, catList, recentList, pmList, usage) ->
                 _uiState.update { current ->
                     val resolvedCurrencyId = current.currencyId ?: resolveInitialCurrencyId(currList)
                     if (current.currencyId == null && resolvedCurrencyId != null) {
@@ -170,6 +179,7 @@ class TransactionFormViewModel @Inject constructor(
                         categorySuggestions = recentList,
                         paymentMethodId = resolvedPaymentMethodId,
                         paymentMethods = pmList,
+                        categoryUsage = usage,
                     ).recompute()
                 }
             }
@@ -206,6 +216,8 @@ class TransactionFormViewModel @Inject constructor(
             date = savedDate,
             isLoading = !isNew && !origLoaded,
             showNoInternetDialog = showNoInternet,
+            transactionId = transactionId,
+            createdAt = savedStateHandle.get<Long>(KEY_CREATED_AT) ?: 0L,
         ).recompute()
     }
 
@@ -443,6 +455,25 @@ class TransactionFormViewModel @Inject constructor(
         }
     }
 
+    /** Tahrirlash rejimida tranzaksiyani o'chiradi va [FormEvent.Deleted] yuboradi. */
+    fun delete() {
+        val id = transactionId ?: return
+        if (_uiState.value.isSaving) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true) }
+            try {
+                transactionRepository.delete(id)
+                _events.emit(FormEvent.Deleted)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: DomainException) {
+                _events.emit(FormEvent.Error(e.messageRes, e.args.toList()))
+            } finally {
+                _uiState.update { it.copy(isSaving = false) }
+            }
+        }
+    }
+
     private fun emitError(res: Int) {
         viewModelScope.launch {
             _events.emit(FormEvent.Error(res))
@@ -470,6 +501,7 @@ class TransactionFormViewModel @Inject constructor(
         const val KEY_PAYMENT_METHOD_ID = "form_payment_method_id"
         const val KEY_ORIG_DESCRIPTION = "form_orig_description"
         const val KEY_ORIG_DATE = "form_orig_date"
+        const val KEY_CREATED_AT = "form_created_at"
     }
 }
 
@@ -478,4 +510,5 @@ private data class FormDependencies(
     val categories: List<CategoryEntity>,
     val suggestions: List<String>,
     val paymentMethods: List<PaymentMethodEntity>,
+    val usage: Map<String, Int>,
 )

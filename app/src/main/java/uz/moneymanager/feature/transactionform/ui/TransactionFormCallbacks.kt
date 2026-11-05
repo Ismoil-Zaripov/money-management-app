@@ -10,6 +10,7 @@ import uz.moneymanager.domain.model.TransactionType
 internal class TransactionFormCallbacks(
     val onBack: () -> Unit,
     val onSave: () -> Unit,
+    val onDeleteClick: () -> Unit,
     val onTypeChange: (TransactionType) -> Unit,
     val onAmountChange: (String) -> Unit,
     val onAmountBlur: () -> Unit,

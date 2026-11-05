@@ -50,6 +50,7 @@ data class TransactionDetails(
     val paymentMethodName: String,
     val date: LocalDate,
     val description: String,
+    val createdAt: Long = 0L,
 )
 
 sealed interface SaveResult {
@@ -96,7 +97,7 @@ class TransactionRepository @Inject constructor(
         val t = dao.getById(id) ?: return null
         val category = categoryRepository.getById(t.categoryId) ?: return null
         val paymentMethod = paymentMethodDao.getById(t.paymentMethodId) ?: return null
-        return TransactionDetails(t.id, t.type, t.amount, t.currencyId, category.name, t.paymentMethodId, paymentMethod.name, t.date, t.description)
+        return TransactionDetails(t.id, t.type, t.amount, t.currencyId, category.name, t.paymentMethodId, paymentMethod.name, t.date, t.description, t.createdAt)
     }
 
     /**

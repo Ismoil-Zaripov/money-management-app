@@ -31,4 +31,8 @@ data class FormUiState(
     val descriptionErrorRes: Int? = null,
     val canSave: Boolean = false,
     val isDirty: Boolean = false,
+    val transactionId: Long? = null,
+    val createdAt: Long = 0L,
+    /** nameKey -> number of transactions using that category (edit mode only). */
+    val categoryUsage: Map<String, Int> = emptyMap(),
 )

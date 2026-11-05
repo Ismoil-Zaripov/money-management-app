@@ -40,6 +40,10 @@
     <string name="hint_description">Добавьте заметку к чеку, магазин или комментарий…</string>
     <string name="counter_format">%1$d / %2$d</string>
     <string name="action_save_transaction">Сохранить операцию</string>
+    <string name="action_save_changes">Сохранить изменения</string>
+    <string name="action_delete_transaction">Удалить операцию</string>
+    <string name="edit_transaction_id">ID #%1$d</string>
+    <string name="edit_created_at">Создано: %1$s</string>
     <string name="date_today">Сегодня</string>
     <string name="date_yesterday">Вчера</string>
     <string name="delete_transaction_confirm">Вы уверены, что хотите удалить эту транзакцию?</string>
@@ -215,5 +219,11 @@
         <item quantity="few">Исправьте %d выделенные ошибки выше, чтобы продолжить</item>
         <item quantity="many">Исправьте %d выделенных ошибок выше, чтобы продолжить</item>
         <item quantity="other">Исправьте %d выделенной ошибки выше, чтобы продолжить</item>
+    </plurals>
+    <plurals name="category_linked_records">
+        <item quantity="one">Связана с %d записью</item>
+        <item quantity="few">Связана с %d записями</item>
+        <item quantity="many">Связана с %d записями</item>
+        <item quantity="other">Связана с %d записи</item>
     </plurals>
 </resources>
