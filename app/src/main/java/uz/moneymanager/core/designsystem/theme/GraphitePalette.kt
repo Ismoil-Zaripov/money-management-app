@@ -1,0 +1,70 @@
+package uz.moneymanager.core.designsystem.theme
+
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.graphics.Color
+
+// 5. GRAPHITE PALETTE (Dark Ink-Blue / Slate)
+val GraphiteLightScheme = lightColorScheme(
+    primary = Color(0xFF243049),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFDDE3F1),
+    onPrimaryContainer = Color(0xFF0E1627),
+    secondary = Color(0xFF525D73),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFD8E2F9),
+    onSecondaryContainer = Color(0xFF0E1A2D),
+    tertiary = Color(0xFF645A77),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFFEBDDFE),
+    onTertiaryContainer = Color(0xFF201730),
+    background = Color(0xFFF6F7FA),
+    onBackground = Color(0xFF181B20),
+    surface = Color(0xFFF6F7FA),
+    onSurface = Color(0xFF181B20),
+    surfaceVariant = Color(0xFFE0E3EA),
+    onSurfaceVariant = Color(0xFF434750),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFEFF1F5),
+    surfaceContainer = Color(0xFFE9EBEF),
+    surfaceContainerHigh = Color(0xFFE3E5E9),
+    surfaceContainerHighest = Color(0xFFDDE0E4),
+    outline = Color(0xFF747781),
+    outlineVariant = Color(0xFFC4C7CE),
+    error = LightError,
+    onError = LightOnError,
+    errorContainer = LightErrorContainer,
+    onErrorContainer = LightOnErrorContainer,
+)
+
+val GraphiteDarkScheme = darkColorScheme(
+    primary = Color(0xFFB9C7E8),
+    onPrimary = Color(0xFF1A2540),
+    primaryContainer = Color(0xFF2A3753), // BAR in dark mode
+    onPrimaryContainer = Color(0xFFDDE3F1),
+    secondary = Color(0xFFB9C6E2),
+    onSecondary = Color(0xFF233045),
+    secondaryContainer = Color(0xFF3A475D),
+    onSecondaryContainer = Color(0xFFD8E2F9),
+    tertiary = Color(0xFFCEC1E4),
+    onTertiary = Color(0xFF352C46),
+    tertiaryContainer = Color(0xFF4C425E),
+    onTertiaryContainer = Color(0xFFEBDDFE),
+    background = Color(0xFF0F1218),
+    onBackground = Color(0xFFDFE2E8),
+    surface = Color(0xFF0F1218),
+    onSurface = Color(0xFFDFE2E8),
+    surfaceVariant = Color(0xFF434750),
+    onSurfaceVariant = Color(0xFFC4C7CE),
+    surfaceContainerLowest = Color(0xFF090C11),
+    surfaceContainerLow = Color(0xFF151920),
+    surfaceContainer = Color(0xFF1A1E25),
+    surfaceContainerHigh = Color(0xFF242830),
+    surfaceContainerHighest = Color(0xFF2F333B),
+    outline = Color(0xFF8D919B),
+    outlineVariant = Color(0xFF434750),
+    error = DarkError,
+    onError = DarkOnError,
+    errorContainer = DarkErrorContainer,
+    onErrorContainer = DarkOnErrorContainer,
+)

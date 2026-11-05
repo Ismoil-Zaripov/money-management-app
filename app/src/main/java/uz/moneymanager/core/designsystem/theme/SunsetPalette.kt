@@ -1,0 +1,70 @@
+package uz.moneymanager.core.designsystem.theme
+
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.graphics.Color
+
+// 4. SUNSET PALETTE (Rose-Raspberry / Shafaq)
+val SunsetLightScheme = lightColorScheme(
+    primary = Color(0xFFB8235A),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFFFD9E4),
+    onPrimaryContainer = Color(0xFF3F0020),
+    secondary = Color(0xFF785361),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFFFD9E6),
+    onSecondaryContainer = Color(0xFF2D121F),
+    tertiary = Color(0xFF7C573A),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFFFFDCBE),
+    onTertiaryContainer = Color(0xFF2E1602),
+    background = Color(0xFFFFF8F9),
+    onBackground = Color(0xFF22191C),
+    surface = Color(0xFFFFF8F9),
+    onSurface = Color(0xFF22191C),
+    surfaceVariant = Color(0xFFF3DFE4),
+    onSurfaceVariant = Color(0xFF514247),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFFDF0F3),
+    surfaceContainer = Color(0xFFF7EAEF),
+    surfaceContainerHigh = Color(0xFFF1E4E9),
+    surfaceContainerHighest = Color(0xFFEBDEE3),
+    outline = Color(0xFF847277),
+    outlineVariant = Color(0xFFD6C2C7),
+    error = LightError,
+    onError = LightOnError,
+    errorContainer = LightErrorContainer,
+    onErrorContainer = LightOnErrorContainer,
+)
+
+val SunsetDarkScheme = darkColorScheme(
+    primary = Color(0xFFFFB1C8),
+    onPrimary = Color(0xFF650033),
+    primaryContainer = Color(0xFF8A1544), // BAR in dark mode
+    onPrimaryContainer = Color(0xFFFFD9E4),
+    secondary = Color(0xFFE6BACB),
+    onSecondary = Color(0xFF452633),
+    secondaryContainer = Color(0xFF5E3C49),
+    onSecondaryContainer = Color(0xFFFFD9E6),
+    tertiary = Color(0xFFEFBD94),
+    onTertiary = Color(0xFF472A0F),
+    tertiaryContainer = Color(0xFF614023),
+    onTertiaryContainer = Color(0xFFFFDCBE),
+    background = Color(0xFF191114),
+    onBackground = Color(0xFFEFE0E3),
+    surface = Color(0xFF191114),
+    onSurface = Color(0xFFEFE0E3),
+    surfaceVariant = Color(0xFF514247),
+    onSurfaceVariant = Color(0xFFD6C2C7),
+    surfaceContainerLowest = Color(0xFF130B0E),
+    surfaceContainerLow = Color(0xFF20171B),
+    surfaceContainer = Color(0xFF271D21),
+    surfaceContainerHigh = Color(0xFF32272C),
+    surfaceContainerHighest = Color(0xFF3E3236),
+    outline = Color(0xFF9F8B91),
+    outlineVariant = Color(0xFF514247),
+    error = DarkError,
+    onError = DarkOnError,
+    errorContainer = DarkErrorContainer,
+    onErrorContainer = DarkOnErrorContainer,
+)
