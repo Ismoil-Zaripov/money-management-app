@@ -27,6 +27,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
+import uz.moneymanager.feature.settings.ui.SettingsRoute
 import uz.moneymanager.ui.categories.CategoriesScreen
 import uz.moneymanager.ui.currencies.CurrenciesScreen
 import uz.moneymanager.ui.navigation.AppBottomNavItems
@@ -34,7 +35,6 @@ import uz.moneymanager.ui.navigation.BottomBar
 import uz.moneymanager.ui.navigation.Screen
 import uz.moneymanager.ui.paymentmethods.PaymentMethodsScreen
 import uz.moneymanager.ui.rates.RatesScreen
-import uz.moneymanager.ui.settings.SettingsScreen
 import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.core.designsystem.theme.SystemBarsEffect
 import uz.moneymanager.core.designsystem.theme.barContainer
@@ -117,7 +117,7 @@ fun MainAppContent() {
             }
 
             composable(Screen.Settings.route) {
-                SettingsScreen(
+                SettingsRoute(
                     onNavigateCurrencies = { navController.navigate(Screen.Currencies.route) },
                     onNavigateRates = { navController.navigate(Screen.Rates.route) },
                     onNavigateCategories = { navController.navigate(Screen.Categories.route) },
