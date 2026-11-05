@@ -1,4 +1,4 @@
-package uz.moneymanager.feature.transactions.ui.sheet
+package uz.moneymanager.feature.transactions.ui.sheet.summary
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

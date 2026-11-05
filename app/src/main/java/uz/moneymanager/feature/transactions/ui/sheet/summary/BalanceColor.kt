@@ -1,4 +1,4 @@
-package uz.moneymanager.feature.transactions.ui.sheet
+package uz.moneymanager.feature.transactions.ui.sheet.summary
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable

@@ -31,7 +31,7 @@ import uz.moneymanager.feature.transactions.ui.component.TransactionsTopBar
 import uz.moneymanager.feature.transactions.ui.dialog.DeleteTransactionDialog
 import uz.moneymanager.feature.transactions.ui.sheet.FilterSheet
 import uz.moneymanager.feature.transactions.ui.sheet.FilterSheetHost
-import uz.moneymanager.feature.transactions.ui.sheet.SummaryReportBottomSheet
+import uz.moneymanager.feature.transactions.ui.sheet.summary.SummaryReportBottomSheet
 
 /** Stateless: ViewModel'ni bilmaydi. Faqat [uiState], [items] va callback'lar. */
 @Composable
