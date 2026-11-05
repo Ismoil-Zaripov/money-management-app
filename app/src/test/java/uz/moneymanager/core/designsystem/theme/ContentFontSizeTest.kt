@@ -1,4 +1,4 @@
-package uz.moneymanager.ui.theme
+package uz.moneymanager.core.designsystem.theme
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

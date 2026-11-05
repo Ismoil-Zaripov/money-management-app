@@ -54,9 +54,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.moneymanager.R
 import uz.moneymanager.data.local.PaymentMethodWithUsage
-import uz.moneymanager.ui.theme.barContainer
-import uz.moneymanager.ui.theme.contentText
-import uz.moneymanager.ui.theme.onBarContainer
+import uz.moneymanager.core.designsystem.theme.barContainer
+import uz.moneymanager.core.designsystem.theme.contentText
+import uz.moneymanager.core.designsystem.theme.onBarContainer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

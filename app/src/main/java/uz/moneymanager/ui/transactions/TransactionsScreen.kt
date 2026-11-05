@@ -100,11 +100,11 @@ import uz.moneymanager.domain.MonitoringFilter
 import uz.moneymanager.domain.MonitoringTotals
 import uz.moneymanager.domain.Totals
 import uz.moneymanager.domain.model.TransactionType
-import uz.moneymanager.ui.theme.ExpenseColor
-import uz.moneymanager.ui.theme.contentText
-import uz.moneymanager.ui.theme.IncomeColor
-import uz.moneymanager.ui.theme.barContainer
-import uz.moneymanager.ui.theme.onBarContainer
+import uz.moneymanager.core.designsystem.theme.ExpenseColor
+import uz.moneymanager.core.designsystem.theme.contentText
+import uz.moneymanager.core.designsystem.theme.IncomeColor
+import uz.moneymanager.core.designsystem.theme.barContainer
+import uz.moneymanager.core.designsystem.theme.onBarContainer
 import java.math.BigDecimal
 import java.time.LocalDate
 

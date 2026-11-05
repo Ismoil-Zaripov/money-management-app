@@ -50,7 +50,7 @@ import uz.moneymanager.data.repository.TransactionRepository
 import uz.moneymanager.domain.model.TransactionType
 import uz.moneymanager.ui.paymentmethods.PaymentMethodsScreen
 import uz.moneymanager.ui.paymentmethods.PaymentMethodsViewModel
-import uz.moneymanager.ui.theme.MoneyManagerTheme
+import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.ui.transactions.TransactionsScreen
 import uz.moneymanager.ui.transactions.TransactionsViewModel
 import uz.moneymanager.ui.transactions.form.TransactionFormScreen

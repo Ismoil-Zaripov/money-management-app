@@ -1,4 +1,4 @@
-package uz.moneymanager.ui.theme
+package uz.moneymanager.core.designsystem.theme
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme

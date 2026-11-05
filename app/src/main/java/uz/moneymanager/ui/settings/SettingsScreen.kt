@@ -69,11 +69,11 @@ import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.domain.model.AppLanguage
 import uz.moneymanager.domain.model.AppPalette
 import uz.moneymanager.domain.model.ThemeMode
-import uz.moneymanager.ui.theme.barContainer
-import uz.moneymanager.ui.theme.computeContentLineHeight
-import uz.moneymanager.ui.theme.contentText
-import uz.moneymanager.ui.theme.getPaletteSwatchColor
-import uz.moneymanager.ui.theme.onBarContainer
+import uz.moneymanager.core.designsystem.theme.barContainer
+import uz.moneymanager.core.designsystem.theme.computeContentLineHeight
+import uz.moneymanager.core.designsystem.theme.contentText
+import uz.moneymanager.core.designsystem.theme.getPaletteSwatchColor
+import uz.moneymanager.core.designsystem.theme.onBarContainer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

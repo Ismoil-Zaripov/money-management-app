@@ -1,4 +1,4 @@
-package uz.moneymanager.ui.theme
+package uz.moneymanager.core.designsystem.theme
 
 import android.app.Activity
 import android.content.ContextWrapper

@@ -70,9 +70,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.moneymanager.R
 import uz.moneymanager.data.local.ExchangeRateRow
 import uz.moneymanager.domain.RateValidator
-import uz.moneymanager.ui.theme.barContainer
-import uz.moneymanager.ui.theme.contentText
-import uz.moneymanager.ui.theme.onBarContainer
+import uz.moneymanager.core.designsystem.theme.barContainer
+import uz.moneymanager.core.designsystem.theme.contentText
+import uz.moneymanager.core.designsystem.theme.onBarContainer
 import uz.moneymanager.ui.transactions.FormatUtils
 import java.math.BigDecimal
 import java.time.Instant

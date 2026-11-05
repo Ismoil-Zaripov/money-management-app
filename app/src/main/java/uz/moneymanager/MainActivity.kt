@@ -47,10 +47,10 @@ import uz.moneymanager.ui.navigation.Screen
 import uz.moneymanager.ui.paymentmethods.PaymentMethodsScreen
 import uz.moneymanager.ui.rates.RatesScreen
 import uz.moneymanager.ui.settings.SettingsScreen
-import uz.moneymanager.ui.theme.MoneyManagerTheme
-import uz.moneymanager.ui.theme.SystemBarsEffect
-import uz.moneymanager.ui.theme.barContainer
-import uz.moneymanager.ui.theme.onBarContainer
+import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
+import uz.moneymanager.core.designsystem.theme.SystemBarsEffect
+import uz.moneymanager.core.designsystem.theme.barContainer
+import uz.moneymanager.core.designsystem.theme.onBarContainer
 import uz.moneymanager.ui.transactions.TransactionsScreen
 import uz.moneymanager.ui.transactions.form.TransactionFormScreen
 
