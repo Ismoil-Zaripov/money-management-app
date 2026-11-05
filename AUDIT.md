@@ -5,8 +5,8 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-05 (T03 ✅ tugadi: build, unit testlar va ekranda ko'rishni foydalanuvchi tasdiqladi)
-**Keyingi task:** `T04` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
+**Oxirgi yangilanish:** 2026-11-05 (T04 kodi tayyor va commit qilingan; `DateRangePresetTest` yozilgan, ishga tushirilmagan; ekranda ko'rish qoldi)
+**Keyingi task:** `T05` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
 
 ---
 
@@ -18,7 +18,7 @@
 | T01 | Design system + nav qobig'i | ✅ | 2026-11-05 | aaa29aa (A: theme ko'chirildi), eee3771 (B: komponentlar, MoneyColors, BottomBar) |
 | T02 | Palitralar (5 light + 5 dark) | ✅ | 2026-11-05 | 5277823 (A: palitralar fayllarga bo'lindi), d079b98 (B: yangi palitralar, fallback, testlar) |
 | T03 | Transactions ro'yxati | ✅ | 2026-11-05 | d5e70b5 (A: route/screen/components), d78339a (B: yangi dizayn) |
-| T04 | Filtrlar va sana oralig'i | ⬜ | | |
+| T04 | Filtrlar va sana oralig'i | 🟨 | 2026-11-05 | 1fc21e3 (A: chiplar fayllarga bo'lindi), 9d48f40 (B: filtr sheetlari) |
 | T05 | Summary Report | ⬜ | | |
 | T06 | New Transaction | ⬜ | | |
 | T07 | Edit Transaction | ⬜ | | |
@@ -39,7 +39,7 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | Ekran (hozirgi qator soni) | Split | Domain | Light | Dark | States | i18n | Perf | Tests | Task |
 |---|---|---|---|---|---|---|---|---|---|
 | Transactions ro'yxati (Screen 118) | ✅ | ⬜ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟨 | T03 |
-| Filtr sheetlari | ⬜ | ➖ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T04 |
+| Filtr sheetlari | ✅ | ➖ | 🟨 | ⬜ | ➖ | ✅ | ✅ | 🟨 | T04 |
 | Summary Report — Details | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T05 |
 | Summary Report — Pie Chart | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T05 |
 | New Transaction (945 + VM 519) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T06 |
@@ -86,6 +86,7 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 - Summary Report Pie: Balance — diagramma ostida 3-qator.
 - Theme va Language tanlash — ikonka asosida, ixcham (Settings).
 - 5 light + 5 dark palitra; Emerald saqlanadi, qolgan 4 tasi yangi fintech ranglari.
+- Filtrlar bitta tanlovli (kategoriya, to'lov usuli, valyuta, tur); ko'p tanlov QILINMAYDI, `MonitoringFilter` va so'rovlar o'zgarmaydi (T04, foydalanuvchi tanlovi).
 - Dizayndagi hamburger, profil avatari, "Screen State" preview, Sarmoya brendi, 5 tabli menyu — QILINMAYDI.
 
 ---
@@ -102,6 +103,8 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 6 | T03: Summary sheet/donut, `TransactionRow`, `TransactionList`, `TotalSummaryFooter` composable'lari ~80 qatordan uzun (sheet/donut ataylab o'zgarmay ko'chirildi) | T05 | T05 da qayta yoziladi |
 | 7 | T03: ro'yxat qatori endi o'z valyutasida (AUDIT §4); kunlik sarlavhada balans o'rniga operatsiyalar soni. `TransactionListRow` ga `createdAt`, `categoryKey` qo'shildi (SELECT proyeksiyasi, sxema o'zgarmagan) | T03 | ma'lumot |
 | 8 | T03: androidTest (`PaymentMethodsComposeUiTest`) qurilmada ishga tushirilmagan; qurilmada ishga tushirishni foydalanuvchi hal qiladi (light/dark, empty, skeleton ekranda ko'rildi, muammo yo'q) | T03 | ochiq |
+| 9 | T04: dizayndagi 'All (45)/Income (12)/Expense (33)' sonlari yo'q (tur bo'yicha son hisoblanmaydi, ortiqcha so'rov yozilmadi); chiplarda faqat tanlangan nom ko'rinadi | T04 | ma'lumot |
+| 10 | T04: `PaymentMethodsComposeUiTest` filtr oqimi sheet'ga moslab yangilandi, lekin qurilmada ishga tushirilmagan; filtr sheetlari va sana oralig'i ekranda (light/dark) ko'rilmagan | T04 | foydalanuvchi tekshiradi |
 
 ---
 
@@ -114,3 +117,4 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 2026-11-05 | T01 | (A) theme -> core/designsystem/theme; (B) MmTopBar, MmCard, MmFilterChip, MmBadge, MmFab, MmEmptyState, MmSectionHeader, MmDialog, AmountText, MoneyColors, BottomBar (pill indikator, surfaceContainer fon); i18n: yangi matn yo'q (action_back/cancel 3 tilda bor) | — (T01 qisman: preview va testlar tasdiqlanmagan) | @Preview'larni Android Studio'da ko'rish; testDebugUnitTest; keyin T02 | aaa29aa, eee3771 |
 | 2026-11-05 | T02 | (A) Palettes.kt 363→25 qator, palitra boshiga alohida fayl; (B) AppPalette → EMERALD/OCEAN_TEAL/ROYAL_INDIGO/WARM_CORAL/GRAPHITE_MINT, 4 yangi light+dark sxema, Emerald dark yashil tusli fon, eski saqlangan nomlar uchun fallback, 3 tilda nomlar, kontrast va migratsiya testlari | T02 cross-cutting bloklar (palitralar, orqaga moslik) ✅ — build, testlar va ko'rishni foydalanuvchi tasdiqladi | keyin T03 | 5277823 (A), d079b98 (B) |
 | 2026-11-05 | T03 | (A) 1232 qatorli ekran → `feature/transactions/` (Route, stateless Screen, UiState/Event, component/dialog/sheet), FormatUtils → `core/format`; (B) yangi ro'yxat dizayni: MmTopBar/MmFab/MmCard qatorlar, ikonka xaritasi, sana pill + operatsiyalar soni, Total Summary pill, skeleton + empty, chiplarda (x); `operations_count` plural 3 tilda | Split, i18n, Perf ✅ (kod bo'yicha tekshirildi); build + unit testlar foydalanuvchi tomonidan yashil | ekranda light/dark, empty/skeleton ko'rish; androidTest; keyin T04 | d5e70b5 (A), d78339a (B) |
+| 2026-11-05 | T04 | (A) filtr chiplari bir fayl-bir komponent, tizim DatePickerDialog `sheet/` ga; (B) `CategoryFilterSheet`, `PaymentCurrencySheet`, `TypeFilterSheet`, `DateRangeSheet` (M3 DateRangePicker + presetlar), `FilterSheetHost`, `DateRangePreset`; chiplar sheet ochadi, (x) bilan tozalanadi; 8 yangi string 3 tilda; androidTest filtr oqimi yangilandi; `DateRangePresetTest` | Split, i18n, Perf ✅ (kod bo'yicha); (A) build foydalanuvchi tomonidan yashil | (B) build/test natijasi, ekranda ko'rish (light/dark), androidTest; keyin T05 | 1fc21e3 (A), 9d48f40 (B) |
