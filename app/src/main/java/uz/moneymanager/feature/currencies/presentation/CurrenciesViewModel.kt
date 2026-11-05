@@ -1,33 +1,28 @@
-package uz.moneymanager.ui.currencies
+package uz.moneymanager.feature.currencies.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import uz.moneymanager.R
-import uz.moneymanager.data.local.CurrencyWithUsage
 import uz.moneymanager.data.repository.CurrencyRepository
 import uz.moneymanager.domain.DomainException
-import javax.inject.Inject
-
-sealed interface CurrencyEvent {
-    data object Success : CurrencyEvent
-    data class Error(val messageRes: Int, val args: List<Any> = emptyList()) : CurrencyEvent
-}
 
 @HiltViewModel
 class CurrenciesViewModel @Inject constructor(
     private val currencyRepository: CurrencyRepository,
 ) : ViewModel() {
 
-    val currenciesWithUsage: StateFlow<List<CurrencyWithUsage>> = currencyRepository.observeWithUsage()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val uiState: StateFlow<CurrenciesUiState> = currencyRepository.observeWithUsage()
+        .map { CurrenciesUiState(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CurrenciesUiState())
 
     private val _events = MutableSharedFlow<CurrencyEvent>()
     val events: SharedFlow<CurrencyEvent> = _events.asSharedFlow()

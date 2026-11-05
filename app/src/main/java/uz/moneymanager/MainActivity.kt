@@ -27,9 +27,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
+import uz.moneymanager.feature.currencies.ui.CurrenciesRoute
 import uz.moneymanager.feature.settings.ui.SettingsRoute
 import uz.moneymanager.ui.categories.CategoriesScreen
-import uz.moneymanager.ui.currencies.CurrenciesScreen
 import uz.moneymanager.ui.navigation.AppBottomNavItems
 import uz.moneymanager.ui.navigation.BottomBar
 import uz.moneymanager.ui.navigation.Screen
@@ -149,7 +149,7 @@ fun MainAppContent() {
                 popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
                 popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
             ) {
-                CurrenciesScreen(
+                CurrenciesRoute(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
