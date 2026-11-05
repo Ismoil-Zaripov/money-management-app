@@ -206,7 +206,7 @@ private const val SELECT_ROWS = """
     SELECT t.id AS id, t.type AS type, t.amount AS amount, t.date AS date,
            c.code AS currencyCode, cat.name AS categoryName,
            pm.id AS paymentMethodId, pm.name AS paymentMethodName,
-           t.description AS description,
+           t.description AS description, t.createdAt AS createdAt, cat.nameKey AS categoryKey,
            trD.rate AS displayRate, trF.rate AS fallbackRate
     FROM transactions t
     INNER JOIN currencies c ON c.id = t.currencyId

@@ -265,7 +265,6 @@ class DomainRulesTest {
             title = "Ovqat",
             paymentMethodName = "Cash",
             amountText = "−50 000 UZS",
-            originalAmountText = null,
             type = TransactionType.EXPENSE,
             date = date1,
         )
@@ -274,7 +273,6 @@ class DomainRulesTest {
             title = "Kiyim",
             paymentMethodName = "Cash",
             amountText = "−100 000 UZS",
-            originalAmountText = null,
             type = TransactionType.EXPENSE,
             date = date1,
         )
@@ -283,7 +281,6 @@ class DomainRulesTest {
             title = "Maosh",
             paymentMethodName = "Transfer",
             amountText = "+5 000 000 UZS",
-            originalAmountText = null,
             type = TransactionType.INCOME,
             date = date2,
         )

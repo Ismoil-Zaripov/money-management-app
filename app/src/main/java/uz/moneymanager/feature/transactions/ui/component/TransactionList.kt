@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +20,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import java.time.LocalDate
 import uz.moneymanager.R
-import uz.moneymanager.core.designsystem.theme.contentText
+import uz.moneymanager.core.designsystem.component.MmEmptyState
 import uz.moneymanager.domain.MonitoringTotals
 import uz.moneymanager.feature.transactions.presentation.TransactionListItemUiModel
 
@@ -31,21 +29,14 @@ import uz.moneymanager.feature.transactions.presentation.TransactionListItemUiMo
 fun TransactionList(
     items: LazyPagingItems<TransactionListItemUiModel>,
     dailyTotals: Map<LocalDate, MonitoringTotals>,
-    displayCode: String,
-    fallbackCode: String,
     onEdit: (Long) -> Unit,
     onDelete: (TransactionListItemUiModel.Item) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         if (items.loadState.refresh is LoadState.Loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            TransactionSkeletonList()
         } else if (items.itemCount == 0 && items.loadState.refresh !is LoadState.Loading) {
-            Text(
-                text = stringResource(R.string.empty_transactions),
-                modifier = Modifier.align(Alignment.Center),
-                style = MaterialTheme.contentText,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            MmEmptyState(title = stringResource(R.string.empty_transactions))
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -71,9 +62,7 @@ fun TransactionList(
                         is TransactionListItemUiModel.Header -> {
                             DateHeader(
                                 dateText = item.dateText,
-                                totals = dailyTotals[item.date],
-                                displayCode = displayCode,
-                                fallbackCode = fallbackCode,
+                                operationsCount = dailyTotals[item.date]?.let { it.display.count + it.fallback.count },
                             )
                         }
                         is TransactionListItemUiModel.Item -> {

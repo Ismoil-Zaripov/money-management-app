@@ -170,4 +170,10 @@
     <string name="err_edit_rates_missing">Нельзя сменить на %1$s на дату %2$s: отсутствуют курсы</string>
     <string name="err_cbu_fetch_failed">Не удалось загрузить курсы с CBU.uz</string>
     <string name="err_description_too_long">Описание не должно превышать %1$d символов</string>
+    <plurals name="operations_count">
+        <item quantity="one">%d операция</item>
+        <item quantity="few">%d операции</item>
+        <item quantity="many">%d операций</item>
+        <item quantity="other">%d операции</item>
+    </plurals>
 </resources>

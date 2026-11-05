@@ -154,6 +154,8 @@ data class TransactionListRow(
     val paymentMethodId: Long,
     val paymentMethodName: String,
     val description: String,
+    val createdAt: Long = 0L,
+    val categoryKey: String = "",
     /** Snapshot rate to the display currency, null if the currency did not exist yet. */
     val displayRate: BigDecimal?,
     /** Snapshot rate to the national currency (UZS). */

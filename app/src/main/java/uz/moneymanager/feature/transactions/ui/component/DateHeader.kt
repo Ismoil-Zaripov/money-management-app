@@ -1,88 +1,66 @@
 package uz.moneymanager.feature.transactions.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import java.math.BigDecimal
-import uz.moneymanager.core.designsystem.theme.ExpenseColor
-import uz.moneymanager.core.designsystem.theme.IncomeColor
-import uz.moneymanager.core.designsystem.theme.contentText
-import uz.moneymanager.core.format.FormatUtils
-import uz.moneymanager.domain.MonitoringTotals
+import uz.moneymanager.R
 
+/** Date pill on the left, daily operation count on the right (null while daily totals are loading). */
 @Composable
 fun DateHeader(
     dateText: String,
-    totals: MonitoringTotals?,
-    displayCode: String,
-    fallbackCode: String,
+    operationsCount: Int?,
 ) {
-    val baseStyle = MaterialTheme.contentText
-
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape)
+                .padding(horizontal = 10.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Box(
+                modifier = Modifier
+                    .size(6.dp)
+                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = dateText,
-                style = baseStyle.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
+            )
+        }
+        if (operationsCount != null) {
+            val resources = LocalContext.current.resources
+            Text(
+                text = resources.getQuantityString(R.plurals.operations_count, operationsCount, operationsCount),
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
             )
-
-            if (totals != null) {
-                val hasDisplay = totals.display.count > 0
-                val hasFallback = totals.fallback.count > 0 && displayCode != fallbackCode
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (hasDisplay) {
-                        val isIncome = totals.display.balance >= BigDecimal.ZERO
-                        Text(
-                            text = FormatUtils.formatAmount(totals.display.balance, displayCode, includePositiveSign = true),
-                            style = baseStyle.copy(fontWeight = FontWeight.Bold),
-                            color = if (isIncome) IncomeColor else ExpenseColor,
-                            maxLines = 1
-                        )
-                    } else if (!hasFallback) {
-                        Text(
-                            text = FormatUtils.formatAmount(BigDecimal.ZERO, displayCode, includePositiveSign = false),
-                            style = baseStyle.copy(fontWeight = FontWeight.Bold),
-                            color = IncomeColor,
-                            maxLines = 1
-                        )
-                    }
-
-                    if (hasFallback) {
-                        val isIncome = totals.fallback.balance >= BigDecimal.ZERO
-                        Text(
-                            text = FormatUtils.formatAmount(totals.fallback.balance, fallbackCode, includePositiveSign = true),
-                            style = baseStyle.copy(fontWeight = FontWeight.Bold),
-                            color = if (isIncome) IncomeColor else ExpenseColor,
-                            maxLines = 1
-                        )
-                    }
-                }
-            }
         }
     }
 }

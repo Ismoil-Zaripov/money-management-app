@@ -17,9 +17,11 @@ sealed interface TransactionListItemUiModel {
         val title: String,
         val paymentMethodName: String = "",
         val amountText: String,
-        val originalAmountText: String? = null,
         val type: TransactionType,
         val date: LocalDate,
+        val categoryKey: String = "",
+        val description: String = "",
+        val timeText: String = "",
     ) : TransactionListItemUiModel
 }
 

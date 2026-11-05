@@ -3,7 +3,6 @@ package uz.moneymanager.feature.transactions.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import uz.moneymanager.feature.transactions.presentation.TransactionsViewModel

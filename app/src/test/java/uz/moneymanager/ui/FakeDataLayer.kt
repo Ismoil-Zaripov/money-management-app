@@ -336,6 +336,8 @@ class FakeTransactionDao(
                     paymentMethodId = pm.id,
                     paymentMethodName = pm.name,
                     description = t.description,
+                    createdAt = t.createdAt,
+                    categoryKey = cat.nameKey,
                     displayRate = dRate,
                     fallbackRate = fRate,
                 )

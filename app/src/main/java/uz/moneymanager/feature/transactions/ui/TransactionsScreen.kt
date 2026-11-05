@@ -4,11 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -22,9 +18,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.paging.compose.LazyPagingItems
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmFab
 import uz.moneymanager.feature.transactions.presentation.TransactionListItemUiModel
 import uz.moneymanager.feature.transactions.presentation.TransactionsEvent
 import uz.moneymanager.feature.transactions.presentation.TransactionsUiState
@@ -55,16 +51,10 @@ fun TransactionsScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = { TransactionsTopBar(onReset = { onEvent(TransactionsEvent.ResetFilters) }) },
         floatingActionButton = {
-            FloatingActionButton(
+            MmFab(
                 onClick = onNavigateToCreate,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.action_add)
-                )
-            }
+                contentDescription = stringResource(R.string.action_add)
+            )
         },
         bottomBar = {
             TotalSummaryFooter(
@@ -100,8 +90,6 @@ fun TransactionsScreen(
             TransactionList(
                 items = items,
                 dailyTotals = uiState.dailyTotals,
-                displayCode = displayCode,
-                fallbackCode = fallbackCode,
                 onEdit = onNavigateToEdit,
                 onDelete = { transactionToDelete = it }
             )

@@ -58,7 +58,6 @@ internal fun DateRangeFilterChip(
             ).show()
         },
         label = { Text(text = dateLabel, style = MaterialTheme.contentText) },
-        colors = transactionChipColors(),
         trailingIcon = {
             if (from != null || to != null) {
                 IconButton(

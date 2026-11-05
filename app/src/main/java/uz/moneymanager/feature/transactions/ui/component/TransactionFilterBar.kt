@@ -74,7 +74,8 @@ private fun CategoryChip(
     val selected = categories.firstOrNull { it.id == selectedId }
     FilterMenuChip(
         label = "${stringResource(R.string.filter_category)}: ${selected?.name ?: stringResource(R.string.filter_all)}",
-        selected = selectedId != null
+        selected = selectedId != null,
+        onClear = { onSelect(null) }
     ) { dismiss ->
         FilterMenuItem(stringResource(R.string.filter_all)) {
             onSelect(null)
@@ -98,7 +99,8 @@ private fun PaymentMethodChip(
     val selected = paymentMethods.firstOrNull { it.id == selectedId }
     FilterMenuChip(
         label = "${stringResource(R.string.filter_payment_method)}: ${selected?.name ?: stringResource(R.string.filter_all)}",
-        selected = selectedId != null
+        selected = selectedId != null,
+        onClear = { onSelect(null) }
     ) { dismiss ->
         FilterMenuItem(stringResource(R.string.filter_all)) {
             onSelect(null)
@@ -122,7 +124,8 @@ private fun CurrencyFilterChip(
     val selected = currencies.firstOrNull { it.id == selectedId }
     FilterMenuChip(
         label = "${stringResource(R.string.filter_currency)}: ${selected?.code ?: stringResource(R.string.filter_all)}",
-        selected = selectedId != null
+        selected = selectedId != null,
+        onClear = { onSelect(null) }
     ) { dismiss ->
         FilterMenuItem(stringResource(R.string.filter_all)) {
             onSelect(null)
@@ -149,7 +152,8 @@ private fun TypeChip(
     }
     FilterMenuChip(
         label = "${stringResource(R.string.filter_type)}: $typeLabel",
-        selected = type != null
+        selected = type != null,
+        onClear = { onSelect(null) }
     ) { dismiss ->
         FilterMenuItem(stringResource(R.string.filter_all)) {
             onSelect(null)
