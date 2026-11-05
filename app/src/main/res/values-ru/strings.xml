@@ -236,4 +236,22 @@
         <item quantity="many">Связана с %d записями</item>
         <item quantity="other">Связана с %d записи</item>
     </plurals>
+
+    <!-- Exchange Rates redesign -->
+    <string name="rates_registered_title">Зарегистрированные курсы</string>
+    <plurals name="rates_pairs_count">
+        <item quantity="one">%d пара</item>
+        <item quantity="few">%d пары</item>
+        <item quantity="many">%d пар</item>
+        <item quantity="other">%d пары</item>
+    </plurals>
+    <string name="rate_reverse_line">1 %1$s = %2$s %3$s</string>
+    <string name="rates_prev_day">Предыдущий день</string>
+    <string name="rates_next_day">Следующий день</string>
+    <string name="rates_import_cbu">Импорт ЦБ</string>
+    <string name="rates_fetch_cbu">Загрузить с CBU.uz</string>
+    <string name="rates_empty_message">На %1$s нет официальных или ручных курсов.</string>
+    <string name="rates_delete_title">Удалить курс?</string>
+    <string name="action_edit_rate">Изменить курс</string>
+    <string name="action_retry">Повторить</string>
 </resources>

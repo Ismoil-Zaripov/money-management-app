@@ -226,4 +226,20 @@
         <item quantity="one">%d ta yozuvga bog‘langan</item>
         <item quantity="other">%d ta yozuvga bog‘langan</item>
     </plurals>
+
+    <!-- Exchange Rates redesign -->
+    <string name="rates_registered_title">Ro‘yxatdagi kurslar</string>
+    <plurals name="rates_pairs_count">
+        <item quantity="one">%d ta juft</item>
+        <item quantity="other">%d ta juft</item>
+    </plurals>
+    <string name="rate_reverse_line">1 %1$s = %2$s %3$s</string>
+    <string name="rates_prev_day">Oldingi kun</string>
+    <string name="rates_next_day">Keyingi kun</string>
+    <string name="rates_import_cbu">CBU dan yuklash</string>
+    <string name="rates_fetch_cbu">CBU.uz dan yuklash</string>
+    <string name="rates_empty_message">%1$s sanasiga rasmiy yoki qo‘lda kiritilgan kurslar yo‘q.</string>
+    <string name="rates_delete_title">Kursni o‘chirasizmi?</string>
+    <string name="action_edit_rate">Kursni tahrirlash</string>
+    <string name="action_retry">Qayta urinish</string>
 </resources>

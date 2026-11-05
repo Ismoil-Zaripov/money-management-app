@@ -1,6 +1,7 @@
 package uz.moneymanager.feature.rates.ui
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,7 +40,15 @@ fun RatesRoute(
                 is RateEvent.Success -> {}
                 is RateEvent.Error -> {
                     val msg = context.getString(event.messageRes, *event.args.toTypedArray())
-                    snackbarHostState.showSnackbar(msg)
+                    if (event.messageRes == R.string.err_cbu_fetch_failed) {
+                        val result = snackbarHostState.showSnackbar(
+                            message = msg,
+                            actionLabel = context.getString(R.string.action_retry)
+                        )
+                        if (result == SnackbarResult.ActionPerformed) viewModel.importFromCbu()
+                    } else {
+                        snackbarHostState.showSnackbar(msg)
+                    }
                 }
                 is RateEvent.CbuResult -> {
                     val msg = buildString {
@@ -61,7 +70,8 @@ fun RatesRoute(
         onBack = onNavigateBack,
         onImport = viewModel::importFromCbu,
         onAddClick = { showAddDialog = true },
-        onDateClick = { showScreenDatePicker = true },
+        onDateChange = viewModel::setDate,
+        onPickDate = { showScreenDatePicker = true },
         onEdit = { rateToEdit = it },
         onDelete = { rateToDelete = it }
     )

@@ -235,4 +235,20 @@
         <item quantity="one">Linked to %d record</item>
         <item quantity="other">Linked to %d records</item>
     </plurals>
+
+    <!-- Exchange Rates redesign -->
+    <string name="rates_registered_title">Registered Rates</string>
+    <plurals name="rates_pairs_count">
+        <item quantity="one">%d pair</item>
+        <item quantity="other">%d pairs</item>
+    </plurals>
+    <string name="rate_reverse_line">1 %1$s = %2$s %3$s</string>
+    <string name="rates_prev_day">Previous day</string>
+    <string name="rates_next_day">Next day</string>
+    <string name="rates_import_cbu">Import CBU</string>
+    <string name="rates_fetch_cbu">Fetch from CBU.uz</string>
+    <string name="rates_empty_message">No official or manual rates recorded on %1$s.</string>
+    <string name="rates_delete_title">Delete exchange rate?</string>
+    <string name="action_edit_rate">Edit Rate</string>
+    <string name="action_retry">Retry</string>
 </resources>

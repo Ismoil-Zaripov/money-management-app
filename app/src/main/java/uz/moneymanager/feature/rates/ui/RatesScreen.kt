@@ -1,34 +1,30 @@
 package uz.moneymanager.feature.rates.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
-import uz.moneymanager.core.designsystem.theme.contentText
+import uz.moneymanager.core.designsystem.component.MmExtendedFab
+import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.data.local.ExchangeRateRow
 import uz.moneymanager.feature.rates.presentation.RatesUiState
 import uz.moneymanager.feature.rates.ui.component.RateCard
 import uz.moneymanager.feature.rates.ui.component.RatesDateRow
-import uz.moneymanager.feature.rates.ui.component.RatesTopBar
+import uz.moneymanager.feature.rates.ui.component.RatesEmptyState
+import uz.moneymanager.feature.rates.ui.component.RatesImportRow
+import uz.moneymanager.feature.rates.ui.component.RatesListHeader
+import java.time.LocalDate
 
 @Composable
 fun RatesScreen(
@@ -37,46 +33,32 @@ fun RatesScreen(
     onBack: () -> Unit,
     onImport: () -> Unit,
     onAddClick: () -> Unit,
-    onDateClick: () -> Unit,
+    onDateChange: (LocalDate) -> Unit,
+    onPickDate: () -> Unit,
     onEdit: (ExchangeRateRow) -> Unit,
     onDelete: (ExchangeRateRow) -> Unit,
 ) {
     Scaffold(
-        topBar = { RatesTopBar(isLoading = state.isLoading, onBack = onBack, onImport = onImport) },
+        topBar = { MmTopBar(title = stringResource(R.string.title_exchange_rates), onBack = onBack) },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddClick,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.action_add_rate))
-            }
+            MmExtendedFab(text = stringResource(R.string.action_add_rate), onClick = onAddClick)
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            RatesDateRow(date = state.date, onClick = onDateClick)
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (state.rates.isEmpty() && !state.isLoading) {
-                    Text(
-                        text = stringResource(R.string.empty_rates),
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.contentText,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 88.dp),
-                        verticalArrangement = Arrangement.spacedBy(0.dp)
-                    ) {
-                        items(state.rates, key = { it.id }) { item ->
-                            RateCard(
-                                item = item,
-                                onEdit = { onEdit(item) },
-                                onDelete = { onDelete(item) }
-                            )
-                        }
+            RatesDateRow(date = state.date, onDateChange = onDateChange, onPickDate = onPickDate)
+            RatesImportRow(isLoading = state.isLoading, onImport = onImport)
+            if (state.rates.isEmpty() && !state.isLoading) {
+                RatesEmptyState(date = state.date, onFetch = onImport)
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 88.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item(key = "header", contentType = "header") { RatesListHeader(state.rates.size) }
+                    items(state.rates, key = { it.id }, contentType = { "rate" }) { item ->
+                        RateCard(item = item, onEdit = { onEdit(item) }, onDelete = { onDelete(item) })
                     }
                 }
             }
