@@ -5,8 +5,8 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-05 (T00 qisman bajarildi)
-**Keyingi task:** `T01` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4)
+**Oxirgi yangilanish:** 2026-11-05 (T02 ✅ tugadi, foydalanuvchi build, testlar va ko'rishni tasdiqladi)
+**Keyingi task:** `T03` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4)
 
 ---
 
@@ -15,8 +15,8 @@
 | Task | Nomi | Holat | Sessiya sanasi | Commit(lar) |
 |---|---|---|---|---|
 | T00 | Performance baseline | 🟨 | 2026-11-05 | 19ce9ba (lifecycle collect), 85ff3f6 (baseline profile) |
-| T01 | Design system + nav qobig'i | ⬜ | | |
-| T02 | Palitralar (5 light + 5 dark) | ⬜ | | |
+| T01 | Design system + nav qobig'i | ✅ | 2026-11-05 | aaa29aa (A: theme ko'chirildi), eee3771 (B: komponentlar, MoneyColors, BottomBar) |
+| T02 | Palitralar (5 light + 5 dark) | ✅ | 2026-11-05 | 5277823 (A: palitralar fayllarga bo'lindi), d079b98 (B: yangi palitralar, fallback, testlar) |
 | T03 | Transactions ro'yxati | ⬜ | | |
 | T04 | Filtrlar va sana oralig'i | ⬜ | | |
 | T05 | Summary Report | ⬜ | | |
@@ -57,9 +57,9 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 |---|---|---|
 | Release/benchmark build o'lchovi | 🟨 | T00: release APK yig'iladi (R8, debug imzo) ✅; debug vs release qotish qurilmada O'LCHANMAGAN |
 | Baseline profile | 🟨 | T00: qo'lda yozilgan wildcard profil + profileinstaller, release'da compileReleaseArtProfile o'tdi; ta'siri o'lchanmagan, Macrobenchmark bilan aniqlash mumkin |
-| Design system komponentlari (`core/designsystem`) | ⬜ | T01 |
-| Palitralar 5 light + 5 dark, AA kontrast | ⬜ | T02 |
-| Saqlangan palitra nomlari bilan orqaga moslik | ⬜ | T02 |
+| Design system komponentlari (`core/designsystem`) | ✅ | T01: 9 komponent + MoneyColors + BottomBar; build o'tdi; foydalanuvchi preview va testlarni tasdiqladi (2026-11-05) |
+| Palitralar 5 light + 5 dark, AA kontrast | ✅ | T02: 5 palitra × light/dark; `PaletteContrastTest` yashil (foydalanuvchi run-checks.bat, 2026-11-05); qurilmada foydalanuvchi ko'rib chiqdi |
+| Saqlangan palitra nomlari bilan orqaga moslik | ✅ | T02: `AppPalette.fromStored()` + `AppPaletteMigrationTest` yashil (foydalanuvchi tasdiqladi) |
 | Domain model + repository interfeyslari (entity UI'dan chiqarildi) | ⬜ | feature bo'yicha, ekran tasklarida |
 | `README.md` struktura bo'limi yangilandi | ⬜ | T14 |
 
@@ -108,3 +108,5 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 |---|---|---|---|---|---|
 | 2026-11-05 | reja | Dizayn tahlil qilindi; ARCHITECTURE.md, tasks.md, AUDIT.md, AI_PROMPT.md yozildi | — | T00 dan boshlash | — |
 | 2026-11-05 | T00 | collectAsState -> collectAsStateWithLifecycle (Transactions 7, Settings 4); profileinstaller + baseline-prof.txt; assembleDebug, testDebugUnitTest, assembleRelease yashil (JBR JDK 21) | — (T00 qisman, bloklar ✅ emas) | qurilmada debug/release o'lchovi; Transactions UiState (T03); keyin T01 | 19ce9ba, 85ff3f6 |
+| 2026-11-05 | T01 | (A) theme -> core/designsystem/theme; (B) MmTopBar, MmCard, MmFilterChip, MmBadge, MmFab, MmEmptyState, MmSectionHeader, MmDialog, AmountText, MoneyColors, BottomBar (pill indikator, surfaceContainer fon); i18n: yangi matn yo'q (action_back/cancel 3 tilda bor) | — (T01 qisman: preview va testlar tasdiqlanmagan) | @Preview'larni Android Studio'da ko'rish; testDebugUnitTest; keyin T02 | aaa29aa, eee3771 |
+| 2026-11-05 | T02 | (A) Palettes.kt 363→25 qator, palitra boshiga alohida fayl; (B) AppPalette → EMERALD/OCEAN_TEAL/ROYAL_INDIGO/WARM_CORAL/GRAPHITE_MINT, 4 yangi light+dark sxema, Emerald dark yashil tusli fon, eski saqlangan nomlar uchun fallback, 3 tilda nomlar, kontrast va migratsiya testlari | T02 cross-cutting bloklar (palitralar, orqaga moslik) ✅ — build, testlar va ko'rishni foydalanuvchi tasdiqladi | keyin T03 | 5277823 (A), d079b98 (B) |
