@@ -1,0 +1,9 @@
+# Hand-written baseline profile (wildcards). Regenerate with Macrobenchmark in a later task for precision.
+HSPLuz/moneymanager/**;->**(**)**
+Luz/moneymanager/**;
+HSPLandroidx/compose/runtime/**;->**(**)**
+HSPLandroidx/compose/ui/**;->**(**)**
+HSPLandroidx/compose/foundation/**;->**(**)**
+HSPLandroidx/compose/material3/**;->**(**)**
+HSPLandroidx/paging/**;->**(**)**
+HSPLandroidx/navigation/**;->**(**)**
