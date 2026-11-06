@@ -5,8 +5,8 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-06 (T11 ✅: run-checks EXIT_CODE=0 (53 test yashil), light/dark ko'rish foydalanuvchi tomonidan tasdiqlandi; №22 yopildi)
-**Keyingi task:** `T12` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
+**Oxirgi yangilanish:** 2026-11-06 (T12 ✅: (A),(B) run-checks EXIT_CODE=0, light/dark ko'rish foydalanuvchi tomonidan tasdiqlandi)
+**Keyingi task:** `T13` (ixtiyoriy; tavsiya: o'tkazib yuborish) yoki `T14` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
 
 ---
 
@@ -26,7 +26,7 @@
 | T09 | Currencies | ✅ | 2026-11-06 | ebd6afc (A: route/screen/dialoglar), shu commit (B: yangi dizayn) |
 | T10 | Exchange Rates | ✅ | 2026-11-06 | 76c0668 (A: route/screen/dialoglar), 61646f9 (B: yangi dizayn), (C) shu commit |
 | T11 | Categories | ✅ | 2026-11-06 | 47bf00c (A: route/screen/card/dialoglar), 2cca7ff (B: yangi dizayn), (C) shu commit |
-| T12 | Payment Methods | ⬜ | | |
+| T12 | Payment Methods | ✅ | 2026-11-06 | 67e4fb7 (A: route/screen/card/dialoglar), 91f4e0a (B: yangi dizayn), (C) shu commit |
 | T13 | Palette ekrani (ixtiyoriy) | ⬜ | | |
 | T14 | Yakuniy audit | ⬜ | | |
 
@@ -48,7 +48,7 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | Currencies (332 → 12 fayl, ≤83 qator) | ✅ | ➖ | ✅ | ✅ | ➖ | ✅ | ✅ | ⬜ | T09 |
 | Exchange Rates (644 → 15 fayl, ≤127 qator) | 🟨 | ➖ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T10 |
 | Categories (258 → 12 fayl, ≤86 qator) | ✅ | ⬜ | ✅ | ✅ | ⬜ | ✅ | ✅ | ✅ | T11 |
-| Payment Methods (353) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T12 |
+| Payment Methods (353 → 10 fayl, ≤115 qator) | ✅ | ⬜ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T12 |
 | Palette ekrani (ixtiyoriy) | ➖ | ➖ | ⬜ | ⬜ | ➖ | ⬜ | ➖ | ➖ | T13 |
 
 ### Umumiy (cross-cutting)
@@ -118,6 +118,7 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 21 | T10: foydalanuvchi qarori: kartada 'N transactions linked' QILINMADI (`ExchangeRateRow` da faqat `locked`; DAO tegilmadi). Dizayndagi 'Live CBU.uz / 09:30', 'Manual/Recent/Fixed' badge'lari, valyuta belgisi tile'lari QILINMADI. Import xatosi banner emas, snackbar + 'Retry' (`err_cbu_fetch_failed`); `MmDialog` da qizil 'Delete' tugmasi yo'q | T10 | ma'lumot |
 | 22 | T10: `RatesRoute` composable ~100 qator (>80), `AddRateDialog` ~85; Add va Edit dialog alohida qoldi (tasks.md `AddEditRateDialog`). Ekranni foydalanuvchi ko'rib chiqdi (2026-11-06, muammo aytilmadi) va T10 ni ✅ ga o'tkazishni so'radi: Light/Dark/States shu asosda ✅. `RateFormatTest` yashil (4/4, build-check.log EXIT_CODE=0, 2026-11-06) → Tests ✅. Qolgan: `RatesRoute` ~100 qator (>80), `AddRateDialog` ~85 (Split 🟨) | T10 | hal qilindi (test); Split → T14 |
 | 23 | T11: dizayndagi tavsif qatori ('Household, supermarket…'), 'View Transactions' havolasi (№3 ixtiyoriy) va qizil FK banneri QILINMADI; FK xatosi snackbar'da `err_category_in_use` (delete qulf bilan o'chirilgan, amalda kam uchraydi). Qidiruv — nom bo'yicha 'contains' (`filterCategories`, DB so'rovi o'zgarmadi). Domain ⬜ (UI hali `CategoryWithUsage` Room modeli bilan ishlaydi). Light/Dark foydalanuvchi tomonidan ekranda ko'rildi, xato yo'q (2026-11-06) → ✅; States (bo'sh/qidiruv natijasiz) alohida aytilmagan → ⬜. `CategoryFilterTest` yozildi, run-checks 'build success', lekin test natijasi alohida aytilmagan (Tests 🟨). `category_tx_count` stringi endi ishlatilmaydi (o'chirilmadi). `RateFormatTest` yashil (4/4, build-check.log, 2026-11-06). Foydalanuvchi ruxsati bilan `PaletteContrastTest` (income/expense) tuzatildi: `IncomeLight` 0xFF2E7D32 → 0xFF2A782E (surfaceContainer ustida kontrast 4.39–4.42 → ≥4.7; Ocean Teal, Graphite Mint, Royal Indigo, Warm Coral light'da yiqilgan edi). Qayta ishga tushirish: `EXIT_CODE=0`, 53 test yashil (`RateFormatTest` 4/4, `CategoryFilterTest` 4/4, `PaletteContrastTest` 2/2), foydalanuvchi tasdiqladi (2026-11-06) | T11 | hal qilindi (2026-11-06) |
+| 24 | T12: dizayndagi 'Debit/International' teglari, 'Configure Channels', add dialogidagi 'Set as default' katakchasi va qizil FK banneri QILINMADI (maydon/qoida yo'q; FK xatosi snackbar'da `err_payment_method_in_use`). Ishlatilgan usulda delete tugmasi bosiladi (xira) — xulq saqlandi. `MmDialog` ga `confirmEnabled` (default true) qo'shildi. `PaymentMethodsViewModel` endi `uiState` beradi (`ViewModelsTest` moslandi). `PaymentMethodsComposeUiTest` extended FAB va plural badge'ga moslandi, qurilmada ishga tushirilmagan (androidTest ochiq, №8/№10 kabi). Domain ⬜ (UI hali `PaymentMethodWithUsage` Room modeli bilan ishlaydi); ekran (light/dark, holatlar) foydalanuvchi tomonidan to'liq ko'rildi (2026-11-06) → States ✅. `payment_method_tx_count` stringi endi ishlatilmaydi (o'chirilmadi) | T12 | ochiq (androidTest) |
 
 ---
 
@@ -138,3 +139,4 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 2026-11-06 | T09 | (A) 332 qatorli ekran `feature/currencies/` ga: presentation (VM, `CurrenciesUiState`, `CurrencyEvent`) + ui (Route, stateless Screen) + komponentlar/dialoglar; (B) kartalar (kod tile, nom, Default badge, N ta operatsiya chipi, qulf izohi, edit/delete holatlari), integrity banner, `MmTopBar`, `MmExtendedFab`, `MmDialog`; 4 string (1 plural) 3 tilda | Split, Light, Dark, i18n, Perf ✅ (build va ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi); Tests ⬜ | keyin T10 | ebd6afc (A), shu commit (B) |
 | 2026-11-06 | T10 | (A) 644 qatorli ekran `feature/rates/` ga: presentation (VM, `RatesUiState`, `RateEvent`) + ui (Route, stateless Screen) + komponentlar/dialoglar; (B) sana navigatori (‹ › Today), 'Import CBU' tugmasi, 'Registered Rates · N pairs', kartalar (teskari qator, Locked badge), `MmTopBar`, `MmExtendedFab`, `MmDialog`, jonli teskari kurs izohi, bo'sh holat + 'Fetch from CBU.uz', xatoda Retry; 10 string 3 tilda; (C) `RateFormatTest`, 3 til kalitlari tekshirildi | i18n ✅ (skript: 3 tilda barcha yangi kalitlar bor); Perf ✅ (kod bo'yicha: lifecycle collect, key/contentType); (A),(B) build foydalanuvchi tomonidan success | `RateFormatTest` natijasi (№22); keyin T11 | 76c0668 (A), 61646f9 (B), shu commit (C) |
 | 2026-11-06 | T11 | (A) 258 qatorli ekran `feature/categories/` ga: presentation (VM, `CategoriesUiState`, `CategoryEvent`) + ui (Route, stateless Screen, `CategoryCard`, Rename/Delete dialoglar); (B) izoh banneri (+ tugmasiz), qidiruv, 'Saqlangan kategoriyalar' + soni, kartalar (ikonka, tranzaksiyalar soni, Unused badge, edit, lock/delete), `MmDialog`, bo'sh holat; `categoryIcon` → `core/designsystem/icon/`; 8 kalit 3 tilda; (C) `CategoryFilterTest`, 3 til kalitlari tekshirildi | Split, i18n ✅ (skript), Perf ✅ (kod bo'yicha: lifecycle collect, key/contentType); (A),(B) build foydalanuvchi tomonidan success | ekranda light/dark/states ko'rish, `CategoryFilterTest` natijasi, №22 (`RateFormatTest`); keyin T12 | 47bf00c (A), 2cca7ff (B), shu commit (C) |
+| 2026-11-06 | T12 | (A) 353 qatorli ekran `feature/paymentmethods/` ga: presentation (VM, `PaymentMethodsUiState`, `PaymentMethodEvent`) + ui (Route, stateless Screen, `PaymentMethodCard`, Add/Rename/Delete dialoglar); (B) izoh kartasi, 'Faol usullar' + soni, kartalar (ikonka, Default/Protected/Unused badge, tranzaksiyalar soni, edit/delete), `MmTopBar`, `MmExtendedFab`, `MmDialog` (+`confirmEnabled`), bo'sh holat; 9 kalit (6 string, 3 plural) 3 tilda; (C) kalitlar tekshirildi | Split, i18n ✅ (skript), Perf ✅ (kod bo'yicha: lifecycle collect, key/contentType), Tests ✅ (run-checks EXIT_CODE=0, ViewModelsTest), Light, Dark, States ✅ (foydalanuvchi hamma holatni ko'rdi) | androidTest qurilmada, T13 (ixtiyoriy) yoki T14 | 67e4fb7 (A), 91f4e0a (B), shu commit (C) |
