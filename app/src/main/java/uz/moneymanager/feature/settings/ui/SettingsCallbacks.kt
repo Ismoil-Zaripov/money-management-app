@@ -11,6 +11,7 @@ class SettingsCallbacks(
     val onThemeChange: (ThemeMode) -> Unit,
     val onPaletteChange: (AppPalette) -> Unit,
     val onBarStyleChange: (BarStyle) -> Unit,
+    val onGlassTransparencyChange: (Int) -> Unit,
     val onFontSizeChange: (Int) -> Unit,
     val onFontSizeReset: () -> Unit,
     val onLanguageChange: (AppLanguage) -> Unit,

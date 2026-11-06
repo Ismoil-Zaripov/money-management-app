@@ -26,18 +26,16 @@ class SettingsViewModel @Inject constructor(
     private val currentLanguage = MutableStateFlow(languageStore.current())
 
     val uiState: StateFlow<SettingsUiState> = combine(
-        settingsRepository.themeMode,
-        settingsRepository.palette,
-        settingsRepository.contentFontSize,
-        settingsRepository.barStyle,
+        settingsRepository.settings,
         currentLanguage,
-    ) { theme, palette, fontSize, barStyle, language ->
+    ) { settings, language ->
         SettingsUiState(
             language = language,
-            themeMode = theme,
-            palette = palette,
-            contentFontSize = fontSize,
-            barStyle = barStyle,
+            themeMode = settings.themeMode,
+            palette = settings.palette,
+            contentFontSize = settings.contentFontSize,
+            barStyle = settings.barStyle,
+            glassTransparency = settings.glassTransparency,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsUiState(language = languageStore.current()))
 
@@ -51,6 +49,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setBarStyle(style: BarStyle) {
         viewModelScope.launch { settingsRepository.setBarStyle(style) }
+    }
+
+    fun setBarGlassTransparency(percent: Int) {
+        viewModelScope.launch { settingsRepository.setBarGlassTransparency(percent) }
     }
 
     fun setContentFontSize(size: Int) {

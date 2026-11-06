@@ -24,6 +24,7 @@ data class AppSettings(
     val palette: AppPalette,
     val contentFontSize: Int = SettingsRepository.DEFAULT_FONT_SIZE,
     val barStyle: BarStyle = BarStyle.DEFAULT,
+    val glassTransparency: Int = SettingsRepository.DEFAULT_GLASS_TRANSPARENCY,
 )
 
 @Singleton
@@ -35,7 +36,8 @@ class SettingsRepository @Inject constructor(
         val pal = AppPalette.fromStored(prefs[PALETTE])
         val size = prefs[FONT_SIZE]?.let { clampFontSize(it) } ?: DEFAULT_FONT_SIZE
         val barStyle = prefs[BAR_STYLE]?.let { runCatching { BarStyle.valueOf(it) }.getOrNull() } ?: BarStyle.DEFAULT
-        AppSettings(themeMode = mode, palette = pal, contentFontSize = size, barStyle = barStyle)
+        val glass = prefs[BAR_GLASS_TRANSPARENCY]?.let { clampGlassTransparency(it) } ?: DEFAULT_GLASS_TRANSPARENCY
+        AppSettings(themeMode = mode, palette = pal, contentFontSize = size, barStyle = barStyle, glassTransparency = glass)
     }
 
     val themeMode: Flow<ThemeMode> = settings.map { it.themeMode }
@@ -56,6 +58,12 @@ class SettingsRepository @Inject constructor(
         dataStore.edit { it[BAR_STYLE] = style.name }
     }
 
+    val glassTransparency: Flow<Int> = settings.map { it.glassTransparency }
+
+    suspend fun setBarGlassTransparency(percent: Int) {
+        dataStore.edit { it[BAR_GLASS_TRANSPARENCY] = clampGlassTransparency(percent) }
+    }
+
     val contentFontSize: Flow<Int> = settings.map { it.contentFontSize }
 
     suspend fun setContentFontSize(size: Int) {
@@ -70,10 +78,16 @@ class SettingsRepository @Inject constructor(
 
         fun clampFontSize(size: Int): Int = size.coerceIn(MIN_FONT_SIZE, MAX_FONT_SIZE)
 
+        /** Glass bar transparency, percent. 28% = tint alpha 0.72 (the former fixed value). */
+        const val DEFAULT_GLASS_TRANSPARENCY = 28
+
+        fun clampGlassTransparency(percent: Int): Int = percent.coerceIn(0, 100)
+
         private val THEME = stringPreferencesKey("theme_mode")
         private val PALETTE = stringPreferencesKey("app_palette")
         private val FONT_SIZE = intPreferencesKey("content_font_size")
         private val BAR_STYLE = stringPreferencesKey("bar_style")
+        private val BAR_GLASS_TRANSPARENCY = intPreferencesKey("bar_glass_transparency")
     }
 }
 

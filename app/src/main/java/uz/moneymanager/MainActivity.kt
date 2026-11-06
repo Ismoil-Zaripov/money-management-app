@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
                     palette = s.palette,
                     contentFontSize = s.contentFontSize,
                     barStyle = s.barStyle,
+                    glassTransparency = s.glassTransparency,
                 ) {
                     MainAppContent()
                 }

@@ -45,14 +45,18 @@ val ExpenseColor: Color
 
 val LocalBarStyle = staticCompositionLocalOf { BarStyle.DEFAULT }
 
-/** Alpha of the glass bars' tint; the rest is the blurred (or plain) content showing through. */
-const val GlassBarAlpha = 0.72f
+/** Glass bar transparency in percent (0 = opaque tint, 100 = fully transparent tint). */
+val LocalGlassTransparency = staticCompositionLocalOf { SettingsRepository.DEFAULT_GLASS_TRANSPARENCY }
+
+/** Alpha of the glass bars' tint for a transparency percent; the rest is the blurred content showing through. */
+fun glassTintAlpha(transparencyPercent: Int): Float =
+    1f - SettingsRepository.clampGlassTransparency(transparencyPercent) / 100f
 
 /** Container color of the top/bottom bars for the current [BarStyle]. */
 @Composable
 @ReadOnlyComposable
 fun ColorScheme.barBackground(): Color =
-    if (LocalBarStyle.current == BarStyle.GLASS) barSurface.copy(alpha = GlassBarAlpha) else barSurface
+    if (LocalBarStyle.current == BarStyle.GLASS) barSurface.copy(alpha = glassTintAlpha(LocalGlassTransparency.current)) else barSurface
 
 /** Tinted surface for the top app bar and bottom navigation bar, so they read as distinct from the screen background. */
 val ColorScheme.barSurface: Color
@@ -105,6 +109,7 @@ fun MoneyManagerTheme(
     palette: AppPalette = AppPalette.EMERALD,
     contentFontSize: Int = SettingsRepository.DEFAULT_FONT_SIZE,
     barStyle: BarStyle = BarStyle.DEFAULT,
+    glassTransparency: Int = SettingsRepository.DEFAULT_GLASS_TRANSPARENCY,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
@@ -129,6 +134,7 @@ fun MoneyManagerTheme(
         CompositionLocalProvider(
             LocalContentFontSize provides contentFontSize,
             LocalBarStyle provides barStyle,
+            LocalGlassTransparency provides glassTransparency,
             LocalMoneyColors provides if (darkTheme) DarkMoneyColors else LightMoneyColors,
             content = content,
         )
