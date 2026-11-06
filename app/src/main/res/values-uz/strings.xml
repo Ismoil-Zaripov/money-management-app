@@ -156,7 +156,6 @@
     <string name="theme_dark">Qorong‘i</string>
     <string name="title_transactions">Tranzaksiyalar</string>
     <string name="setting_palette">Ranglar palitrasi</string>
-    <string name="desc_palette">Ilova uchun asosiy rang palitrasi</string>
 
     <string name="setting_font_size">Shrift o‘lchami</string>
     <string name="desc_font_size">Ilovadagi kontent matnlari o‘lchamini sozlash</string>

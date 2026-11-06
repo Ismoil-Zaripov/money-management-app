@@ -1,7 +1,6 @@
 package uz.moneymanager.core.designsystem.theme
 
 import androidx.compose.material3.ColorScheme
-import androidx.compose.ui.graphics.Color
 import uz.moneymanager.domain.model.AppPalette
 
 /** Dark-only palettes return their dark scheme regardless of [darkTheme]. */
@@ -17,6 +16,3 @@ fun getPaletteColorScheme(palette: AppPalette, darkTheme: Boolean): ColorScheme 
     AppPalette.BURGUNDY -> if (darkTheme) BurgundyDarkScheme else BurgundyLightScheme
     AppPalette.GRAPHITE_RED -> GraphiteRedDarkScheme
 }
-
-fun getPaletteSwatchColor(palette: AppPalette, darkTheme: Boolean): Color =
-    getPaletteColorScheme(palette, darkTheme).primary
