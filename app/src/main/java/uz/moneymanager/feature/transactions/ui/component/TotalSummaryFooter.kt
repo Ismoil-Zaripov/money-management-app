@@ -1,6 +1,7 @@
 package uz.moneymanager.feature.transactions.ui.component
 
 import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,8 +45,10 @@ fun TotalSummaryFooter(
 ) {
     val shape = MaterialTheme.shapes.extraLarge
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
         shape = shape,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
+        shadowElevation = 3.dp,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = ScreenHorizontalPadding, vertical = 8.dp)
