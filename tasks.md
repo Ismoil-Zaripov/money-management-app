@@ -214,6 +214,8 @@ T09–T12 bir-biridan mustaqil (T01 dan keyin istalgan tartibda).
 | T18 | Bar style bottom sheet + glass shaffofligi slayderi (0–100%) | — | — |
 | T19 | ✅ Color Palette bottom sheet + 10 enterprise palitra | — | — |
 | T20 | ~~Foydalanuvchi o'z palitrasini yaratadi~~ — BEKOR QILINDI (2026-11-06); o'rniga T19 da 10 ta tayyor enterprise palitra | — | — |
+| T21 | Sahifa yuklash qoidasi: `loaded` bayrog'i, `MmPage`, `to_page` skeleton, o'tish darvozasi | — | — |
+| T22 | Tranzaksiya filtr ekrani qayta dizayni (kalendar shriftlari, tur tanlovi, kategoriya qatorlari) | `04-filters-date-range`, `T17-filter-reference` | T17 |
 
 ## T15 — Tranzaksiya qatori: chip olib tashlanadi, tavsif o'rniga to'lov usuli
 **Muammo:** Transactions ro'yxatidagi har bir qatorda kategoriya nomi yonida "Income" chipi ko'rinadi, ikkinchi qatorda esa tavsif (va to'lov usuli) birga chiqadi. Chip olib tashlansin; ikkinchi qatorda tavsif o'rniga **faqat to'lov usuli** bo'lsin.
@@ -338,3 +340,43 @@ T09–T12 bir-biridan mustaqil (T01 dan keyin istalgan tartibda).
 
 **QILINMAYDI:** palitrani eksport/import yoki ulashish; bir nechta rang (secondary/tertiary) qo'lda berish — hozircha faqat seed.
 **Qabul mezoni:** yaratilgan palitra ilovani qayta ochganda ham saqlanadi; hamma ekranlarda (light/dark) matn va income/expense ranglari o'qiladigan; yaroqsiz kiritish xato matni bilan to'xtatiladi; 3 til.
+
+---
+
+## T21 — Sahifa yuklash qoidasi (Page Loading Rule)
+**Muammo:** sahifalar yuklanish tartibi bir xil emas. Faqat Transactions ro'yxati (Paging `refresh`) va Transaction Form (`isLoading`) loading holatini biladi. Categories, Currencies, Payment Methods, Rates va Settings bo'sh boshlang'ich `UiState` bilan ochiladi, shuning uchun ma'lumot kelguncha **"bo'sh ro'yxat" holati bir lahza ko'rinib ketishi mumkin**. Ichki sahifa slide bo'layotganda kontent ham darrov kompozitsiya qilinadi.
+**Hozirgi:** `core/designsystem/component/MmSkeleton.kt` (umumiy pulse + `Modifier.skeleton`), `feature/transactions/ui/component/TransactionSkeleton.kt`; `feature/*/presentation/*UiState.kt` (`stateIn(..., <bo'sh UiState>)`); `ui/navigation/AppNavHost.kt` (overlay sahifalar), `TabsHost.kt` / `KeepAliveTab.kt` (tablar doim tirik, commit 443744a). Qoida asosi: `ARCHITECTURE.md` §4.2 (`Loading / Content / Empty / Error`).
+
+**Qarorlar (foydalanuvchi, 2026-11-07):**
+- Navigate va back paytida **`to_page` 100% skeleton** bo'ladi (slide shu skeleton bilan o'tadi). **`from_page` o'zgarmaydi** — tablar doim tirik, overlay uni yopib turadi; unga skeleton qo'yilmaydi (keraksiz miltillash va qayta kompozitsiya).
+- Tab sahifalar (Transactions, Settings) birinchi ochilganda ham yuklanguncha skeleton ko'rsatadi.
+- Reveal: animatsiya tugashi **va** ma'lumot tayyor bo'lishi bilanoq (skeleton → kontent crossfade); sun'iy minimal kechikish yo'q.
+- Slide animatsiyasi paytida og'ir kompozitsiya (LazyColumn, Paging, forma maydonlari) boshlanmaydi.
+- Qoida: har sahifa uchta holatni ajratadi — **Loading** (skeleton), **Empty** (yuklandi, ma'lumot yo'q), **Content**.
+
+**Bosqichlar:**
+- (A) Xulq o'zgarmaydi. Har `UiState`ga `loaded: Boolean = false` (birinchi DB emissiyasidan keyin `true`; Transaction Form uchun mavjud `isLoading` shu bilan moslanadi, Transactions uchun Paging `refresh` holati). Umumiy `MmPage(loaded, skeleton, content)` wrapper (`core/designsystem/component/`): skeleton → kontent crossfade. Bayroq mantig'i uchun unit test. STOP.
+- (B) Sahifa skeletonlari: Categories, Currencies, Payment Methods, Rates, Settings, Transaction Form (mavjud `TransactionSkeleton` bilan bir xil geometriya qoidasi); sahifalar `MmPage`ga ulanadi; Empty holat faqat `loaded && bo'sh` bo'lganda. STOP.
+- (C) O'tish darvozasi: overlay sahifa kontenti nav animatsiyasi tugagach kompozitsiya qilinadi (`AnimatedContentScope.transition.currentState == targetState`), slide paytida faqat skeleton; back'da ham xuddi shunday. Tab sahifalarda darvoza yo'q (tab almashish nav animatsiyasi emas). STOP.
+- (D) Testlar, 3 tilda kalitlar (yangi string bo'lsa), `ARCHITECTURE.md` ga "Page loading" qoidasi, AUDIT.md.
+
+**QILINMAYDI:** `from_page` skeleton; sun'iy minimal skeleton vaqti; yangi Error UI (hozirgi xato holatlari o'zgarmaydi); baseline profile va o'lchash vositalari (JankStats/Trace) — alohida task; DB sxemasi.
+**Qabul mezoni:** hech bir sahifada ma'lumot kelguncha "bo'sh ro'yxat" ko'rinmaydi; ichki sahifa slide bo'lganda skeleton ko'rinadi va kontent animatsiya tugagach chiqadi; back'da ham; tab sahifalar birinchi ochilishda skeleton; release buildda silliq; light/dark, 3 til, font 12–24 sp.
+
+---
+
+## T22 — Tranzaksiya filtr ekrani qayta dizayni
+**Muammo (foydalanuvchi, 2026-11-07):** filtr ekrani yomon ko'rinadi, ayniqsa kalendar shriftlari yoqimsiz. Sabab: M3 `DateRangePicker` o'zining katta sarlavhasi va standart shriftlari bilan chiziladi (ilovaning kontent shrift sozlamasiga bog'lanmagan); "Type" bo'limi bir tanlovni ham segment, ham radio ro'yxat sifatida ikki marta ko'rsatadi; bo'lim sarlavhalari oddiy matn.
+**Hozirgi:** `feature/transactions/ui/filter/` (`TransactionFilterScreen`, `Header`, `Footer`, `section/*`).
+
+**Qarorlar (taklif, foydalanuvchi ekranda baholaydi):**
+- Kalendar: M3 sarlavhasi olib tashlanadi; o'rniga o'z sarlavhamiz (tanlangan oraliq matni + "N kun" chipi); kun raqamlari, hafta kunlari va oy yorlig'i ilovaning `contentText` shrift o'lchamidan (`FilterCalendarTheme`); ranglar palitradan (`filterDatePickerColors`); tez presetlar `FilterChip` bo'lib, mos kelganda tanlangan ko'rinadi.
+- Tur: faqat segmentli boshqaruv (takroriy radio ro'yxat olib tashlandi).
+- Kategoriya: radio tugma o'rniga tanlangan qator `primaryContainer` bilan ajratiladi + ✓; qidiruv maydoni to'ldirilgan yumaloq (`TextField`).
+- Bo'lim sarlavhalari: kichik, harf oralig'i kengaytirilgan bosh harflar (T17 namunasi kabi).
+- Sarlavha: qalin sarlavha + faol filtrlar soni chipi; pastki tugma yumaloq va balandroq.
+
+**Yangi stringlar (3 tilda):** `filter_range_empty`, `filter_range_days` (plural).
+**QILINMAYDI:** filtr mantig'i, `TransactionFilterDraft`, SQL; ko'p tanlovli filtrlar.
+**Qabul mezoni:** kalendar shriftlari boshqa matnlar bilan bir xil o'lchamda va o'qiladigan; light/dark, 3 til, shrift 12–24 sp; touch target ≥ 48dp; `contentDescription`lar saqlangan.
+
