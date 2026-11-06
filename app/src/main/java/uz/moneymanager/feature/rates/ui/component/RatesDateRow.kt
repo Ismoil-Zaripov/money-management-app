@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmFilterChip
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import uz.moneymanager.core.format.FormatUtils
 import java.time.LocalDate
 
@@ -37,7 +38,7 @@ fun RatesDateRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = ScreenHorizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
