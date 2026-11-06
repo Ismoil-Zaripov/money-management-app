@@ -5,8 +5,8 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-06 (T14 (A),(B),(C) bajarildi: statik audit, uzun fayl/composable'lar bo'lindi, touch target, README, ishlatilmagan stringlar; (B) run-checks EXIT_CODE=0. Qo'lda tekshiruvlar kutilmoqda; T14 dan keyin: bar uslubi sozlamasi va glass blur qo'shildi, foydalanuvchi ekranda tasdiqladi)
-**Keyingi task:** T14 ni yopish uchun foydalanuvchi qo'lda tekshiradi: dark + 5 palitra + 3 til (uzun ruscha matn) + shrift 12–24 sp, chip ✕ / footer yangi o'lchamda, release'da o'lchash (№4), androidTest'lar (№8, №10, №24). T13 foydalanuvchi qarori bilan bekor qilindi
+**Oxirgi yangilanish:** 2026-11-06 (T14 ✅ yopildi; (A),(B),(C) bajarildi: statik audit, uzun fayl/composable'lar bo'lindi, touch target, README, ishlatilmagan stringlar; (B) run-checks EXIT_CODE=0. Qo'lda tekshiruvlar kutilmoqda; T14 dan keyin: bar uslubi sozlamasi va glass blur qo'shildi, foydalanuvchi ekranda tasdiqladi)
+**Keyingi task:** T14 yopildi (foydalanuvchi qo'lda tekshirdi). Ochiq: №4 release o'lchash, androidTest'lar (№8, №10, №24), Domain refaktor (№25), №26. Avval: T14 ni yopish uchun foydalanuvchi qo'lda tekshiradi: dark + 5 palitra + 3 til (uzun ruscha matn) + shrift 12–24 sp, chip ✕ / footer yangi o'lchamda, release'da o'lchash (№4), androidTest'lar (№8, №10, №24). T13 foydalanuvchi qarori bilan bekor qilindi
 
 ---
 
@@ -28,7 +28,7 @@
 | T11 | Categories | ✅ | 2026-11-06 | 47bf00c (A: route/screen/card/dialoglar), 2cca7ff (B: yangi dizayn), (C) shu commit |
 | T12 | Payment Methods | ✅ | 2026-11-06 | 67e4fb7 (A: route/screen/card/dialoglar), 91f4e0a (B: yangi dizayn), (C) shu commit |
 | T13 | Palette ekrani (ixtiyoriy) | ➖ | 2026-11-06 | Foydalanuvchi qarori: kerak emas (T08 inline tanlagich yetarli) |
-| T14 | Yakuniy audit | 🟨 | 2026-11-06 | 22b49f3 (B: bo'lish, touch target, README, stringlar), (C) shu commit; qo'lda tekshiruvlar kutilmoqda |
+| T14 | Yakuniy audit | ✅ | 2026-11-06 | 22b49f3 (B: bo'lish, touch target, README, stringlar), (C) shu commit; qo'lda tekshiruvlar kutilmoqda |
 
 ---
 
@@ -63,8 +63,8 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | Domain model + repository interfeyslari (entity UI'dan chiqarildi) | ⬜ | feature bo'yicha, ekran tasklarida |
 | `README.md` struktura bo'limi yangilandi | ✅ | T14: `core/` + `feature/` strukturasi, ARCHITECTURE/AUDIT havolasi |
 | Fayl ≤300 qator, composable ≤80 qator (statik skript) | ✅ | T14: hech biri oshmaydi (2026-11-06); `TransactionFormViewModel` 286, `MainAppContent` ~35 |
-| Touch target ≥48dp | 🟨 | T14: `MmChip` ✕ (18→48dp) va footer ko'z tugmasi (32→48dp) kodda tuzatildi; ekranda ko'rilmagan |
-| Qo'lda tekshiruv: dark, 5 palitra, 3 til, shrift 12–24 sp | ⬜ | T14: foydalanuvchi ekranda tekshiradi |
+| Touch target ≥48dp | ✅ | T14: `MmChip` ✕ (18→48dp) va footer ko'z tugmasi (32→48dp); foydalanuvchi ekranda ko'rdi |
+| Qo'lda tekshiruv: dark, 5 palitra, 3 til, shrift 12–24 sp | ✅ | T14: foydalanuvchi ekranda tekshirdi (2026-11-06) |
 | Ishlatilmagan resurslar tozalandi | ✅ | T14: 6 string (3 tilda) o'chirildi (foydalanuvchi ruxsati bilan); `lang_*`/`font_size_glyph` ataylab `translatable=false` |
 
 ---
