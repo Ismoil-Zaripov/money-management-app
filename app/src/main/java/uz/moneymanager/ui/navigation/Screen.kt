@@ -8,6 +8,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import uz.moneymanager.R
 
 sealed class Screen(val route: String) {
+    /** Start destination of the overlay NavHost: draws nothing, the always-alive tabs sit beneath it. */
+    data object Tabs : Screen("tabs")
     data object Transactions : Screen("transactions")
     data object Settings : Screen("settings")
     data object TransactionForm : Screen("transaction_form?id={id}") {

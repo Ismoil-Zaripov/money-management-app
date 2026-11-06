@@ -4,12 +4,9 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NamedNavArgument
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -20,58 +17,27 @@ import uz.moneymanager.feature.categories.ui.CategoriesRoute
 import uz.moneymanager.feature.currencies.ui.CurrenciesRoute
 import uz.moneymanager.feature.paymentmethods.ui.PaymentMethodsRoute
 import uz.moneymanager.feature.rates.ui.RatesRoute
-import uz.moneymanager.feature.settings.ui.SettingsRoute
 import uz.moneymanager.feature.transactionform.ui.TransactionFormRoute
-import uz.moneymanager.feature.transactions.ui.TransactionsRoute
 
-private const val FADE_IN_MS = 120
-private const val FADE_OUT_MS = 90
 private const val SLIDE_MS = 300
 
-/** Secondary screens: they rise from the bottom like a bottom sheet and leave downwards. */
-private val slideRoutes = setOf(
-    Screen.TransactionForm.route,
-    Screen.Currencies.route,
-    Screen.Rates.route,
-    Screen.Categories.route,
-    Screen.PaymentMethods.route,
-)
-
-private fun NavBackStackEntry.isSlideScreen() = destination.route in slideRoutes
-
-/** A tab stays put (no fade) while a slide screen covers it or is dismissed from above it. */
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.tabExit(): ExitTransition =
-    if (targetState.isSlideScreen()) ExitTransition.None else fadeOut(animationSpec = tween(FADE_OUT_MS))
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.tabPopEnter(): EnterTransition =
-    if (initialState.isSlideScreen()) EnterTransition.None else fadeIn(animationSpec = tween(FADE_IN_MS))
-
-/** Top-level tabs fade; every secondary screen slides up from the bottom and back down on back. */
+/**
+ * Overlay layer drawn above the always-alive tabs. Its start destination is empty (the tabs show
+ * through); every other page rises from the bottom like a bottom sheet and leaves downwards.
+ * The NavHost still owns the back stack and the per-page ViewModel scope and arguments.
+ */
 @Composable
 fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Transactions.route,
+        startDestination = Screen.Tabs.route,
         modifier = modifier,
-        enterTransition = { fadeIn(animationSpec = tween(FADE_IN_MS)) },
-        exitTransition = { tabExit() },
-        popEnterTransition = { tabPopEnter() },
-        popExitTransition = { fadeOut(animationSpec = tween(FADE_OUT_MS)) },
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None },
     ) {
-        composable(Screen.Transactions.route) {
-            TransactionsRoute(
-                onNavigateToCreate = { navController.navigate(Screen.TransactionForm.createRoute()) },
-                onNavigateToEdit = { id -> navController.navigate(Screen.TransactionForm.createRoute(id)) }
-            )
-        }
-        composable(Screen.Settings.route) {
-            SettingsRoute(
-                onNavigateCurrencies = { navController.navigate(Screen.Currencies.route) },
-                onNavigateRates = { navController.navigate(Screen.Rates.route) },
-                onNavigateCategories = { navController.navigate(Screen.Categories.route) },
-                onNavigatePaymentMethods = { navController.navigate(Screen.PaymentMethods.route) }
-            )
-        }
+        composable(Screen.Tabs.route) { /* tabs are drawn by TabsHost beneath this NavHost */ }
         slideComposable(
             route = Screen.TransactionForm.route,
             arguments = listOf(navArgument("id") {
