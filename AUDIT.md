@@ -5,8 +5,8 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-06 (T14 ✅ yopildi; (A),(B),(C) bajarildi: statik audit, uzun fayl/composable'lar bo'lindi, touch target, README, ishlatilmagan stringlar; (B) run-checks EXIT_CODE=0. Qo'lda tekshiruvlar kutilmoqda; T14 dan keyin: bar uslubi sozlamasi va glass blur qo'shildi, foydalanuvchi ekranda tasdiqladi)
-**Keyingi task:** yo'q — hamma tasklar yopildi (T13 bekor qilingan). Foydalanuvchi hammasini qo'lda ko'rib chiqdi (2026-11-06). Domain refaktor (№25) foydalanuvchi qarori bilan qilinmaydi.
+**Oxirgi yangilanish:** 2026-11-06 (T15 ✅: qatorda chip yo'q, ikkinchi qatorda to'lov usuli; T14 ✅ yopildi; (A),(B),(C) bajarildi: statik audit, uzun fayl/composable'lar bo'lindi, touch target, README, ishlatilmagan stringlar; (B) run-checks EXIT_CODE=0. Qo'lda tekshiruvlar kutilmoqda; T14 dan keyin: bar uslubi sozlamasi va glass blur qo'shildi, foydalanuvchi ekranda tasdiqladi)
+**Keyingi task:** T16 — sahifa chap/o'ng margini 16→8dp (Sprint 2, `tasks.md` oxirida). T15 ✅. Tavsiya etilgan tartib: T16 → T17 → T18 → T19 → T20.
 
 ---
 
@@ -29,6 +29,12 @@
 | T12 | Payment Methods | ✅ | 2026-11-06 | 67e4fb7 (A: route/screen/card/dialoglar), 91f4e0a (B: yangi dizayn), (C) shu commit |
 | T13 | Palette ekrani (ixtiyoriy) | ➖ | 2026-11-06 | Foydalanuvchi qarori: kerak emas (T08 inline tanlagich yetarli) |
 | T14 | Yakuniy audit | ✅ | 2026-11-06 | 22b49f3 (B: bo'lish, touch target, README, stringlar), (C) faeac03; qo'lda tekshiruvlar foydalanuvchi tomonidan o'tkazildi |
+| T15 | Tranzaksiya qatori: chip olib tashlanadi, tavsif o'rniga to'lov usuli (Sprint 2) | ✅ | 2026-11-06 | 14ee11d (B: qator dizayni; (A) kerak bo'lmadi), (C) shu commit |
+| T16 | Sahifa chap/o'ng margini 16→8dp (token orqali) (Sprint 2) | ⬜ | 2026-11-06 | — |
+| T17 | TransactionFilterScreen + More menyu (Sprint 2) | ⬜ | 2026-11-06 | — |
+| T18 | Bar style bottom sheet + glass shaffofligi slayderi (Sprint 2) | ⬜ | 2026-11-06 | — |
+| T19 | Color Palette bottom sheet + PaletteRegistry (Sprint 2) | ⬜ | 2026-11-06 | — |
+| T20 | Foydalanuvchi o'z palitrasini yaratadi (Sprint 2) | ⬜ | 2026-11-06 | — |
 
 ---
 
@@ -92,6 +98,11 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 - 5 light + 5 dark palitra; Emerald saqlanadi, qolgan 4 tasi yangi fintech ranglari.
 - Filtrlar bitta tanlovli (kategoriya, to'lov usuli, valyuta, tur); ko'p tanlov QILINMAYDI, `MonitoringFilter` va so'rovlar o'zgarmaydi (T04, foydalanuvchi tanlovi).
 - Dizayndagi hamburger, profil avatari, "Screen State" preview, Sarmoya brendi, 5 tabli menyu — QILINMAYDI.
+- T15 (foydalanuvchi qarori, 2026-11-06): ro'yxat qatorida Income chipi yo'q; ikkinchi qatorda tavsif o'rniga faqat to'lov usuli (tavsif Edit ekranida qoladi).
+- T16 (foydalanuvchi qarori, 2026-11-06): sahifalarning chap/o'ng tashqi margini 50% ga kamaytirish (16→8dp); AppBar va bottom navbar o'zgarmaydi.
+- T17 (foydalanuvchi qarori, 2026-11-06): Transactions'dagi "+" FAB olib tashlanadi (yuqoridagi "+ FAB Transactions'da" qarorini almashtiradi); "Add transaction" va "Filter" AppBar'dagi "More" (⋮) bottom sheet'iga o'tadi. Filtr ekrani — full-height bottom sheet, draft + "Show N Results"; filtrlar baribir bitta tanlovli.
+- T18 (foydalanuvchi qarori, 2026-11-06): Settings'da Bar style bottom sheet'da; glass bar shaffofligi 0–100% slayder bilan sozlanadi (`GlassBarAlpha` qattiq qiymati o'rniga sozlama).
+- T19/T20 (foydalanuvchi qarori, 2026-11-06): palitra tanlash Settings'da bottom sheet'da (T08 dagi inline tanlagich almashtiriladi); palitralar registry'dan; foydalanuvchi ilova ichida o'z palitrasini yaratadi (DataStore, DB sxemasi o'zgarmaydi).
 
 ---
 
@@ -148,3 +159,4 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 2026-11-06 | T12 | (A) 353 qatorli ekran `feature/paymentmethods/` ga: presentation (VM, `PaymentMethodsUiState`, `PaymentMethodEvent`) + ui (Route, stateless Screen, `PaymentMethodCard`, Add/Rename/Delete dialoglar); (B) izoh kartasi, 'Faol usullar' + soni, kartalar (ikonka, Default/Protected/Unused badge, tranzaksiyalar soni, edit/delete), `MmTopBar`, `MmExtendedFab`, `MmDialog` (+`confirmEnabled`), bo'sh holat; 9 kalit (6 string, 3 plural) 3 tilda; (C) kalitlar tekshirildi | Split, i18n ✅ (skript), Perf ✅ (kod bo'yicha: lifecycle collect, key/contentType), Tests ✅ (run-checks EXIT_CODE=0, ViewModelsTest), Light, Dark, States ✅ (foydalanuvchi hamma holatni ko'rdi) | androidTest qurilmada, T13 (ixtiyoriy) yoki T14 | 67e4fb7 (A), 91f4e0a (B), shu commit (C) |
 | 2026-11-06 | T14 | (A) statik audit: fayl/composable o'lchami, hard-coded rang/matn, tarjimalar, ishlatilmagan stringlar, a11y; (B) `TransactionFormViewModel` 514→286 (7 yangi fayl), `AppNavHost`, `TransactionFormDialogs`, `RateEventsEffect`, `TransactionsContent`, touch target 48dp, 6 string o'chirildi, README yangilandi; (C) AUDIT yakunlandi | Split (T06, T07, T10) ✅, README ✅, fayl/composable o'lchami ✅ (statik); (B) run-checks EXIT_CODE=0 | qo'lda: dark/5 palitra/3 til/shrift, release o'lchash (№4), androidTest'lar, Domain (№25) | 22b49f3 (B), shu commit (C) |
 | 2026-11-06 | T14+ | Bar uslubi: `BarStyle` (TINTED/GLASS) sozlamasi (DataStore, Settings qatori, 3 tilda 3 kalit); AppBar va pastki navbar palitra tusida; navbar atrofidagi ikki marta inset bo'shlig'i tuzatildi; `MmScaffold` + `GlassBar` (kontent bar ostidan o'tadi, blur) | build EXIT_CODE=0 (ikki bosqich); Glass ekranda foydalanuvchi tomonidan tasdiqlandi | №26, №25 | 2c55e40 (sozlama), 49c52ff (blur), shu commit |
+| 2026-11-06 | T15 | (B) `TransactionRow`: Income chipi (`MmBadge`) va `isIncome` parametri `TransactionTitleLine` dan olib tashlandi; ikkinchi qator faqat `paymentMethodName`; `Item.description` va mapper'dagi uzatish olib tashlandi; skeleton ikkinchi qator kengligi 180→96dp. Yangi string yo'q. SQL/sxema o'zgarmadi | Transactions ro'yxati: Light, Dark, i18n ✅ qayta tekshirildi (foydalanuvchi ekranda); build + unit testlar foydalanuvchi tomonidan success (run-checks); statik: qatorda `MmBadge`/`type_income` qolmagan | T16 | 14ee11d (B), shu commit (C) |
