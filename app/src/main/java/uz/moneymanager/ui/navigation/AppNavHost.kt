@@ -1,12 +1,15 @@
 package uz.moneymanager.ui.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -23,9 +26,27 @@ import uz.moneymanager.feature.transactions.ui.TransactionsRoute
 
 private const val FADE_IN_MS = 120
 private const val FADE_OUT_MS = 90
-private const val SLIDE_MS = 180
+private const val SLIDE_MS = 300
 
-/** Top-level tabs fade; every secondary screen slides in from the end. */
+/** Secondary screens: they rise from the bottom like a bottom sheet and leave downwards. */
+private val slideRoutes = setOf(
+    Screen.TransactionForm.route,
+    Screen.Currencies.route,
+    Screen.Rates.route,
+    Screen.Categories.route,
+    Screen.PaymentMethods.route,
+)
+
+private fun NavBackStackEntry.isSlideScreen() = destination.route in slideRoutes
+
+/** A tab stays put (no fade) while a slide screen covers it or is dismissed from above it. */
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.tabExit(): ExitTransition =
+    if (targetState.isSlideScreen()) ExitTransition.None else fadeOut(animationSpec = tween(FADE_OUT_MS))
+
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.tabPopEnter(): EnterTransition =
+    if (initialState.isSlideScreen()) EnterTransition.None else fadeIn(animationSpec = tween(FADE_IN_MS))
+
+/** Top-level tabs fade; every secondary screen slides up from the bottom and back down on back. */
 @Composable
 fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
@@ -33,8 +54,8 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         startDestination = Screen.Transactions.route,
         modifier = modifier,
         enterTransition = { fadeIn(animationSpec = tween(FADE_IN_MS)) },
-        exitTransition = { fadeOut(animationSpec = tween(FADE_OUT_MS)) },
-        popEnterTransition = { fadeIn(animationSpec = tween(FADE_IN_MS)) },
+        exitTransition = { tabExit() },
+        popEnterTransition = { tabPopEnter() },
         popExitTransition = { fadeOut(animationSpec = tween(FADE_OUT_MS)) },
     ) {
         composable(Screen.Transactions.route) {
@@ -71,14 +92,14 @@ private fun NavGraphBuilder.slideComposable(
     arguments: List<NamedNavArgument> = emptyList(),
     content: @Composable () -> Unit,
 ) {
-    val start = AnimatedContentTransitionScope.SlideDirection.Start
-    val end = AnimatedContentTransitionScope.SlideDirection.End
+    val up = AnimatedContentTransitionScope.SlideDirection.Up
+    val down = AnimatedContentTransitionScope.SlideDirection.Down
     composable(
         route = route,
         arguments = arguments,
-        enterTransition = { slideIntoContainer(start, animationSpec = tween(SLIDE_MS)) },
-        exitTransition = { slideOutOfContainer(start, animationSpec = tween(SLIDE_MS)) },
-        popEnterTransition = { slideIntoContainer(end, animationSpec = tween(SLIDE_MS)) },
-        popExitTransition = { slideOutOfContainer(end, animationSpec = tween(SLIDE_MS)) },
+        enterTransition = { slideIntoContainer(up, animationSpec = tween(SLIDE_MS)) },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { slideOutOfContainer(down, animationSpec = tween(SLIDE_MS)) },
     ) { content() }
 }
