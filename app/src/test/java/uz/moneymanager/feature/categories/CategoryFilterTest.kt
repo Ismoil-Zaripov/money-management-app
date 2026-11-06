@@ -28,7 +28,7 @@ class CategoryFilterTest {
 
     @Test
     fun query_matchesSubstring() {
-        assertEquals(listOf(1L, 3L), filterCategories(items, "r").map { it.category.id })
+        assertEquals(listOf(1L, 3L), filterCategories(items, "o").map { it.category.id })
     }
 
     @Test
