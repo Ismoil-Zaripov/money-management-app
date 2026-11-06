@@ -1,4 +1,4 @@
-package uz.moneymanager.ui.categories
+package uz.moneymanager.feature.categories.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,26 +8,21 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import uz.moneymanager.R
-import uz.moneymanager.data.local.CategoryWithUsage
 import uz.moneymanager.data.repository.CategoryRepository
 import uz.moneymanager.domain.DomainException
 import javax.inject.Inject
-
-sealed interface CategoryEvent {
-    data object Success : CategoryEvent
-    data class Error(val messageRes: Int, val args: List<Any> = emptyList()) : CategoryEvent
-}
 
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
 ) : ViewModel() {
 
-    val categories: StateFlow<List<CategoryWithUsage>> = categoryRepository.observeWithUsage()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val uiState: StateFlow<CategoriesUiState> = categoryRepository.observeWithUsage()
+        .map { CategoriesUiState(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CategoriesUiState())
 
     private val _events = MutableSharedFlow<CategoryEvent>()
     val events: SharedFlow<CategoryEvent> = _events.asSharedFlow()
