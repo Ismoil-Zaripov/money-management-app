@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.rates.ui
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,9 +55,9 @@ fun RatesScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
-                        start = 16.dp,
+                        start = ScreenHorizontalPadding,
                         top = 8.dp,
-                        end = 16.dp,
+                        end = ScreenHorizontalPadding,
                         bottom = padding.calculateBottomPadding() + 88.dp,
                     ),
                     verticalArrangement = Arrangement.spacedBy(12.dp)

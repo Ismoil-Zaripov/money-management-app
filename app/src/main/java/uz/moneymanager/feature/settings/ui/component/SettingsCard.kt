@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.settings.ui.component
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,7 @@ internal fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = ScreenHorizontalPadding),
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {

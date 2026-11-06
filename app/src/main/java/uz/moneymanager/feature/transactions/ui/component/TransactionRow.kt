@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.transactions.ui.component
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -42,7 +43,7 @@ fun TransactionRow(
     MmCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = ScreenHorizontalPadding, vertical = 4.dp)
             .combinedClickable(onClick = onClick, onLongClick = onDelete)
     ) {
         Row(

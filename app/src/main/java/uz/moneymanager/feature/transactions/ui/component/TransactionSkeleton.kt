@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.transactions.ui.component
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,7 @@ fun TransactionSkeletonList(rows: Int = 6) {
     val alpha = rememberSkeletonAlpha()
     Column(modifier = Modifier.fillMaxSize().padding(top = 12.dp)) {
         repeat(rows) {
-            MmCard(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+            MmCard(modifier = Modifier.fillMaxWidth().padding(horizontal = ScreenHorizontalPadding, vertical = 4.dp)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)

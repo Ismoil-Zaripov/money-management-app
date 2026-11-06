@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.transactions.ui.component
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,7 +38,7 @@ fun TransactionFilterBar(
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+        contentPadding = PaddingValues(horizontal = ScreenHorizontalPadding, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

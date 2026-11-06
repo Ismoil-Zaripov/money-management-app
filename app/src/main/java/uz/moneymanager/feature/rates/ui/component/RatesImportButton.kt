@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.rates.ui.component
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,7 +46,7 @@ fun RatesImportRow(isLoading: Boolean, onImport: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = ScreenHorizontalPadding, vertical = 4.dp),
         horizontalArrangement = Arrangement.Start
     ) {
         RatesImportButton(isLoading = isLoading, onClick = onImport)

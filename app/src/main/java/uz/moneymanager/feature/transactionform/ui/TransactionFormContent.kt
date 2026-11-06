@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.transactionform.ui
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import uz.moneymanager.domain.CategoryNames
 import uz.moneymanager.feature.transactionform.ui.component.TransactionInfoCard
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +38,7 @@ internal fun TransactionFormContent(
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(horizontal = ScreenHorizontalPadding, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (!state.isNew) {

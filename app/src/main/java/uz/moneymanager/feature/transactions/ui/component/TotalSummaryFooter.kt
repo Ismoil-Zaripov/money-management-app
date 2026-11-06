@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.transactions.ui.component
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -47,7 +48,7 @@ fun TotalSummaryFooter(
         shape = shape,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = ScreenHorizontalPadding, vertical = 8.dp)
             .heightIn(min = 52.dp)
             .clip(shape)
             .clickable(onClick = onClick)

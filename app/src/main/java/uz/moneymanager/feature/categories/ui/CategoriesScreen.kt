@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.categories.ui
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +27,7 @@ import uz.moneymanager.feature.categories.ui.component.CategoriesInfoBanner
 import uz.moneymanager.feature.categories.ui.component.CategoryCard
 import uz.moneymanager.feature.categories.ui.component.CategorySearchField
 
-private val ItemPadding = Modifier.padding(horizontal = 16.dp)
+private val ItemPadding = Modifier.padding(horizontal = ScreenHorizontalPadding)
 
 @Composable
 fun CategoriesScreen(

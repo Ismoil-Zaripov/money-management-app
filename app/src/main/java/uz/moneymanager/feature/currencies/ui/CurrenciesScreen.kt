@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.currencies.ui
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,9 +41,9 @@ fun CurrenciesScreen(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                start = 16.dp,
+                start = ScreenHorizontalPadding,
                 top = padding.calculateTopPadding() + 8.dp,
-                end = 16.dp,
+                end = ScreenHorizontalPadding,
                 bottom = padding.calculateBottomPadding() + 88.dp,
             ),
             verticalArrangement = Arrangement.spacedBy(12.dp)

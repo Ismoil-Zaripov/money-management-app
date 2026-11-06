@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.paymentmethods.ui
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +25,7 @@ import uz.moneymanager.feature.paymentmethods.presentation.PaymentMethodsUiState
 import uz.moneymanager.feature.paymentmethods.ui.component.PaymentMethodCard
 import uz.moneymanager.feature.paymentmethods.ui.component.PaymentMethodsInfoCard
 
-private val ItemPadding = Modifier.padding(horizontal = 16.dp)
+private val ItemPadding = Modifier.padding(horizontal = ScreenHorizontalPadding)
 
 @Composable
 fun PaymentMethodsScreen(

@@ -1,5 +1,6 @@
 package uz.moneymanager.feature.transactionform.ui.component
 
+import uz.moneymanager.core.designsystem.theme.ScreenHorizontalPadding
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material.icons.filled.Delete
@@ -47,7 +48,7 @@ internal fun SaveBar(
             modifier = Modifier
                 .navigationBarsPadding()
                 .imePadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = ScreenHorizontalPadding, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
