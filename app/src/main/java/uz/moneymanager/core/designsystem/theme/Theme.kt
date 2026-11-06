@@ -43,13 +43,6 @@ val ExpenseColor: Color
     @ReadOnlyComposable
     get() = LocalMoneyColors.current.expense
 
-/**
- * Bar colors: in light mode bar = primary and content = onPrimary.
- * In dark mode bar = primaryContainer (deep tonal shade) and content = onPrimaryContainer.
- */
-val ColorScheme.barContainer: Color
-    get() = if (surface.luminance() < 0.5f) primaryContainer else primary
-
 val LocalBarStyle = staticCompositionLocalOf { BarStyle.DEFAULT }
 
 /** Alpha of the glass bars' tint; the rest is the blurred (or plain) content showing through. */
@@ -64,9 +57,6 @@ fun ColorScheme.barBackground(): Color =
 /** Tinted surface for the top app bar and bottom navigation bar, so they read as distinct from the screen background. */
 val ColorScheme.barSurface: Color
     get() = primary.copy(alpha = 0.14f).compositeOver(surface)
-
-val ColorScheme.onBarContainer: Color
-    get() = if (surface.luminance() < 0.5f) onPrimaryContainer else onPrimary
 
 val LocalContentFontSize = staticCompositionLocalOf { SettingsRepository.DEFAULT_FONT_SIZE }
 
