@@ -26,7 +26,7 @@ import uz.moneymanager.domain.model.AppPalette
 import uz.moneymanager.domain.model.ThemeMode
 
 // Income / Expense colors
-val IncomeLight = Color(0xFF2E7D32)
+val IncomeLight = Color(0xFF2A782E)
 val IncomeDark = Color(0xFF66BB6A)
 val ExpenseLight = Color(0xFFC62828)
 val ExpenseDark = Color(0xFFEF5350)
