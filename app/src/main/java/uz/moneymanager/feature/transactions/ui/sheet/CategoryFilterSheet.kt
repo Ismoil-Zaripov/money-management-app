@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.theme.contentText
 import uz.moneymanager.data.local.CategoryEntity
-import uz.moneymanager.feature.transactions.ui.component.categoryIcon
+import uz.moneymanager.core.designsystem.icon.categoryIcon
 
 /** Single-choice category list with search; [onApply] gets the picked id or null for "all". */
 @Composable

@@ -242,4 +242,20 @@
     <string name="rates_delete_title">Kursni o‘chirasizmi?</string>
     <string name="action_edit_rate">Kursni tahrirlash</string>
     <string name="action_retry">Qayta urinish</string>
+
+    <!-- Categories redesign -->
+    <string name="categories_info_title">Dinamik kategoriyalar</string>
+    <string name="categories_info_body">Kategoriyalar yangi tranzaksiya formasidan avtomatik yaratiladi. Ularni quyida qayta nomlashingiz yoki ishlatilmaganlarini o‘chirishingiz mumkin.</string>
+    <string name="categories_section_title">Saqlangan kategoriyalar</string>
+    <string name="categories_empty_hint">Yangi tranzaksiya ekranida yangi nom yozganingizda kategoriyalar avtomatik yaratiladi.</string>
+    <string name="category_unused">Ishlatilmagan</string>
+    <string name="category_locked_desc">Tranzaksiyalarda ishlatilgan, o‘chirib bo‘lmaydi</string>
+    <plurals name="categories_active_count">
+        <item quantity="one">%d ta kategoriya</item>
+        <item quantity="other">%d ta kategoriya</item>
+    </plurals>
+    <plurals name="category_transactions_count">
+        <item quantity="one">%d ta tranzaksiya</item>
+        <item quantity="other">%d ta tranzaksiya</item>
+    </plurals>
 </resources>

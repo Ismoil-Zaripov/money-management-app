@@ -254,4 +254,24 @@
     <string name="rates_delete_title">Удалить курс?</string>
     <string name="action_edit_rate">Изменить курс</string>
     <string name="action_retry">Повторить</string>
+
+    <!-- Categories redesign -->
+    <string name="categories_info_title">Динамические категории</string>
+    <string name="categories_info_body">Категории создаются автоматически в форме новой транзакции. Ниже их можно переименовать или удалить неиспользуемые.</string>
+    <string name="categories_section_title">Сохранённые категории</string>
+    <string name="categories_empty_hint">Категории создаются автоматически, когда вы вводите новое название на экране новой транзакции.</string>
+    <string name="category_unused">Не используется</string>
+    <string name="category_locked_desc">Используется в транзакциях, удалить нельзя</string>
+    <plurals name="categories_active_count">
+        <item quantity="one">%d категория</item>
+        <item quantity="few">%d категории</item>
+        <item quantity="many">%d категорий</item>
+        <item quantity="other">%d категории</item>
+    </plurals>
+    <plurals name="category_transactions_count">
+        <item quantity="one">%d транзакция</item>
+        <item quantity="few">%d транзакции</item>
+        <item quantity="many">%d транзакций</item>
+        <item quantity="other">%d транзакции</item>
+    </plurals>
 </resources>

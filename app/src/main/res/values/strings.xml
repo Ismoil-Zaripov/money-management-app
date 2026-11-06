@@ -251,4 +251,20 @@
     <string name="rates_delete_title">Delete exchange rate?</string>
     <string name="action_edit_rate">Edit Rate</string>
     <string name="action_retry">Retry</string>
+
+    <!-- Categories redesign -->
+    <string name="categories_info_title">Dynamic Categories</string>
+    <string name="categories_info_body">Categories are created automatically from the New Transaction form. You can rename them or delete unused ones below.</string>
+    <string name="categories_section_title">Stored categories</string>
+    <string name="categories_empty_hint">Categories are created automatically when you type a new name on the New Transaction screen.</string>
+    <string name="category_unused">Unused</string>
+    <string name="category_locked_desc">Used in transactions, cannot be deleted</string>
+    <plurals name="categories_active_count">
+        <item quantity="one">%d category</item>
+        <item quantity="other">%d categories</item>
+    </plurals>
+    <plurals name="category_transactions_count">
+        <item quantity="one">%d transaction</item>
+        <item quantity="other">%d transactions</item>
+    </plurals>
 </resources>

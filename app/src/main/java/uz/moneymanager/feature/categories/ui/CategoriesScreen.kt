@@ -1,106 +1,85 @@
 package uz.moneymanager.feature.categories.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
-import uz.moneymanager.core.designsystem.theme.barContainer
-import uz.moneymanager.core.designsystem.theme.contentText
-import uz.moneymanager.core.designsystem.theme.onBarContainer
+import uz.moneymanager.core.designsystem.component.MmEmptyState
+import uz.moneymanager.core.designsystem.component.MmSectionHeader
+import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.data.local.CategoryWithUsage
 import uz.moneymanager.feature.categories.presentation.CategoriesUiState
+import uz.moneymanager.feature.categories.presentation.filterCategories
+import uz.moneymanager.feature.categories.ui.component.CategoriesInfoBanner
 import uz.moneymanager.feature.categories.ui.component.CategoryCard
+import uz.moneymanager.feature.categories.ui.component.CategorySearchField
 
-@OptIn(ExperimentalMaterial3Api::class)
+private val ItemPadding = Modifier.padding(horizontal = 16.dp)
+
 @Composable
 fun CategoriesScreen(
     state: CategoriesUiState,
+    query: String,
     snackbarHostState: SnackbarHostState,
+    onQueryChange: (String) -> Unit,
     onBack: () -> Unit,
     onRename: (CategoryWithUsage) -> Unit,
     onDelete: (CategoryWithUsage) -> Unit,
 ) {
+    val visible = remember(state.categories, query) { filterCategories(state.categories, query) }
+    val total = state.categories.size
+
     Scaffold(
-        topBar = {
-            Column {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.title_categories),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.action_back)
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.barContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onBarContainer,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onBarContainer,
-                        actionIconContentColor = MaterialTheme.colorScheme.onBarContainer
-                    )
-                )
-                HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onBarContainer.copy(alpha = 0.2f))
-            }
-        },
+        topBar = { MmTopBar(title = stringResource(R.string.title_categories), onBack = onBack) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+        if (total == 0) {
+            MmEmptyState(
+                title = stringResource(R.string.empty_categories),
+                message = stringResource(R.string.categories_empty_hint),
+                modifier = Modifier.padding(padding)
+            )
+            return@Scaffold
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (state.categories.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.empty_categories),
-                    modifier = Modifier.align(Alignment.Center),
-                    style = MaterialTheme.contentText,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            item(key = "info", contentType = "info") { CategoriesInfoBanner(ItemPadding) }
+            item(key = "search", contentType = "search") {
+                CategorySearchField(query = query, onQueryChange = onQueryChange, modifier = ItemPadding)
+            }
+            item(key = "header", contentType = "header") {
+                MmSectionHeader(
+                    title = stringResource(R.string.categories_section_title),
+                    trailing = pluralStringResource(R.plurals.categories_active_count, total, total)
                 )
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(0.dp),
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
-                ) {
-                    items(state.categories, key = { it.category.id }) { item ->
-                        CategoryCard(
-                            item = item,
-                            onRename = { onRename(item) },
-                            onDelete = { onDelete(item) }
-                        )
-                    }
+            }
+            if (visible.isEmpty()) {
+                item(key = "no_results", contentType = "no_results") {
+                    MmEmptyState(title = stringResource(R.string.sheet_no_results), modifier = Modifier.padding(vertical = 24.dp))
                 }
+            }
+            items(visible, key = { it.category.id }, contentType = { "category" }) { item ->
+                CategoryCard(
+                    item = item,
+                    onRename = { onRename(item) },
+                    onDelete = { onDelete(item) },
+                    modifier = ItemPadding
+                )
             }
         }
     }

@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,6 +26,7 @@ fun CategoriesRoute(
     val snackbarHostState = remember { SnackbarHostState() }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    var query by rememberSaveable { mutableStateOf("") }
     var categoryToRename by remember { mutableStateOf<CategoryWithUsage?>(null) }
     var categoryToDelete by remember { mutableStateOf<CategoryWithUsage?>(null) }
 
@@ -42,6 +44,8 @@ fun CategoriesRoute(
 
     CategoriesScreen(
         state = state,
+        query = query,
+        onQueryChange = { query = it },
         snackbarHostState = snackbarHostState,
         onBack = onNavigateBack,
         onRename = { categoryToRename = it },

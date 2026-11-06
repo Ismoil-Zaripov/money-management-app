@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
-import uz.moneymanager.feature.transactions.ui.component.categoryIcon
+import uz.moneymanager.core.designsystem.icon.categoryIcon
 
 /** Kategoriya ikonkasi (nameKey kalit so'zlari xaritasi bo'yicha) yumaloq fonda. */
 @Composable

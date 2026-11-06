@@ -1,4 +1,4 @@
-package uz.moneymanager.feature.transactions.ui.component
+package uz.moneymanager.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category

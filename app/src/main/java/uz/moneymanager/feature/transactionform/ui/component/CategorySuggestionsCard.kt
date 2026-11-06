@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.theme.contentText
 import uz.moneymanager.domain.CategoryNames
-import uz.moneymanager.feature.transactions.ui.component.categoryIcon
+import uz.moneymanager.core.designsystem.icon.categoryIcon
 
 /** "Suggestions · N recent" kartasi + (yangi nom bo'lsa) "Create ..." qatori. */
 @Composable

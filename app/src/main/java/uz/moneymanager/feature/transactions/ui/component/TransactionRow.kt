@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import uz.moneymanager.core.designsystem.icon.categoryIcon
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.AmountKind
 import uz.moneymanager.core.designsystem.component.AmountText
