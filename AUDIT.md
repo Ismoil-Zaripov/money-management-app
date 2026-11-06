@@ -28,7 +28,7 @@
 | T11 | Categories | ✅ | 2026-11-06 | 47bf00c (A: route/screen/card/dialoglar), 2cca7ff (B: yangi dizayn), (C) shu commit |
 | T12 | Payment Methods | ✅ | 2026-11-06 | 67e4fb7 (A: route/screen/card/dialoglar), 91f4e0a (B: yangi dizayn), (C) shu commit |
 | T13 | Palette ekrani (ixtiyoriy) | ➖ | 2026-11-06 | Foydalanuvchi qarori: kerak emas (T08 inline tanlagich yetarli) |
-| T14 | Yakuniy audit | ✅ | 2026-11-06 | 22b49f3 (B: bo'lish, touch target, README, stringlar), (C) shu commit; qo'lda tekshiruvlar kutilmoqda |
+| T14 | Yakuniy audit | ✅ | 2026-11-06 | 22b49f3 (B: bo'lish, touch target, README, stringlar), (C) faeac03; qo'lda tekshiruvlar foydalanuvchi tomonidan o'tkazildi |
 
 ---
 
