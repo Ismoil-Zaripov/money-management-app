@@ -1,0 +1,23 @@
+package uz.moneymanager.feature.transactionform.presentation
+
+// SavedStateHandle keys of the transaction form (process-death safe draft + original snapshot).
+internal const val KEY_TYPE = "form_type"
+internal const val KEY_AMOUNT = "form_amount"
+internal const val KEY_CURRENCY_ID = "form_currency_id"
+internal const val KEY_CATEGORY = "form_category"
+internal const val KEY_DESCRIPTION = "form_description"
+internal const val KEY_DATE = "form_date"
+internal const val KEY_SAVE_ATTEMPTED = "form_save_attempted"
+internal const val KEY_AMOUNT_TOUCHED = "form_amount_touched"
+internal const val KEY_CATEGORY_TOUCHED = "form_category_touched"
+internal const val KEY_SHOW_NO_INTERNET = "form_show_no_internet"
+internal const val KEY_ORIG_LOADED = "form_orig_loaded"
+internal const val KEY_ORIG_TYPE = "form_orig_type"
+internal const val KEY_ORIG_AMOUNT = "form_orig_amount"
+internal const val KEY_ORIG_CURRENCY_ID = "form_orig_currency_id"
+internal const val KEY_ORIG_CATEGORY = "form_orig_category"
+internal const val KEY_ORIG_PAYMENT_METHOD_ID = "form_orig_payment_method_id"
+internal const val KEY_PAYMENT_METHOD_ID = "form_payment_method_id"
+internal const val KEY_ORIG_DESCRIPTION = "form_orig_description"
+internal const val KEY_ORIG_DATE = "form_orig_date"
+internal const val KEY_CREATED_AT = "form_created_at"

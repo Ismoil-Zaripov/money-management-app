@@ -58,7 +58,7 @@ fun TotalSummaryFooter(
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onToggleAmountVisibility, modifier = Modifier.size(32.dp)) {
+            IconButton(onClick = onToggleAmountVisibility) {
                 Icon(
                     imageVector = if (isAmountVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                     contentDescription = stringResource(R.string.action_show_footer),

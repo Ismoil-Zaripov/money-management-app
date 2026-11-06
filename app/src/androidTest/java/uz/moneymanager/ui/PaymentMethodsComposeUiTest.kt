@@ -613,7 +613,6 @@ class PaymentMethodsComposeUiTest {
             R.string.label_payment_method,
             R.string.label_payment_method_name,
             R.string.delete_payment_method_confirm,
-            R.string.payment_method_tx_count,
             R.string.empty_payment_methods,
             R.string.desc_payment_methods,
             R.string.filter_payment_method,
@@ -639,7 +638,7 @@ class PaymentMethodsComposeUiTest {
         val ruCtx = contextForLocale("ru")
 
         for (id in resIds) {
-            val arg: Any = if (id == R.string.payment_method_tx_count || id == R.string.err_payment_method_too_long) {
+            val arg: Any = if (id == R.string.err_payment_method_too_long) {
                 5
             } else {
                 "Test"

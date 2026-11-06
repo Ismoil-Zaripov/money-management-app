@@ -1,11 +1,7 @@
 package uz.moneymanager.feature.transactions.ui
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,10 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmFab
@@ -25,8 +19,6 @@ import uz.moneymanager.feature.transactions.presentation.TransactionListItemUiMo
 import uz.moneymanager.feature.transactions.presentation.TransactionsEvent
 import uz.moneymanager.feature.transactions.presentation.TransactionsUiState
 import uz.moneymanager.feature.transactions.ui.component.TotalSummaryFooter
-import uz.moneymanager.feature.transactions.ui.component.TransactionFilterBar
-import uz.moneymanager.feature.transactions.ui.component.TransactionList
 import uz.moneymanager.feature.transactions.ui.component.TransactionsTopBar
 import uz.moneymanager.feature.transactions.ui.dialog.DeleteTransactionDialog
 import uz.moneymanager.feature.transactions.ui.sheet.FilterSheet
@@ -69,35 +61,15 @@ fun TransactionsScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            TransactionFilterBar(
-                filter = uiState.filter,
-                currencies = uiState.currencies,
-                categories = uiState.categories,
-                paymentMethods = uiState.paymentMethods,
-                displayCurrency = uiState.displayCurrency,
-                onCategorySelect = { onEvent(TransactionsEvent.CategorySelected(it)) },
-                onCurrencyFilterSelect = { onEvent(TransactionsEvent.CurrencyFilterSelected(it)) },
-                onPaymentMethodSelect = { onEvent(TransactionsEvent.PaymentMethodSelected(it)) },
-                onDisplayCurrencySelect = { onEvent(TransactionsEvent.DisplayCurrencySelected(it)) },
-                onTypeSelect = { onEvent(TransactionsEvent.TypeSelected(it)) },
-                onDateRangeSelect = { from, to -> onEvent(TransactionsEvent.DateRangeSelected(from, to)) },
-                onOpenSheet = { openFilterSheet = it }
-            )
-
-            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-
-            TransactionList(
-                items = items,
-                dailyTotals = uiState.dailyTotals,
-                onEdit = onNavigateToEdit,
-                onDelete = { transactionToDelete = it }
-            )
-        }
+        TransactionsContent(
+            uiState = uiState,
+            items = items,
+            onEvent = onEvent,
+            onOpenSheet = { openFilterSheet = it },
+            onEdit = onNavigateToEdit,
+            onDelete = { transactionToDelete = it },
+            modifier = Modifier.padding(padding)
+        )
     }
 
     transactionToDelete?.let { tx ->

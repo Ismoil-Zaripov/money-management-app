@@ -16,7 +16,6 @@
     <string name="action_close">Закрыть</string>
     <string name="action_back">Назад</string>
     <string name="action_clear">Очистить</string>
-    <string name="action_import_cbu">Загрузить с ЦБ РУз</string>
 
     <!-- Transaction form -->
     <string name="title_new_transaction">Новая транзакция</string>
@@ -24,7 +23,6 @@
     <string name="type_income">Доход</string>
     <string name="type_expense">Расход</string>
     <string name="label_amount">Сумма</string>
-    <string name="label_currency">Валюта</string>
     <string name="label_info">Категория</string>
     <string name="label_date">Дата</string>
     <string name="label_description">Описание</string>
@@ -126,7 +124,6 @@
     <string name="action_rename_category">Переименовать</string>
     <string name="label_category_name">Название категории</string>
     <string name="delete_category_confirm">Вы уверены, что хотите удалить категорию \"%1$s\"?</string>
-    <string name="category_tx_count">Транзакций: %1$d</string>
     <string name="empty_categories">Категории отсутствуют</string>
 
     <!-- Payment Methods Screen -->
@@ -136,7 +133,6 @@
     <string name="label_payment_method">Способ оплаты</string>
     <string name="label_payment_method_name">Название способа оплаты</string>
     <string name="delete_payment_method_confirm">Вы уверены, что хотите удалить способ оплаты «%1$s»?</string>
-    <string name="payment_method_tx_count">%1$d транзакций</string>
     <string name="empty_payment_methods">Нет способов оплаты</string>
     <string name="desc_payment_methods">Способы оплаты в транзакциях</string>
     <string name="filter_payment_method">Способ оплаты</string>
@@ -170,9 +166,7 @@
     <string name="desc_font_size">Настройка размера текста контента в приложении</string>
     <string name="font_size_sample">Образец: 1 250 000 UZS</string>
     <string name="font_size_value_sp">%1$d sp</string>
-    <string name="font_size_reset">Сбросить по умолчанию</string>
     <string name="font_size_reset_short">Сброс</string>
-    <string name="font_size_accessibility">Размер шрифта, %1$d sp</string>
 
     <string name="desc_currencies">Управление валютами и основной валютой</string>
     <string name="desc_exchange_rates">Курсы валют и загрузка с ЦБ РУз</string>

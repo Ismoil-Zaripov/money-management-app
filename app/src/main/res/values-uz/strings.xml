@@ -16,7 +16,6 @@
     <string name="action_close">Yopish</string>
     <string name="action_back">Orqaga</string>
     <string name="action_clear">Tozalash</string>
-    <string name="action_import_cbu">CBU dan yuklash</string>
 
     <!-- Transaction form -->
     <string name="title_new_transaction">Yangi tranzaksiya</string>
@@ -24,7 +23,6 @@
     <string name="type_income">Kirim</string>
     <string name="type_expense">Chiqim</string>
     <string name="label_amount">Summa</string>
-    <string name="label_currency">Valyuta</string>
     <string name="label_info">Kategoriya</string>
     <string name="label_date">Sana</string>
     <string name="label_description">Tavsif</string>
@@ -124,7 +122,6 @@
     <string name="action_rename_category">Nomini o‘zgartirish</string>
     <string name="label_category_name">Kategoriya nomi</string>
     <string name="delete_category_confirm">\"%1$s\" kategoriyasini o‘chirishni tasdiqlaysizmi?</string>
-    <string name="category_tx_count">%1$d ta tranzaksiya</string>
     <string name="empty_categories">Kategoriyalar yo‘q</string>
 
     <!-- Payment Methods Screen -->
@@ -134,7 +131,6 @@
     <string name="label_payment_method">To‘lov usuli</string>
     <string name="label_payment_method_name">To‘lov usuli nomi</string>
     <string name="delete_payment_method_confirm">\"%1$s\" to‘lov usulini o‘chirishni tasdiqlaysizmi?</string>
-    <string name="payment_method_tx_count">%1$d ta tranzaksiya</string>
     <string name="empty_payment_methods">To‘lov usullari yo‘q</string>
     <string name="desc_payment_methods">Tranzaksiyalarda ishlatiladigan to‘lov usullari</string>
     <string name="filter_payment_method">To‘lov usuli</string>
@@ -168,9 +164,7 @@
     <string name="desc_font_size">Ilovadagi kontent matnlari o‘lchamini sozlash</string>
     <string name="font_size_sample">Namuna: 1 250 000 UZS</string>
     <string name="font_size_value_sp">%1$d sp</string>
-    <string name="font_size_reset">Standartga qaytarish</string>
     <string name="font_size_reset_short">Tiklash</string>
-    <string name="font_size_accessibility">Shrift o‘lchami, %1$d sp</string>
 
     <string name="desc_currencies">Valyutalarni boshqarish va asosiy valyuta</string>
     <string name="desc_exchange_rates">Kunlik kurslar va CBU dan yuklash</string>

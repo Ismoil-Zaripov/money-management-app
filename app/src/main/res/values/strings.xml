@@ -16,7 +16,6 @@
     <string name="action_close">Close</string>
     <string name="action_back">Back</string>
     <string name="action_clear">Clear</string>
-    <string name="action_import_cbu">Import from CBU</string>
 
     <!-- Transaction form -->
     <string name="title_new_transaction">New Transaction</string>
@@ -24,7 +23,6 @@
     <string name="type_income">Income</string>
     <string name="type_expense">Expense</string>
     <string name="label_amount">Amount</string>
-    <string name="label_currency">Currency</string>
     <string name="label_info">Category</string>
     <string name="label_date">Date</string>
     <string name="label_description">Description</string>
@@ -125,7 +123,6 @@
     <string name="action_rename_category">Rename Category</string>
     <string name="label_category_name">Category Name</string>
     <string name="delete_category_confirm">Are you sure you want to delete category \"%1$s\"?</string>
-    <string name="category_tx_count">%1$d transactions</string>
     <string name="empty_categories">No categories yet</string>
 
     <!-- Payment Methods Screen -->
@@ -135,7 +132,6 @@
     <string name="label_payment_method">Payment Method</string>
     <string name="label_payment_method_name">Payment Method Name</string>
     <string name="delete_payment_method_confirm">Are you sure you want to delete payment method \"%1$s\"?</string>
-    <string name="payment_method_tx_count">%1$d transactions</string>
     <string name="empty_payment_methods">No payment methods yet</string>
     <string name="desc_payment_methods">Payment methods used across transactions</string>
     <string name="filter_payment_method">Payment Method</string>
@@ -169,13 +165,11 @@
     <string name="desc_font_size">Adjust content text size across the app</string>
     <string name="font_size_sample">Sample: 1 250 000 UZS</string>
     <string name="font_size_value_sp">%1$d sp</string>
-    <string name="font_size_reset">Reset to default</string>
     <string name="font_size_reset_short">Reset</string>
     <string name="font_size_glyph" translatable="false">A</string>
     <string name="lang_short_en" translatable="false">EN</string>
     <string name="lang_short_uz" translatable="false">UZ</string>
     <string name="lang_short_ru" translatable="false">RU</string>
-    <string name="font_size_accessibility">Font size, %1$d sp</string>
 
     <string name="desc_currencies">Manage currencies and default currency</string>
     <string name="desc_exchange_rates">Daily currency rates and CBU import</string>

@@ -5,10 +5,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,26 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
-import uz.moneymanager.feature.currencies.ui.CurrenciesRoute
-import uz.moneymanager.feature.settings.ui.SettingsRoute
-import uz.moneymanager.feature.categories.ui.CategoriesRoute
 import uz.moneymanager.ui.navigation.AppBottomNavItems
+import uz.moneymanager.ui.navigation.AppNavHost
 import uz.moneymanager.ui.navigation.BottomBar
-import uz.moneymanager.ui.navigation.Screen
-import uz.moneymanager.feature.paymentmethods.ui.PaymentMethodsRoute
-import uz.moneymanager.feature.rates.ui.RatesRoute
 import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.core.designsystem.theme.SystemBarsEffect
 import uz.moneymanager.core.designsystem.theme.barContainer
-import uz.moneymanager.feature.transactions.ui.TransactionsRoute
-import uz.moneymanager.feature.transactionform.ui.TransactionFormRoute
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -100,95 +85,6 @@ fun MainAppContent() {
             }
         }
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Transactions.route,
-            modifier = Modifier.padding(innerPadding),
-            enterTransition = { fadeIn(animationSpec = tween(120)) },
-            exitTransition = { fadeOut(animationSpec = tween(90)) },
-            popEnterTransition = { fadeIn(animationSpec = tween(120)) },
-            popExitTransition = { fadeOut(animationSpec = tween(90)) },
-        ) {
-            composable(Screen.Transactions.route) {
-                TransactionsRoute(
-                    onNavigateToCreate = { navController.navigate(Screen.TransactionForm.createRoute()) },
-                    onNavigateToEdit = { id -> navController.navigate(Screen.TransactionForm.createRoute(id)) }
-                )
-            }
-
-            composable(Screen.Settings.route) {
-                SettingsRoute(
-                    onNavigateCurrencies = { navController.navigate(Screen.Currencies.route) },
-                    onNavigateRates = { navController.navigate(Screen.Rates.route) },
-                    onNavigateCategories = { navController.navigate(Screen.Categories.route) },
-                    onNavigatePaymentMethods = { navController.navigate(Screen.PaymentMethods.route) }
-                )
-            }
-
-            composable(
-                route = Screen.TransactionForm.route,
-                arguments = listOf(navArgument("id") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }),
-                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-            ) {
-                TransactionFormRoute(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(
-                route = Screen.Currencies.route,
-                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-            ) {
-                CurrenciesRoute(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(
-                route = Screen.Rates.route,
-                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-            ) {
-                RatesRoute(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(
-                route = Screen.Categories.route,
-                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-            ) {
-                CategoriesRoute(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-
-            composable(
-                route = Screen.PaymentMethods.route,
-                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start, animationSpec = tween(180)) },
-                popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-                popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End, animationSpec = tween(180)) },
-            ) {
-                PaymentMethodsRoute(
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-        }
+        AppNavHost(navController = navController, modifier = Modifier.padding(innerPadding))
     }
 }

@@ -57,25 +57,32 @@ Zamonaviy Android mobil ilovasi — shaxsiy moliya, pul kirim va chiqimlarini hi
 
 ```
 uz.moneymanager/
+├── core/
+│   ├── designsystem/
+│   │   ├── theme/        # Material 3 ranglar, 5 palitra (light/dark), shakl, tipografiya
+│   │   ├── component/    # Umumiy komponentlar: MmTopBar, MmCard, MmDialog, MmFab, ...
+│   │   └── icon/         # Kategoriya ikonkalari (nom kalit so'zlari bo'yicha)
+│   └── format/           # Summa va sana formatlash
 ├── data/
 │   ├── local/            # Room Database, Daos, Entities, Converters
 │   ├── remote/           # Retrofit CbuApi va model klasslar
-│   └── repository/       # Transaction, Currency, Rate, Settings repozitoriylari
-├── di/                   # Hilt modullari (Database, Network, Repository modules)
+│   └── repository/       # Transaction, Currency, Rate, Category, PaymentMethod, Settings
+├── di/                   # Hilt modullari (Database, Network, Repository)
 ├── domain/               # Biznes qoidalar, hisob-kitoblar, modellar
-│   └── model/            # TransactionType, Enums
-├── ui/
-│   ├── categories/       # Kategoriya / Info boshqaruvi
-│   ├── currencies/       # Valyutalar qo'shish va sozlash
-│   ├── monitoring/       # Monitoring, Filtrlash, Pie Chart, Umumiy hisobot
-│   ├── navigation/       # Compose Navigation marshrutlari
+├── feature/              # Har ekran: presentation/ (ViewModel, UiState, Event) + ui/ (Route, Screen, component/, dialog/)
+│   ├── transactions/     # Ro'yxat, filtrlar, Summary Report
+│   ├── transactionform/  # Yangi / tahrirlash formasi
+│   ├── categories/       # Kategoriyalar (nomini o'zgartirish / o'chirish)
+│   ├── paymentmethods/   # To'lov usullari
+│   ├── currencies/       # Valyutalar
 │   ├── rates/            # Kurslar va CBU.uz yuklovchisi
-│   ├── settings/         # Til va ilova sozlamalari
-│   ├── theme/            # Material 3 Colors, Shapes, Typography
-│   └── transactions/     # Tranzaksiyalar ro'yxati va yangi qo'shish formasi
+│   └── settings/         # Til, mavzu, palitra va ilova sozlamalari
+├── ui/navigation/        # Screen marshrutlari, AppNavHost, BottomBar
 ├── MainActivity.kt
 └── MoneyApp.kt
 ```
+
+Arxitektura qoidalari: `ARCHITECTURE.md`; ish holati: `AUDIT.md`.
 
 ---
 

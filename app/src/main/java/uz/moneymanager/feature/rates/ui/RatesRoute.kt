@@ -1,19 +1,14 @@
 package uz.moneymanager.feature.rates.ui
 
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import uz.moneymanager.R
 import uz.moneymanager.data.local.ExchangeRateRow
-import uz.moneymanager.feature.rates.presentation.RateEvent
 import uz.moneymanager.feature.rates.presentation.RatesViewModel
 import uz.moneymanager.feature.rates.ui.dialog.AddRateDialog
 import uz.moneymanager.feature.rates.ui.dialog.DeleteRateDialog
@@ -25,7 +20,6 @@ fun RatesRoute(
     onNavigateBack: () -> Unit,
     viewModel: RatesViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -34,35 +28,7 @@ fun RatesRoute(
     var rateToEdit by remember { mutableStateOf<ExchangeRateRow?>(null) }
     var rateToDelete by remember { mutableStateOf<ExchangeRateRow?>(null) }
 
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is RateEvent.Success -> {}
-                is RateEvent.Error -> {
-                    val msg = context.getString(event.messageRes, *event.args.toTypedArray())
-                    if (event.messageRes == R.string.err_cbu_fetch_failed) {
-                        val result = snackbarHostState.showSnackbar(
-                            message = msg,
-                            actionLabel = context.getString(R.string.action_retry)
-                        )
-                        if (result == SnackbarResult.ActionPerformed) viewModel.importFromCbu()
-                    } else {
-                        snackbarHostState.showSnackbar(msg)
-                    }
-                }
-                is RateEvent.CbuResult -> {
-                    val msg = buildString {
-                        append(context.getString(R.string.cbu_import_success, event.added, event.existing))
-                        if (event.notFound.isNotEmpty()) {
-                            append(" ")
-                            append(context.getString(R.string.cbu_import_not_found, event.notFound.joinToString(", ")))
-                        }
-                    }
-                    snackbarHostState.showSnackbar(msg)
-                }
-            }
-        }
-    }
+    RateEventsEffect(viewModel.events, snackbarHostState, onRetryImport = viewModel::importFromCbu)
 
     RatesScreen(
         state = state,
