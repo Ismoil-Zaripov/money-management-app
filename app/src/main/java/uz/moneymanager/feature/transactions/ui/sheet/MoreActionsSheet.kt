@@ -1,28 +1,20 @@
 package uz.moneymanager.feature.transactions.ui.sheet
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
-import uz.moneymanager.core.designsystem.theme.contentText
 
 /** "More" (⋮) actions of the Transactions screen. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,29 +24,32 @@ fun MoreActionsSheet(
     onOpenFilter: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
-        Column(modifier = Modifier.navigationBarsPadding().padding(bottom = 8.dp)) {
-            MoreActionRow(Icons.Default.Add, stringResource(R.string.more_add_transaction), onAddTransaction)
-            MoreActionRow(Icons.Default.FilterList, stringResource(R.string.title_filter), onOpenFilter)
+    val colors = MaterialTheme.colorScheme
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = colors.surface) {
+        Column(
+            modifier = Modifier.navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            MoreActionCard(
+                icon = Icons.Default.Add,
+                title = stringResource(R.string.more_add_transaction),
+                hint = stringResource(R.string.more_add_transaction_hint),
+                containerColor = colors.primaryContainer,
+                contentColor = colors.onPrimaryContainer,
+                tileColor = colors.primary,
+                tileContentColor = colors.onPrimary,
+                onClick = onAddTransaction
+            )
+            MoreActionCard(
+                icon = Icons.Default.FilterList,
+                title = stringResource(R.string.title_filter),
+                hint = stringResource(R.string.more_filter_hint),
+                containerColor = colors.surfaceContainerHighest,
+                contentColor = colors.onSurface,
+                tileColor = colors.surface,
+                tileContentColor = colors.primary,
+                onClick = onOpenFilter
+            )
         }
-    }
-}
-
-@Composable
-private fun MoreActionRow(icon: ImageVector, label: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.contentText,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(start = 16.dp)
-        )
     }
 }
