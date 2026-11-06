@@ -1,4 +1,4 @@
-package uz.moneymanager.ui.paymentmethods
+package uz.moneymanager.feature.paymentmethods.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,26 +8,21 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import uz.moneymanager.R
-import uz.moneymanager.data.local.PaymentMethodWithUsage
 import uz.moneymanager.data.repository.PaymentMethodRepository
 import uz.moneymanager.domain.DomainException
 import javax.inject.Inject
-
-sealed interface PaymentMethodEvent {
-    data object Success : PaymentMethodEvent
-    data class Error(val messageRes: Int, val args: List<Any> = emptyList()) : PaymentMethodEvent
-}
 
 @HiltViewModel
 class PaymentMethodsViewModel @Inject constructor(
     private val paymentMethodRepository: PaymentMethodRepository,
 ) : ViewModel() {
 
-    val paymentMethods: StateFlow<List<PaymentMethodWithUsage>> = paymentMethodRepository.observeWithUsage()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val uiState: StateFlow<PaymentMethodsUiState> = paymentMethodRepository.observeWithUsage()
+        .map { PaymentMethodsUiState(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PaymentMethodsUiState())
 
     private val _events = MutableSharedFlow<PaymentMethodEvent>()
     val events: SharedFlow<PaymentMethodEvent> = _events.asSharedFlow()

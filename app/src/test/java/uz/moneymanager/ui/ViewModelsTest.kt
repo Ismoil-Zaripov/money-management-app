@@ -19,8 +19,8 @@ import uz.moneymanager.data.local.TransactionEntity
 import uz.moneymanager.data.local.TransactionRateEntity
 import uz.moneymanager.domain.PaymentMethodNames
 import uz.moneymanager.domain.model.TransactionType
-import uz.moneymanager.ui.paymentmethods.PaymentMethodEvent
-import uz.moneymanager.ui.paymentmethods.PaymentMethodsViewModel
+import uz.moneymanager.feature.paymentmethods.presentation.PaymentMethodEvent
+import uz.moneymanager.feature.paymentmethods.presentation.PaymentMethodsViewModel
 import uz.moneymanager.feature.transactions.presentation.TransactionsViewModel
 import uz.moneymanager.feature.transactionform.presentation.FormEvent
 import uz.moneymanager.feature.transactionform.presentation.TransactionFormViewModel
@@ -48,7 +48,7 @@ class ViewModelsTest {
 
         // Start collecting stateIn flow
         val collectJob = launch(Dispatchers.Main, start = CoroutineStart.UNDISPATCHED) {
-            viewModel.paymentMethods.collect {}
+            viewModel.uiState.collect {}
         }
 
         val events = mutableListOf<PaymentMethodEvent>()
@@ -57,15 +57,15 @@ class ViewModelsTest {
         }
 
         // Initial seeded items: Cash (id=1, default) and Transfer (id=2)
-        assertEquals(2, viewModel.paymentMethods.value.size)
-        assertEquals("Cash", viewModel.paymentMethods.value[0].paymentMethod.name)
-        assertTrue(viewModel.paymentMethods.value[0].paymentMethod.isDefault)
+        assertEquals(2, viewModel.uiState.value.paymentMethods.size)
+        assertEquals("Cash", viewModel.uiState.value.paymentMethods[0].paymentMethod.name)
+        assertTrue(viewModel.uiState.value.paymentMethods[0].paymentMethod.isDefault)
 
         // 1. Add valid payment method
         viewModel.addPaymentMethod("  Click   Wallet ")
         assertEquals(PaymentMethodEvent.Success, events.last())
-        assertEquals(3, viewModel.paymentMethods.value.size)
-        val clickItem = viewModel.paymentMethods.value.first { it.paymentMethod.name == "Click Wallet" }
+        assertEquals(3, viewModel.uiState.value.paymentMethods.size)
+        val clickItem = viewModel.uiState.value.paymentMethods.first { it.paymentMethod.name == "Click Wallet" }
         assertNotNull(clickItem)
 
         // 2. Add duplicate name (case-insensitive / extra spaces) -> Error event
@@ -87,7 +87,7 @@ class ViewModelsTest {
         // 5. Rename valid
         viewModel.renamePaymentMethod(clickItem.paymentMethod.id, "Payme")
         assertEquals(PaymentMethodEvent.Success, events.last())
-        assertTrue(viewModel.paymentMethods.value.any { it.paymentMethod.name == "Payme" })
+        assertTrue(viewModel.uiState.value.paymentMethods.any { it.paymentMethod.name == "Payme" })
 
         // 6. Attempt to delete a payment method that is used in a transaction -> Error event
         env.transactionDao.insert(
@@ -110,7 +110,7 @@ class ViewModelsTest {
         // 7. Delete unused payment method (Payme) -> Success
         viewModel.deletePaymentMethod(clickItem.paymentMethod.id)
         assertEquals(PaymentMethodEvent.Success, events.last())
-        assertFalse(viewModel.paymentMethods.value.any { it.paymentMethod.id == clickItem.paymentMethod.id })
+        assertFalse(viewModel.uiState.value.paymentMethods.any { it.paymentMethod.id == clickItem.paymentMethod.id })
 
         collectJob.cancel()
         eventJob.cancel()

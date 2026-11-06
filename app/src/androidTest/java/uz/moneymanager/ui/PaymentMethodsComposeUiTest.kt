@@ -48,8 +48,8 @@ import uz.moneymanager.data.repository.ExchangeRateRepository
 import uz.moneymanager.data.repository.PaymentMethodRepository
 import uz.moneymanager.data.repository.TransactionRepository
 import uz.moneymanager.domain.model.TransactionType
-import uz.moneymanager.ui.paymentmethods.PaymentMethodsScreen
-import uz.moneymanager.ui.paymentmethods.PaymentMethodsViewModel
+import uz.moneymanager.feature.paymentmethods.ui.PaymentMethodsRoute
+import uz.moneymanager.feature.paymentmethods.presentation.PaymentMethodsViewModel
 import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.feature.transactions.ui.TransactionsRoute
 import uz.moneymanager.feature.transactions.presentation.TransactionsViewModel
@@ -182,7 +182,7 @@ class PaymentMethodsComposeUiTest {
 
         composeTestRule.setContent {
             MoneyManagerTheme {
-                PaymentMethodsScreen(
+                PaymentMethodsRoute(
                     onNavigateBack = {},
                     viewModel = viewModel,
                 )
@@ -244,7 +244,7 @@ class PaymentMethodsComposeUiTest {
 
         composeTestRule.setContent {
             MoneyManagerTheme {
-                PaymentMethodsScreen(
+                PaymentMethodsRoute(
                     onNavigateBack = {},
                     viewModel = viewModel,
                 )
@@ -306,7 +306,7 @@ class PaymentMethodsComposeUiTest {
 
         composeTestRule.setContent {
             MoneyManagerTheme {
-                PaymentMethodsScreen(
+                PaymentMethodsRoute(
                     onNavigateBack = {},
                     viewModel = viewModel,
                 )
@@ -342,7 +342,7 @@ class PaymentMethodsComposeUiTest {
 
         restorationTester.setContent {
             MoneyManagerTheme {
-                PaymentMethodsScreen(
+                PaymentMethodsRoute(
                     onNavigateBack = {},
                     viewModel = viewModel,
                 )
@@ -574,7 +574,7 @@ class PaymentMethodsComposeUiTest {
                         )
                     }
                     androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.weight(1f)) {
-                        PaymentMethodsScreen(
+                        PaymentMethodsRoute(
                             onNavigateBack = {},
                             viewModel = pmViewModel,
                         )
