@@ -4,32 +4,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
-import androidx.compose.material3.DateRangePicker
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
 import uz.moneymanager.R
-import uz.moneymanager.core.designsystem.theme.contentText
-import uz.moneymanager.feature.transactions.presentation.DateRangePreset
+import uz.moneymanager.feature.transactions.ui.filter.section.DateRangeSection
 
-/** M3 date range picker with quick presets. Single-day ranges are allowed (end defaults to start). */
-@OptIn(ExperimentalMaterial3Api::class)
+/** Date range picker sheet with Cancel / Save. Single-day ranges are allowed (end defaults to start). */
 @Composable
 fun DateRangeSheet(
     from: LocalDate?,
@@ -37,29 +29,17 @@ fun DateRangeSheet(
     onApply: (from: LocalDate, to: LocalDate) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val state = rememberDateRangePickerState(
-        initialSelectedStartDateMillis = from?.toUtcMillis(),
-        initialSelectedEndDateMillis = to?.toUtcMillis(),
-        initialDisplayedMonthMillis = (from ?: LocalDate.now()).toUtcMillis(),
-    )
-    val startMillis = state.selectedStartDateMillis
+    var pendingFrom by remember { mutableStateOf(from) }
+    var pendingTo by remember { mutableStateOf(to) }
 
     FilterSheetContainer(title = stringResource(R.string.filter_date_range), onDismiss = onDismiss) {
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(DateRangePreset.entries.toList(), key = { it.name }) { preset ->
-                AssistChip(
-                    onClick = {
-                        val (f, t) = preset.range(LocalDate.now())
-                        state.setSelection(f.toUtcMillis(), t.toUtcMillis())
-                    },
-                    label = { Text(stringResource(preset.labelRes), style = MaterialTheme.contentText) }
-                )
+        DateRangeSection(
+            from = pendingFrom,
+            to = pendingTo,
+            onRangeChange = { f, t ->
+                pendingFrom = f
+                pendingTo = t
             }
-        }
-        DateRangePicker(
-            state = state,
-            modifier = Modifier.height(460.dp),
-            showModeToggle = false
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -69,11 +49,10 @@ fun DateRangeSheet(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                enabled = startMillis != null,
+                enabled = pendingFrom != null,
                 onClick = {
-                    val start = startMillis ?: return@Button
-                    val end = state.selectedEndDateMillis ?: start
-                    onApply(start.toUtcLocalDate(), end.toUtcLocalDate())
+                    val start = pendingFrom ?: return@Button
+                    onApply(start, pendingTo ?: start)
                 }
             ) {
                 Text(stringResource(R.string.action_save))
@@ -81,7 +60,3 @@ fun DateRangeSheet(
         }
     }
 }
-
-private fun LocalDate.toUtcMillis(): Long = atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
-
-private fun Long.toUtcLocalDate(): LocalDate = Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
