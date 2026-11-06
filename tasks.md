@@ -212,7 +212,7 @@ T09–T12 bir-biridan mustaqil (T01 dan keyin istalgan tartibda).
 | T16 | Sahifalarning chap/o'ng chetidagi margin 50% ga kamayadi (token orqali) | — | — |
 | T17 | Tranzaksiya filtrlarini bitta `TransactionFilterScreen` ga jamlash + "More" menyu | T17-filter-reference | — |
 | T18 | Bar style bottom sheet + glass shaffofligi slayderi (0–100%) | — | — |
-| T19 | Color Palette bottom sheet + `PaletteRegistry` | — | — |
+| T19 | ✅ Color Palette bottom sheet + 10 enterprise palitra | — | — |
 | T20 | ~~Foydalanuvchi o'z palitrasini yaratadi~~ — BEKOR QILINDI (2026-11-06); o'rniga T19 da 10 ta tayyor enterprise palitra | — | — |
 
 ## T15 — Tranzaksiya qatori: chip olib tashlanadi, tavsif o'rniga to'lov usuli

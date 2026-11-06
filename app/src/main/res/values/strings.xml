@@ -12,7 +12,6 @@
     <string name="action_edit">Edit</string>
     <string name="action_add">Add</string>
     <string name="action_apply">Apply</string>
-    <string name="action_reset">Reset</string>
     <string name="action_close">Close</string>
     <string name="action_back">Back</string>
     <string name="action_clear">Clear</string>
@@ -63,7 +62,6 @@
     <!-- Transactions / Filters -->
     <string name="filter_category">Category</string>
     <string name="filter_currency">Currency</string>
-    <string name="display_currency">Display</string>
     <string name="filter_type">Type</string>
     <string name="filter_all">All</string>
     <string name="filter_date_range">Date Range</string>
@@ -202,10 +200,8 @@
     <string name="err_cbu_fetch_failed">Failed to fetch rates from CBU.uz</string>
     <string name="err_description_too_long">Description must be at most %1$d characters</string>
     <!-- Filter sheets -->
-    <string name="sheet_category_title">Filter by Category</string>
     <string name="sheet_search_categories">Search categories…</string>
     <string name="sheet_no_results">Nothing found</string>
-    <string name="action_apply_count">Apply (%1$d)</string>
     <string name="preset_this_month">This Month</string>
     <string name="preset_last_month">Last Month</string>
     <string name="preset_last_30_days">Last 30 Days</string>

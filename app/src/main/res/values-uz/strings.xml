@@ -12,7 +12,6 @@
     <string name="action_edit">Tahrirlash</string>
     <string name="action_add">Qo‘shish</string>
     <string name="action_apply">Qo‘llash</string>
-    <string name="action_reset">Tozalash</string>
     <string name="action_close">Yopish</string>
     <string name="action_back">Orqaga</string>
     <string name="action_clear">Tozalash</string>
@@ -62,7 +61,6 @@
     <!-- Transactions / Filters -->
     <string name="filter_category">Kategoriya</string>
     <string name="filter_currency">Valyuta</string>
-    <string name="display_currency">Ko‘rsatish</string>
     <string name="filter_type">Turi</string>
     <string name="filter_all">Hammasi</string>
     <string name="filter_date_range">Sana oralig‘i</string>
@@ -193,10 +191,8 @@
     <string name="err_cbu_fetch_failed">CBU.uz dan kurslarni yuklab bo‘lmadi</string>
     <string name="err_description_too_long">Tavsif ko‘pi bilan %1$d ta belgidan iborat bo‘lishi mumkin</string>
     <!-- Filter sheets -->
-    <string name="sheet_category_title">Kategoriya bo‘yicha filtr</string>
     <string name="sheet_search_categories">Kategoriyalarni qidirish…</string>
     <string name="sheet_no_results">Hech narsa topilmadi</string>
-    <string name="action_apply_count">Qo‘llash (%1$d)</string>
     <string name="preset_this_month">Shu oy</string>
     <string name="preset_last_month">O‘tgan oy</string>
     <string name="preset_last_30_days">Oxirgi 30 kun</string>

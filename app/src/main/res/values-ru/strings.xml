@@ -12,7 +12,6 @@
     <string name="action_edit">Редактировать</string>
     <string name="action_add">Добавить</string>
     <string name="action_apply">Применить</string>
-    <string name="action_reset">Сбросить</string>
     <string name="action_close">Закрыть</string>
     <string name="action_back">Назад</string>
     <string name="action_clear">Очистить</string>
@@ -62,7 +61,6 @@
     <!-- Transactions / Filters -->
     <string name="filter_category">Категория</string>
     <string name="filter_currency">Валюта</string>
-    <string name="display_currency">Отображение</string>
     <string name="filter_type">Тип</string>
     <string name="filter_all">Все</string>
     <string name="filter_date_range">Диапазон дат</string>
@@ -195,10 +193,8 @@
     <string name="err_cbu_fetch_failed">Не удалось загрузить курсы с CBU.uz</string>
     <string name="err_description_too_long">Описание не должно превышать %1$d символов</string>
     <!-- Filter sheets -->
-    <string name="sheet_category_title">Фильтр по категории</string>
     <string name="sheet_search_categories">Поиск категорий…</string>
     <string name="sheet_no_results">Ничего не найдено</string>
-    <string name="action_apply_count">Применить (%1$d)</string>
     <string name="preset_this_month">Этот месяц</string>
     <string name="preset_last_month">Прошлый месяц</string>
     <string name="preset_last_30_days">Последние 30 дней</string>
