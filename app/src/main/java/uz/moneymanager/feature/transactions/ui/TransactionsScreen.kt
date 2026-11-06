@@ -1,8 +1,6 @@
 package uz.moneymanager.feature.transactions.ui
 
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.paging.compose.LazyPagingItems
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.component.MmFab
 import uz.moneymanager.feature.transactions.presentation.TransactionListItemUiModel
 import uz.moneymanager.feature.transactions.presentation.TransactionsEvent
@@ -42,8 +41,7 @@ fun TransactionsScreen(
     val displayCode = uiState.displayCode
     val fallbackCode = uiState.fallbackCode
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+    MmScaffold(
         topBar = { TransactionsTopBar(onReset = { onEvent(TransactionsEvent.ResetFilters) }) },
         floatingActionButton = {
             MmFab(
@@ -68,7 +66,8 @@ fun TransactionsScreen(
             onOpenSheet = { openFilterSheet = it },
             onEdit = onNavigateToEdit,
             onDelete = { transactionToDelete = it },
-            modifier = Modifier.padding(padding)
+            listBottomPadding = padding.calculateBottomPadding(),
+            modifier = Modifier.padding(top = padding.calculateTopPadding())
         )
     }
 

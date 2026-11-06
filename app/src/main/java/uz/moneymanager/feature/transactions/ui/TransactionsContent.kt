@@ -6,6 +6,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import uz.moneymanager.feature.transactions.presentation.TransactionListItemUiModel
@@ -24,6 +25,7 @@ internal fun TransactionsContent(
     onOpenSheet: (FilterSheet) -> Unit,
     onEdit: (Long) -> Unit,
     onDelete: (TransactionListItemUiModel.Item) -> Unit,
+    listBottomPadding: Dp,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -48,7 +50,8 @@ internal fun TransactionsContent(
             items = items,
             dailyTotals = uiState.dailyTotals,
             onEdit = onEdit,
-            onDelete = onDelete
+            onDelete = onDelete,
+            bottomPadding = listBottomPadding,
         )
     }
 }

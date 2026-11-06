@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -15,6 +14,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.component.MmEmptyState
 import uz.moneymanager.core.designsystem.component.MmExtendedFab
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
@@ -36,7 +36,7 @@ fun PaymentMethodsScreen(
     onDelete: (PaymentMethodWithUsage) -> Unit,
 ) {
     val total = state.paymentMethods.size
-    Scaffold(
+    MmScaffold(
         topBar = { MmTopBar(title = stringResource(R.string.title_payment_methods), onBack = onBack) },
         floatingActionButton = {
             MmExtendedFab(text = stringResource(R.string.action_add_payment_method), onClick = onAddClick)
@@ -49,11 +49,14 @@ fun PaymentMethodsScreen(
                 message = stringResource(R.string.payment_methods_empty_hint),
                 modifier = Modifier.padding(padding)
             )
-            return@Scaffold
+            return@MmScaffold
         }
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(top = 8.dp, bottom = 88.dp),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                top = padding.calculateTopPadding() + 8.dp,
+                bottom = padding.calculateBottomPadding() + 88.dp,
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item(key = "info", contentType = "info") { PaymentMethodsInfoCard(ItemPadding) }

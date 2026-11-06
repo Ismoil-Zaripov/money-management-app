@@ -2,18 +2,16 @@ package uz.moneymanager.feature.settings.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.feature.settings.presentation.SettingsUiState
@@ -27,17 +25,15 @@ import uz.moneymanager.feature.settings.ui.component.ThemeSelector
 
 @Composable
 fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
-    Scaffold(
+    MmScaffold(
         topBar = { MmTopBar(title = stringResource(R.string.title_settings)) },
-        // The bottom bar (outer Scaffold) already owns the system-bar inset; avoid a second gap above it.
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
+            Spacer(modifier = Modifier.height(padding.calculateTopPadding()))
             MmSectionHeader(stringResource(R.string.settings_section_general))
             SettingsCard {
                 ThemeSelector(state.themeMode, callbacks.onThemeChange)
@@ -56,7 +52,7 @@ fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
                     onNavigatePaymentMethods = callbacks.onNavigatePaymentMethods,
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp + padding.calculateBottomPadding()))
         }
     }
 }

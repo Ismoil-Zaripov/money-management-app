@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -31,6 +32,7 @@ fun TransactionList(
     dailyTotals: Map<LocalDate, MonitoringTotals>,
     onEdit: (Long) -> Unit,
     onDelete: (TransactionListItemUiModel.Item) -> Unit,
+    bottomPadding: Dp = 0.dp,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         if (items.loadState.refresh is LoadState.Loading) {
@@ -40,7 +42,7 @@ fun TransactionList(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 88.dp),
+                contentPadding = PaddingValues(bottom = bottomPadding + 88.dp),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 items(

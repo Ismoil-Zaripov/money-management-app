@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -15,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.component.MmExtendedFab
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.data.local.ExchangeRateRow
@@ -38,14 +38,14 @@ fun RatesScreen(
     onEdit: (ExchangeRateRow) -> Unit,
     onDelete: (ExchangeRateRow) -> Unit,
 ) {
-    Scaffold(
+    MmScaffold(
         topBar = { MmTopBar(title = stringResource(R.string.title_exchange_rates), onBack = onBack) },
         floatingActionButton = {
             MmExtendedFab(text = stringResource(R.string.action_add_rate), onClick = onAddClick)
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+        Column(modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding())) {
             RatesDateRow(date = state.date, onDateChange = onDateChange, onPickDate = onPickDate)
             RatesImportRow(isLoading = state.isLoading, onImport = onImport)
             if (state.rates.isEmpty() && !state.isLoading) {
@@ -53,7 +53,12 @@ fun RatesScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 88.dp),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        top = 8.dp,
+                        end = 16.dp,
+                        bottom = padding.calculateBottomPadding() + 88.dp,
+                    ),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item(key = "header", contentType = "header") { RatesListHeader(state.rates.size) }

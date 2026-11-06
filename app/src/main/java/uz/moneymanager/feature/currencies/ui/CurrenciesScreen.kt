@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -14,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.component.MmExtendedFab
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.data.local.CurrencyWithUsage
@@ -30,7 +30,7 @@ fun CurrenciesScreen(
     onEdit: (CurrencyWithUsage) -> Unit,
     onDelete: (CurrencyWithUsage) -> Unit,
 ) {
-    Scaffold(
+    MmScaffold(
         topBar = { MmTopBar(title = stringResource(R.string.title_currencies), onBack = onBack) },
         floatingActionButton = {
             MmExtendedFab(text = stringResource(R.string.action_add_currency), onClick = onAddClick)
@@ -38,10 +38,13 @@ fun CurrenciesScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 88.dp),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                top = padding.calculateTopPadding() + 8.dp,
+                end = 16.dp,
+                bottom = padding.calculateBottomPadding() + 88.dp,
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item(key = "integrity_note") { CurrencyIntegrityNote() }

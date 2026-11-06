@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import uz.moneymanager.R
 import androidx.compose.material3.MaterialTheme
-import uz.moneymanager.core.designsystem.theme.barBackground
+import androidx.compose.ui.graphics.Color
 
 /** Centered title bar; shows a back arrow when [onBack] is provided. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,7 +27,7 @@ fun MmTopBar(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     CenterAlignedTopAppBar(
-        modifier = modifier,
+        modifier = modifier.barSurfaceBackground(),
         title = { Text(title, fontWeight = FontWeight.SemiBold) },
         navigationIcon = {
             if (onBack != null) {
@@ -38,8 +38,8 @@ fun MmTopBar(
         },
         actions = actions,
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.barBackground(),
-            scrolledContainerColor = MaterialTheme.colorScheme.barBackground(),
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
             actionIconContentColor = MaterialTheme.colorScheme.onSurface,

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.component.MmEmptyState
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
 import uz.moneymanager.core.designsystem.component.MmTopBar
@@ -41,7 +41,7 @@ fun CategoriesScreen(
     val visible = remember(state.categories, query) { filterCategories(state.categories, query) }
     val total = state.categories.size
 
-    Scaffold(
+    MmScaffold(
         topBar = { MmTopBar(title = stringResource(R.string.title_categories), onBack = onBack) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
@@ -51,11 +51,14 @@ fun CategoriesScreen(
                 message = stringResource(R.string.categories_empty_hint),
                 modifier = Modifier.padding(padding)
             )
-            return@Scaffold
+            return@MmScaffold
         }
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                top = padding.calculateTopPadding() + 8.dp,
+                bottom = padding.calculateBottomPadding() + 24.dp,
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item(key = "info", contentType = "info") { CategoriesInfoBanner(ItemPadding) }

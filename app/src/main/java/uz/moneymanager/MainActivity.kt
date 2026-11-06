@@ -5,11 +5,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import uz.moneymanager.ui.navigation.AppBottomNavItems
 import uz.moneymanager.ui.navigation.AppNavHost
 import uz.moneymanager.ui.navigation.BottomBar
+import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.core.designsystem.theme.SystemBarsEffect
 import uz.moneymanager.core.designsystem.theme.barSurface
@@ -66,9 +64,9 @@ fun MainAppContent() {
     val navBarColor = if (showBottomBar) MaterialTheme.colorScheme.barSurface else MaterialTheme.colorScheme.surface
     SystemBarsEffect(statusBarBackground = barColor, navBarBackground = navBarColor)
 
-    Scaffold(
+    MmScaffold(
         modifier = Modifier.fillMaxSize(),
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        provideBottomInset = true,
         bottomBar = {
             if (showBottomBar) {
                 BottomBar(
@@ -85,7 +83,7 @@ fun MainAppContent() {
                 )
             }
         }
-    ) { innerPadding ->
-        AppNavHost(navController = navController, modifier = Modifier.padding(innerPadding))
+    ) { _ ->
+        AppNavHost(navController = navController)
     }
 }
