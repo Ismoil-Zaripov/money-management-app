@@ -4,20 +4,24 @@ enum class TransactionType { INCOME, EXPENSE }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
-enum class AppPalette {
-    EMERALD, OCEAN_TEAL, ROYAL_INDIGO, WARM_CORAL, GRAPHITE_MINT;
+/** Enterprise color themes. [darkOnly] themes ignore [ThemeMode] and always render dark. */
+enum class AppPalette(val darkOnly: Boolean = false) {
+    CORPORATE_BLUE,
+    NAVY_PROFESSIONAL,
+    SLATE_NEUTRAL,
+    TEAL_FINANCE,
+    FOREST_GREEN,
+    AUBERGINE,
+    DARK_SLATE(darkOnly = true),
+    HIGH_CONTRAST,
+    BURGUNDY,
+    GRAPHITE_RED(darkOnly = true);
 
     companion object {
-        val DEFAULT = EMERALD
+        val DEFAULT = CORPORATE_BLUE
 
-        /** Maps a stored name (including legacy names from older versions) to a palette. */
-        fun fromStored(value: String?): AppPalette = when (value) {
-            "OCEAN" -> OCEAN_TEAL
-            "VIOLET" -> ROYAL_INDIGO
-            "SUNSET" -> WARM_CORAL
-            "GRAPHITE" -> GRAPHITE_MINT
-            else -> entries.firstOrNull { it.name == value } ?: DEFAULT
-        }
+        /** Maps a stored name to a palette; unknown or removed (older) names fall back to [DEFAULT]. */
+        fun fromStored(value: String?): AppPalette = entries.firstOrNull { it.name == value } ?: DEFAULT
     }
 }
 

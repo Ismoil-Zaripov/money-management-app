@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import uz.moneymanager.R
 import androidx.compose.material3.MaterialTheme
+import uz.moneymanager.core.designsystem.theme.onBarSurface
 import androidx.compose.ui.graphics.Color
 
 /** Centered title bar; shows a back arrow when [onBack] is provided. */
@@ -40,9 +41,9 @@ fun MmTopBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.Transparent,
             scrolledContainerColor = Color.Transparent,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+            titleContentColor = MaterialTheme.colorScheme.onBarSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.onBarSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onBarSurface,
         ),
     )
 }

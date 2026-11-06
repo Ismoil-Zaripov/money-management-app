@@ -158,11 +158,6 @@
     <string name="title_transactions">Transactions</string>
     <string name="setting_palette">Color Palette</string>
     <string name="desc_palette">Select an accent color palette</string>
-    <string name="palette_ocean_teal">Ocean Teal</string>
-    <string name="palette_emerald">Emerald</string>
-    <string name="palette_royal_indigo">Royal Indigo</string>
-    <string name="palette_warm_coral">Warm Coral</string>
-    <string name="palette_graphite_mint">Graphite Mint</string>
 
     <string name="setting_font_size">Font Size</string>
     <string name="desc_font_size">Adjust content text size across the app</string>
@@ -297,4 +292,14 @@
     <string name="bar_style_transparency">Transparency</string>
     <string name="bar_transparency_value">%1$d%%</string>
     <string name="bar_style_blur_note">Blur works on Android 12 and newer; older devices show the translucent tint only.</string>
+    <string name="palette_corporate_blue">Corporate Blue</string>
+    <string name="palette_navy_professional">Navy Professional</string>
+    <string name="palette_slate_neutral">Slate Neutral</string>
+    <string name="palette_teal_finance">Teal Finance</string>
+    <string name="palette_forest_green">Forest Green</string>
+    <string name="palette_aubergine">Aubergine</string>
+    <string name="palette_dark_slate">Dark Slate</string>
+    <string name="palette_high_contrast">High Contrast</string>
+    <string name="palette_burgundy">Burgundy</string>
+    <string name="palette_graphite_red">Graphite + Red</string>
 </resources>

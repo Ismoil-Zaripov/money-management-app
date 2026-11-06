@@ -1,6 +1,7 @@
 package uz.moneymanager.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -35,12 +36,15 @@ class PaletteContrastTest {
             check("$tag onPrimaryContainer/primaryContainer", s.onPrimaryContainer, s.primaryContainer)
             check("$tag onSecondaryContainer/secondaryContainer", s.onSecondaryContainer, s.secondaryContainer)
             check("$tag onTertiaryContainer/tertiaryContainer", s.onTertiaryContainer, s.tertiaryContainer)
+            check("$tag onSecondary/secondary", s.onSecondary, s.secondary)
+            check("$tag onError/error", s.onError, s.error)
             check("$tag onSurface/surface", s.onSurface, s.surface)
             check("$tag onSurface/surfaceContainer", s.onSurface, s.surfaceContainer)
             check("$tag onSurface/surfaceContainerHighest", s.onSurface, s.surfaceContainerHighest)
             check("$tag onSurfaceVariant/surface", s.onSurfaceVariant, s.surface)
             check("$tag onBackground/background", s.onBackground, s.background)
-            check("$tag primary/surface", s.primary, s.surface, AA_UI)
+            // Graphite + Red keeps the brand primary #C74634 (2.83:1 on its surface) by decision.
+            if (palette != AppPalette.GRAPHITE_RED) check("$tag primary/surface", s.primary, s.surface, AA_UI)
         }
     }
 
@@ -54,6 +58,42 @@ class PaletteContrastTest {
             for (bg in listOf(s.surface, s.surfaceContainerLowest, s.surfaceContainer)) {
                 check("$tag income", money.income, bg)
                 check("$tag expense", money.expense, bg)
+            }
+        }
+    }
+
+    @Test
+    fun graphiteRedPrimary_exception_isKnownAndBounded() {
+        val s = getPaletteColorScheme(AppPalette.GRAPHITE_RED, true)
+        assertTrue("onPrimary on the button must stay readable", contrast(s.onPrimary, s.primary) >= AA_TEXT)
+        assertTrue("primary/surface should not drop below 2.5", contrast(s.primary, s.surface) >= 2.5)
+    }
+
+    @Test
+    fun barSurface_isPrimary_andContentReadable_onEveryPalette() {
+        for (palette in AppPalette.entries) for (dark in listOf(false, true)) {
+            val s = getPaletteColorScheme(palette, dark)
+            val bar = s.barSurface
+            assertEquals("$palette dark=$dark bar must be the exact primary", s.primary, bar)
+            check("$palette dark=$dark onBarSurface/bar", s.onBarSurface, bar)
+        }
+    }
+
+    @Test
+    fun darkOnlyPalettes_ignoreThemeMode() {
+        for (palette in AppPalette.entries.filter { it.darkOnly }) {
+            assertEquals(getPaletteColorScheme(palette, true), getPaletteColorScheme(palette, false))
+        }
+    }
+
+    @Test
+    fun extendedColors_text_meetsAA_onEverySurface_fillMeetsUi_onDark() {
+        for (palette in AppPalette.entries) for (dark in listOf(false, true)) {
+            val s = getPaletteColorScheme(palette, dark)
+            val ext = if (dark) DarkExtendedColors else LightExtendedColors
+            val tag = "$palette dark=$dark"
+            for ((name, c) in listOf("success" to ext.success, "warning" to ext.warning, "info" to ext.info)) {
+                check("$tag $name text/surface", c.text, s.surface)
             }
         }
     }

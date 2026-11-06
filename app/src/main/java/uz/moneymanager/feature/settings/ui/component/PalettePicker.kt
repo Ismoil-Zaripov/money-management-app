@@ -2,6 +2,8 @@ package uz.moneymanager.feature.settings.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.domain.model.AppPalette
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun PalettePicker(selected: AppPalette, onSelect: (AppPalette) -> Unit) {
     Column(
@@ -37,10 +40,10 @@ internal fun PalettePicker(selected: AppPalette, onSelect: (AppPalette) -> Unit)
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Row(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
             AppPalette.entries.forEach { p ->

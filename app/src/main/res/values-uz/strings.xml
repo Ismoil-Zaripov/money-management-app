@@ -157,11 +157,6 @@
     <string name="title_transactions">Tranzaksiyalar</string>
     <string name="setting_palette">Ranglar palitrasi</string>
     <string name="desc_palette">Ilova uchun asosiy rang palitrasi</string>
-    <string name="palette_ocean_teal">Okean feruzasi</string>
-    <string name="palette_emerald">Zumrad</string>
-    <string name="palette_royal_indigo">Qirollik indigosi</string>
-    <string name="palette_warm_coral">Iliq marjon</string>
-    <string name="palette_graphite_mint">Grafit yalpiz</string>
 
     <string name="setting_font_size">Shrift o‘lchami</string>
     <string name="desc_font_size">Ilovadagi kontent matnlari o‘lchamini sozlash</string>
@@ -288,4 +283,14 @@
     <string name="bar_style_transparency">Shaffoflik</string>
     <string name="bar_transparency_value">%1$d%%</string>
     <string name="bar_style_blur_note">Xiralashtirish Android 12 va undan yangisida ishlaydi; eski qurilmalarda faqat shaffof rang ko‘rinadi.</string>
+    <string name="palette_corporate_blue">Korporativ ko\'k</string>
+    <string name="palette_navy_professional">Dengiz floti</string>
+    <string name="palette_slate_neutral">Slate neytral</string>
+    <string name="palette_teal_finance">Moliyaviy feruza</string>
+    <string name="palette_forest_green">O\'rmon yashili</string>
+    <string name="palette_aubergine">Baqlajon</string>
+    <string name="palette_dark_slate">Qorong\'i slate</string>
+    <string name="palette_high_contrast">Yuqori kontrast</string>
+    <string name="palette_burgundy">Bordo</string>
+    <string name="palette_graphite_red">Grafit + qizil</string>
 </resources>

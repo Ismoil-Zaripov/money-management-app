@@ -15,7 +15,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -31,7 +30,7 @@ import uz.moneymanager.domain.model.ThemeMode
 val IncomeLight = Color(0xFF2A782E)
 val IncomeDark = Color(0xFF66BB6A)
 val ExpenseLight = Color(0xFFC62828)
-val ExpenseDark = Color(0xFFEF5350)
+val ExpenseDark = Color(0xFFF58886)
 
 val IncomeColor: Color
     @Composable
@@ -58,9 +57,13 @@ fun glassTintAlpha(transparencyPercent: Int): Float =
 fun ColorScheme.barBackground(): Color =
     if (LocalBarStyle.current == BarStyle.GLASS) barSurface.copy(alpha = glassTintAlpha(LocalGlassTransparency.current)) else barSurface
 
-/** Tinted surface for the top app bar and bottom navigation bar, so they read as distinct from the screen background. */
+/** Top app bar and bottom navigation bar are painted with the palette primary itself. */
 val ColorScheme.barSurface: Color
-    get() = primary.copy(alpha = 0.14f).compositeOver(surface)
+    get() = primary
+
+/** Title, icon and label color on [barSurface]. */
+val ColorScheme.onBarSurface: Color
+    get() = onPrimary
 
 val LocalContentFontSize = staticCompositionLocalOf { SettingsRepository.DEFAULT_FONT_SIZE }
 
@@ -106,15 +109,16 @@ fun SystemBarsEffect(statusBarBackground: Color, navBarBackground: Color) {
 @Composable
 fun MoneyManagerTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
-    palette: AppPalette = AppPalette.EMERALD,
+    palette: AppPalette = AppPalette.DEFAULT,
     contentFontSize: Int = SettingsRepository.DEFAULT_FONT_SIZE,
     barStyle: BarStyle = BarStyle.DEFAULT,
     glassTransparency: Int = SettingsRepository.DEFAULT_GLASS_TRANSPARENCY,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val darkTheme = when (themeMode) {
-        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    val systemDark = isSystemInDarkTheme()
+    val darkTheme = palette.darkOnly || when (themeMode) {
+        ThemeMode.SYSTEM -> systemDark
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
     }
@@ -136,6 +140,7 @@ fun MoneyManagerTheme(
             LocalBarStyle provides barStyle,
             LocalGlassTransparency provides glassTransparency,
             LocalMoneyColors provides if (darkTheme) DarkMoneyColors else LightMoneyColors,
+            LocalExtendedColors provides if (darkTheme) DarkExtendedColors else LightExtendedColors,
             content = content,
         )
     }

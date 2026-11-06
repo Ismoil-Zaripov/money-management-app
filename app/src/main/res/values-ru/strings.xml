@@ -159,11 +159,6 @@
     <string name="title_transactions">Транзакции</string>
     <string name="setting_palette">Цветовая палитра</string>
     <string name="desc_palette">Выбор цветовой палитры приложения</string>
-    <string name="palette_ocean_teal">Океанская бирюза</string>
-    <string name="palette_emerald">Изумруд</string>
-    <string name="palette_royal_indigo">Королевский индиго</string>
-    <string name="palette_warm_coral">Тёплый коралл</string>
-    <string name="palette_graphite_mint">Графитовая мята</string>
 
     <string name="setting_font_size">Размер шрифта</string>
     <string name="desc_font_size">Настройка размера текста контента в приложении</string>
@@ -312,4 +307,14 @@
     <string name="bar_style_transparency">Прозрачность</string>
     <string name="bar_transparency_value">%1$d%%</string>
     <string name="bar_style_blur_note">Размытие работает на Android 12 и новее; на старых устройствах виден только полупрозрачный оттенок.</string>
+    <string name="palette_corporate_blue">Корпоративный синий</string>
+    <string name="palette_navy_professional">Тёмно-синий профессиональный</string>
+    <string name="palette_slate_neutral">Нейтральный сланец</string>
+    <string name="palette_teal_finance">Финансовая бирюза</string>
+    <string name="palette_forest_green">Лесной зелёный</string>
+    <string name="palette_aubergine">Баклажан</string>
+    <string name="palette_dark_slate">Тёмный сланец</string>
+    <string name="palette_high_contrast">Высокий контраст</string>
+    <string name="palette_burgundy">Бордовый</string>
+    <string name="palette_graphite_red">Графит + красный</string>
 </resources>

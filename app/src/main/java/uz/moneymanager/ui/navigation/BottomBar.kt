@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import uz.moneymanager.core.designsystem.component.MmPreviewHost
 import uz.moneymanager.core.designsystem.component.MmPreviews
 import uz.moneymanager.core.designsystem.component.barSurfaceBackground
+import uz.moneymanager.core.designsystem.theme.barSurface
+import uz.moneymanager.core.designsystem.theme.onBarSurface
 
 val AppBottomNavItems = listOf(
     BottomNavItem.Transactions,
@@ -34,7 +36,7 @@ fun BottomBar(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.barSurfaceBackground()) {
-        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.onBarSurface.copy(alpha = 0.2f))
         NavigationBar(
             containerColor = Color.Transparent,
             tonalElevation = 0.dp,
@@ -47,11 +49,11 @@ fun BottomBar(
                     icon = { Icon(item.icon, contentDescription = stringResource(item.titleRes)) },
                     label = { Text(stringResource(item.titleRes)) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                        selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                        indicatorColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        selectedIconColor = MaterialTheme.colorScheme.barSurface,
+                        selectedTextColor = MaterialTheme.colorScheme.onBarSurface,
+                        indicatorColor = MaterialTheme.colorScheme.onBarSurface,
+                        unselectedIconColor = MaterialTheme.colorScheme.onBarSurface,
+                        unselectedTextColor = MaterialTheme.colorScheme.onBarSurface,
                     ),
                 )
             }

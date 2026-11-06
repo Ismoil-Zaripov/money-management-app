@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.core.designsystem.theme.barSurface
+import uz.moneymanager.core.designsystem.theme.onBarSurface
 import uz.moneymanager.core.designsystem.theme.glassTintAlpha
 import uz.moneymanager.domain.model.BarStyle
 
@@ -52,7 +53,7 @@ internal fun BarStylePreview(style: BarStyle, transparencyPercent: Int, modifier
                     .align(Alignment.Center)
                     .size(width = 56.dp, height = 6.dp)
                     .clip(RoundedCornerShape(3.dp))
-                    .background(scheme.onSurface.copy(alpha = 0.6f))
+                    .background(scheme.onBarSurface.copy(alpha = 0.6f))
             )
         }
     }
