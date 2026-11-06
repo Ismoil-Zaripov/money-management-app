@@ -145,9 +145,6 @@
     <string name="settings_section_general">Umumiy</string>
     <string name="settings_section_management">Ma’lumotlar boshqaruvi</string>
     <string name="setting_theme">Mavzu</string>
-    <string name="setting_bar_style">Panel uslubi</string>
-    <string name="bar_style_tinted">Rangli</string>
-    <string name="bar_style_glass">Shisha</string>
     <string name="setting_language">Til</string>
     <string name="theme_system">Tizim bo‘yicha</string>
     <string name="theme_light">Yorug‘</string>
@@ -277,9 +274,6 @@
         <item quantity="one">%d ta natijani ko‘rsatish</item>
         <item quantity="other">%d ta natijani ko‘rsatish</item>
     </plurals>
-    <string name="bar_style_transparency">Shaffoflik</string>
-    <string name="bar_transparency_value">%1$d%%</string>
-    <string name="bar_style_blur_note">Xiralashtirish Android 12 va undan yangisida ishlaydi; eski qurilmalarda faqat shaffof rang ko‘rinadi.</string>
     <string name="palette_corporate_blue">Korporativ ko\'k</string>
     <string name="palette_navy_professional">Dengiz floti</string>
     <string name="palette_slate_neutral">Slate neytral</string>

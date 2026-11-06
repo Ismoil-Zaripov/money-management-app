@@ -19,8 +19,6 @@ import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.feature.settings.presentation.SettingsUiState
-import uz.moneymanager.feature.settings.ui.component.BarStyleSetting
-import uz.moneymanager.feature.settings.ui.sheet.BarStyleSheet
 import uz.moneymanager.feature.settings.ui.sheet.PaletteSheet
 import uz.moneymanager.feature.settings.ui.component.DataManagementSection
 import uz.moneymanager.feature.settings.ui.component.FontSizeSetting
@@ -31,7 +29,6 @@ import uz.moneymanager.feature.settings.ui.component.ThemeSelector
 
 @Composable
 fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
-    var showBarStyleSheet by rememberSaveable { mutableStateOf(false) }
     var showPaletteSheet by rememberSaveable { mutableStateOf(false) }
     MmScaffold(
         topBar = { MmTopBar(title = stringResource(R.string.title_settings)) },
@@ -46,7 +43,6 @@ fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
             SettingsCard {
                 ThemeSelector(state.themeMode, callbacks.onThemeChange)
                 PaletteSetting(state.palette) { showPaletteSheet = true }
-                BarStyleSetting(state.barStyle, state.glassTransparency) { showBarStyleSheet = true }
                 FontSizeSetting(state.contentFontSize, callbacks.onFontSizeChange, callbacks.onFontSizeReset)
                 LanguageSelector(state.language, callbacks.onLanguageChange)
             }
@@ -62,16 +58,6 @@ fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
             }
             Spacer(modifier = Modifier.height(16.dp + padding.calculateBottomPadding()))
         }
-    }
-
-    if (showBarStyleSheet) {
-        BarStyleSheet(
-            style = state.barStyle,
-            glassTransparency = state.glassTransparency,
-            onStyleChange = callbacks.onBarStyleChange,
-            onTransparencyChange = callbacks.onGlassTransparencyChange,
-            onDismiss = { showBarStyleSheet = false }
-        )
     }
 
     if (showPaletteSheet) {

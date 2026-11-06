@@ -147,9 +147,6 @@
     <string name="settings_section_general">Общие</string>
     <string name="settings_section_management">Управление данными</string>
     <string name="setting_theme">Тема оформления</string>
-    <string name="setting_bar_style">Стиль панелей</string>
-    <string name="bar_style_tinted">Тонированный</string>
-    <string name="bar_style_glass">Стекло</string>
     <string name="setting_language">Язык</string>
     <string name="theme_system">Системная</string>
     <string name="theme_light">Светлая</string>
@@ -301,9 +298,6 @@
         <item quantity="many">Показать %d результатов</item>
         <item quantity="other">Показать %d результата</item>
     </plurals>
-    <string name="bar_style_transparency">Прозрачность</string>
-    <string name="bar_transparency_value">%1$d%%</string>
-    <string name="bar_style_blur_note">Размытие работает на Android 12 и новее; на старых устройствах виден только полупрозрачный оттенок.</string>
     <string name="palette_corporate_blue">Корпоративный синий</string>
     <string name="palette_navy_professional">Тёмно-синий профессиональный</string>
     <string name="palette_slate_neutral">Нейтральный сланец</string>

@@ -49,8 +49,6 @@ class MainActivity : AppCompatActivity() {
                     themeMode = s.themeMode,
                     palette = s.palette,
                     contentFontSize = s.contentFontSize,
-                    barStyle = s.barStyle,
-                    glassTransparency = s.glassTransparency,
                 ) {
                     MainAppContent()
                 }

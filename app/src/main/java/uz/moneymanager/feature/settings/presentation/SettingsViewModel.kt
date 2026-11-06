@@ -14,7 +14,6 @@ import uz.moneymanager.data.repository.LanguageStore
 import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.domain.model.AppLanguage
 import uz.moneymanager.domain.model.AppPalette
-import uz.moneymanager.domain.model.BarStyle
 import uz.moneymanager.domain.model.ThemeMode
 
 @HiltViewModel
@@ -34,8 +33,6 @@ class SettingsViewModel @Inject constructor(
             themeMode = settings.themeMode,
             palette = settings.palette,
             contentFontSize = settings.contentFontSize,
-            barStyle = settings.barStyle,
-            glassTransparency = settings.glassTransparency,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsUiState(language = languageStore.current()))
 
@@ -45,14 +42,6 @@ class SettingsViewModel @Inject constructor(
 
     fun setPalette(palette: AppPalette) {
         viewModelScope.launch { settingsRepository.setPalette(palette) }
-    }
-
-    fun setBarStyle(style: BarStyle) {
-        viewModelScope.launch { settingsRepository.setBarStyle(style) }
-    }
-
-    fun setBarGlassTransparency(percent: Int) {
-        viewModelScope.launch { settingsRepository.setBarGlassTransparency(percent) }
     }
 
     fun setContentFontSize(size: Int) {

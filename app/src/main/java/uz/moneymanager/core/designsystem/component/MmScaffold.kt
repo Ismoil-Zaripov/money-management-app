@@ -12,15 +12,13 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import uz.moneymanager.core.designsystem.theme.LocalBarStyle
-import uz.moneymanager.domain.model.BarStyle
 
 /** Height of the app-level bottom navigation bar that overlays the current screen (0 on screens without it). */
 private val LocalOuterBottomInset = compositionLocalOf { 0.dp }
 
 /**
  * Scaffold whose content fills the whole area and scrolls under the bars; use the passed padding as
- * `contentPadding`. In the glass bar style the bars blur the content behind them.
+ * `contentPadding`.
  *
  * @param provideBottomInset true for the app-level scaffold: its bottom bar height is added to the
  *   bottom padding of every screen scaffold inside it.
@@ -35,24 +33,18 @@ fun MmScaffold(
     provideBottomInset: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val glass = rememberGlassState()
-    val isGlass = LocalBarStyle.current == BarStyle.GLASS
     val outerBottom: Dp = LocalOuterBottomInset.current
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { CompositionLocalProvider(LocalGlassState provides glass, content = topBar) },
-        bottomBar = {
-            CompositionLocalProvider(LocalGlassState provides glass) {
-                Box(Modifier.padding(bottom = outerBottom)) { bottomBar() }
-            }
-        },
+        topBar = topBar,
+        bottomBar = { Box(Modifier.padding(bottom = outerBottom)) { bottomBar() } },
         snackbarHost = snackbarHost,
         floatingActionButton = floatingActionButton,
     ) { padding ->
         val inset = if (provideBottomInset) padding.calculateBottomPadding() else 0.dp
         CompositionLocalProvider(LocalOuterBottomInset provides inset) {
-            Box(Modifier.fillMaxSize().glassSource(glass, enabled = isGlass)) { content(padding) }
+            Box(Modifier.fillMaxSize()) { content(padding) }
         }
     }
 }

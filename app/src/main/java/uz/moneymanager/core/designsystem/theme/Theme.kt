@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.domain.model.AppPalette
-import uz.moneymanager.domain.model.BarStyle
 import uz.moneymanager.domain.model.ThemeMode
 
 // Income / Expense colors
@@ -41,21 +40,6 @@ val ExpenseColor: Color
     @Composable
     @ReadOnlyComposable
     get() = LocalMoneyColors.current.expense
-
-val LocalBarStyle = staticCompositionLocalOf { BarStyle.DEFAULT }
-
-/** Glass bar transparency in percent (0 = opaque tint, 100 = fully transparent tint). */
-val LocalGlassTransparency = staticCompositionLocalOf { SettingsRepository.DEFAULT_GLASS_TRANSPARENCY }
-
-/** Alpha of the glass bars' tint for a transparency percent; the rest is the blurred content showing through. */
-fun glassTintAlpha(transparencyPercent: Int): Float =
-    1f - SettingsRepository.clampGlassTransparency(transparencyPercent) / 100f
-
-/** Container color of the top/bottom bars for the current [BarStyle]. */
-@Composable
-@ReadOnlyComposable
-fun ColorScheme.barBackground(): Color =
-    if (LocalBarStyle.current == BarStyle.GLASS) barSurface.copy(alpha = glassTintAlpha(LocalGlassTransparency.current)) else barSurface
 
 /** Top app bar and bottom navigation bar are painted with the palette primary itself. */
 val ColorScheme.barSurface: Color
@@ -111,8 +95,6 @@ fun MoneyManagerTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
     palette: AppPalette = AppPalette.DEFAULT,
     contentFontSize: Int = SettingsRepository.DEFAULT_FONT_SIZE,
-    barStyle: BarStyle = BarStyle.DEFAULT,
-    glassTransparency: Int = SettingsRepository.DEFAULT_GLASS_TRANSPARENCY,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
@@ -137,8 +119,6 @@ fun MoneyManagerTheme(
     ) {
         CompositionLocalProvider(
             LocalContentFontSize provides contentFontSize,
-            LocalBarStyle provides barStyle,
-            LocalGlassTransparency provides glassTransparency,
             LocalMoneyColors provides if (darkTheme) DarkMoneyColors else LightMoneyColors,
             LocalExtendedColors provides if (darkTheme) DarkExtendedColors else LightExtendedColors,
             content = content,
