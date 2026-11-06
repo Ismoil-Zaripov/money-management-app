@@ -274,4 +274,30 @@
         <item quantity="many">%d транзакций</item>
         <item quantity="other">%d транзакции</item>
     </plurals>
+
+    <!-- Payment Methods redesign -->
+    <string name="payment_methods_info_title">Защищённый способ по умолчанию</string>
+    <string name="payment_methods_info_body">Используются для учёта денежных потоков, электронных кошельков и банковских счетов. Способ по умолчанию защищён и не может быть удалён.</string>
+    <string name="payment_methods_section_title">Активные способы</string>
+    <string name="payment_methods_empty_hint">Добавьте карты, кошельки или банковские счета, чтобы точно помечать транзакции.</string>
+    <string name="payment_method_protected">Защищён</string>
+    <string name="payment_method_unused">Не используется</string>
+    <plurals name="payment_methods_registered_count">
+        <item quantity="one">%d способ</item>
+        <item quantity="few">%d способа</item>
+        <item quantity="many">%d способов</item>
+        <item quantity="other">%d способа</item>
+    </plurals>
+    <plurals name="payment_method_transactions_count">
+        <item quantity="one">%d транзакция</item>
+        <item quantity="few">%d транзакции</item>
+        <item quantity="many">%d транзакций</item>
+        <item quantity="other">%d транзакции</item>
+    </plurals>
+    <plurals name="payment_method_linked_records">
+        <item quantity="one">Название обновится в %d связанной транзакции</item>
+        <item quantity="few">Название обновится в %d связанных транзакциях</item>
+        <item quantity="many">Название обновится в %d связанных транзакциях</item>
+        <item quantity="other">Название обновится в %d связанных транзакциях</item>
+    </plurals>
 </resources>

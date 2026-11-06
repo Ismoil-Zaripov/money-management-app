@@ -3,6 +3,7 @@ package uz.moneymanager.ui
 import android.content.Context
 import android.content.res.Configuration
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -196,7 +197,7 @@ class PaymentMethodsComposeUiTest {
         val saveText = context.getString(R.string.action_save)
         val editDesc = context.getString(R.string.action_edit)
         val deleteDesc = context.getString(R.string.action_delete)
-        val zeroTxText = context.getString(R.string.payment_method_tx_count, 0)
+        val zeroTxText = context.resources.getQuantityString(R.plurals.payment_method_transactions_count, 0, 0)
 
         // 1. Screen title, Cash, Transfer, and "Standart" (Default) badge are displayed
         composeTestRule.onNodeWithText(titleText).assertIsDisplayed()
@@ -210,7 +211,7 @@ class PaymentMethodsComposeUiTest {
         composeTestRule.onAllNodesWithContentDescription(deleteDesc)[1].assertIsEnabled()
 
         // 2. Add new payment method "Humo"
-        composeTestRule.onNodeWithContentDescription(addMethodDesc).performClick()
+        composeTestRule.onNodeWithText(addMethodDesc).performClick()
         composeTestRule.onNode(hasSetTextAction()).performTextReplacement("Humo")
         composeTestRule.onNodeWithText(saveText).performClick()
 
@@ -313,7 +314,7 @@ class PaymentMethodsComposeUiTest {
             }
         }
 
-        val oneTxText = context.getString(R.string.payment_method_tx_count, 1)
+        val oneTxText = context.resources.getQuantityString(R.plurals.payment_method_transactions_count, 1, 1)
         val deleteDesc = context.getString(R.string.action_delete)
         val expectedInUseMsg = context.getString(R.string.err_payment_method_in_use, "Transfer")
 
@@ -356,12 +357,12 @@ class PaymentMethodsComposeUiTest {
         val cancelText = context.getString(R.string.action_cancel)
 
         // 1. Open Add Dialog and type "Click", then emulate configuration change
-        composeTestRule.onNodeWithContentDescription(addMethodDesc).performClick()
+        composeTestRule.onNodeWithText(addMethodDesc).performClick()
         composeTestRule.onNode(hasSetTextAction()).performTextReplacement("Click")
         restorationTester.emulateSavedInstanceStateRestore()
 
         // Add Dialog and its typed text "Click" remain displayed
-        composeTestRule.onNodeWithText(addMethodDesc).assertIsDisplayed()
+        composeTestRule.onAllNodesWithText(addMethodDesc).assertCountEquals(2) // FAB label + dialog title
         composeTestRule.onNodeWithText("Click").assertIsDisplayed()
         composeTestRule.onNodeWithText(cancelText).performClick()
 

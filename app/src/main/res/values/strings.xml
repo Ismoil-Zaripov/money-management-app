@@ -267,4 +267,24 @@
         <item quantity="one">%d transaction</item>
         <item quantity="other">%d transactions</item>
     </plurals>
+
+    <!-- Payment Methods redesign -->
+    <string name="payment_methods_info_title">System-protected default</string>
+    <string name="payment_methods_info_body">Used to categorize cash flows, digital wallets and bank accounts. The default method is protected and cannot be deleted.</string>
+    <string name="payment_methods_section_title">Active channels</string>
+    <string name="payment_methods_empty_hint">Add your cards, wallets or bank accounts to tag transactions precisely.</string>
+    <string name="payment_method_protected">Protected</string>
+    <string name="payment_method_unused">Unused</string>
+    <plurals name="payment_methods_registered_count">
+        <item quantity="one">%d registered</item>
+        <item quantity="other">%d registered</item>
+    </plurals>
+    <plurals name="payment_method_transactions_count">
+        <item quantity="one">%d transaction</item>
+        <item quantity="other">%d transactions</item>
+    </plurals>
+    <plurals name="payment_method_linked_records">
+        <item quantity="one">This will update the name across %d linked transaction</item>
+        <item quantity="other">This will update the name across %d linked transactions</item>
+    </plurals>
 </resources>

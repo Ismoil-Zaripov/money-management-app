@@ -16,6 +16,7 @@ fun MmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     dismissText: String? = null,
+    confirmEnabled: Boolean = true,
     content: @Composable () -> Unit = {},
 ) {
     AlertDialog(
@@ -23,7 +24,7 @@ fun MmDialog(
         shape = RoundedCornerShape(28.dp),
         title = { Text(title) },
         text = content,
-        confirmButton = { TextButton(onClick = onConfirm) { Text(confirmText) } },
+        confirmButton = { TextButton(onClick = onConfirm, enabled = confirmEnabled) { Text(confirmText) } },
         dismissButton = dismissText?.let { { TextButton(onClick = onDismiss) { Text(it) } } },
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     )

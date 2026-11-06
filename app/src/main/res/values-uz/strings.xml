@@ -258,4 +258,24 @@
         <item quantity="one">%d ta tranzaksiya</item>
         <item quantity="other">%d ta tranzaksiya</item>
     </plurals>
+
+    <!-- Payment Methods redesign -->
+    <string name="payment_methods_info_title">Tizim himoyalagan standart usul</string>
+    <string name="payment_methods_info_body">Pul oqimlari, elektron hamyonlar va bank hisoblarini turkumlash uchun ishlatiladi. Standart usul himoyalangan va uni o‘chirib bo‘lmaydi.</string>
+    <string name="payment_methods_section_title">Faol usullar</string>
+    <string name="payment_methods_empty_hint">Tranzaksiyalarni aniq belgilash uchun kartalar, hamyonlar yoki bank hisoblarini qo‘shing.</string>
+    <string name="payment_method_protected">Himoyalangan</string>
+    <string name="payment_method_unused">Ishlatilmagan</string>
+    <plurals name="payment_methods_registered_count">
+        <item quantity="one">%d ta usul</item>
+        <item quantity="other">%d ta usul</item>
+    </plurals>
+    <plurals name="payment_method_transactions_count">
+        <item quantity="one">%d ta tranzaksiya</item>
+        <item quantity="other">%d ta tranzaksiya</item>
+    </plurals>
+    <plurals name="payment_method_linked_records">
+        <item quantity="one">Nom %d ta bog‘langan tranzaksiyada yangilanadi</item>
+        <item quantity="other">Nom %d ta bog‘langan tranzaksiyada yangilanadi</item>
+    </plurals>
 </resources>
