@@ -6,7 +6,7 @@
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
 **Oxirgi yangilanish:** 2026-11-06 (T18 ✅: bar style bottom sheet + glass slayder; T17 ✅: filtr ekrani + More menyu; T16 ✅: sahifa chekkalari 8dp; T15 ✅: qatorda chip yo'q, ikkinchi qatorda to'lov usuli; T14 ✅ yopildi; (A),(B),(C) bajarildi: statik audit, uzun fayl/composable'lar bo'lindi, touch target, README, ishlatilmagan stringlar; (B) run-checks EXIT_CODE=0. Qo'lda tekshiruvlar kutilmoqda; T14 dan keyin: bar uslubi sozlamasi va glass blur qo'shildi, foydalanuvchi ekranda tasdiqladi)
-**Keyingi task:** T19 — Color Palette bottom sheet + `PaletteRegistry` (Sprint 2, `tasks.md` oxirida). T15–T18 ✅. Tavsiya etilgan tartib: T19 → T20.
+**Keyingi task:** T19 — Color Palette bottom sheet + `PaletteRegistry` + 10 ta enterprise palitra (Sprint 2, `tasks.md` oxirida). T15–T18 ✅, T20 bekor qilingan. Palitra ro'yxatini foydalanuvchi beradi.
 
 ---
 
@@ -34,7 +34,7 @@
 | T17 | TransactionFilterScreen + More menyu (Sprint 2) | ✅ | 2026-11-06 | 8756941 (A: bo'limlar + `TransactionFilterDraft`), 6d04d77 (B: filtr ekrani, More menyu, chiplar qatori olib tashlandi), (C) shu commit |
 | T18 | Bar style bottom sheet + glass shaffofligi slayderi (Sprint 2) | ✅ | 2026-11-06 | d8cccc1 (A: `LocalGlassTransparency`, sozlama kaliti), 7a84f73 (B: `BarStyleSheet` + slayder), (C) shu commit |
 | T19 | Color Palette bottom sheet + PaletteRegistry (Sprint 2) | ⬜ | 2026-11-06 | — |
-| T20 | Foydalanuvchi o'z palitrasini yaratadi (Sprint 2) | ⬜ | 2026-11-06 | — |
+| T20 | Foydalanuvchi o'z palitrasini yaratadi (Sprint 2) | ➖ | 2026-11-06 | Foydalanuvchi qarori: bekor qilindi; o'rniga T19 da 10 ta tayyor enterprise palitra |
 
 ---
 
@@ -102,7 +102,7 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 - T16 (foydalanuvchi qarori, 2026-11-06): sahifalarning chap/o'ng tashqi margini 50% ga kamaytirish (16→8dp); AppBar va bottom navbar o'zgarmaydi.
 - T17 (foydalanuvchi qarori, 2026-11-06): Transactions'dagi "+" FAB olib tashlanadi (yuqoridagi "+ FAB Transactions'da" qarorini almashtiradi); "Add transaction" va "Filter" AppBar'dagi "More" (⋮) bottom sheet'iga o'tadi. Filtr ekrani — full-height bottom sheet, draft + "Show N Results"; filtrlar baribir bitta tanlovli. Chiplar qatori Transactions sahifasidan butunlay olib tashlanadi, faol filtrlar faqat filtr ekranida ko'rinadi; Display currency filtr ekranidagi alohida bo'limda.
 - T18 (foydalanuvchi qarori, 2026-11-06): Settings'da Bar style bottom sheet'da; glass bar shaffofligi 0–100% slayder bilan sozlanadi (`GlassBarAlpha` qattiq qiymati o'rniga sozlama).
-- T19/T20 (foydalanuvchi qarori, 2026-11-06): palitra tanlash Settings'da bottom sheet'da (T08 dagi inline tanlagich almashtiriladi); palitralar registry'dan; foydalanuvchi ilova ichida o'z palitrasini yaratadi (DataStore, DB sxemasi o'zgarmaydi).
+- T19 (foydalanuvchi qarori, 2026-11-06): palitra tanlash Settings'da bottom sheet'da (T08 dagi inline tanlagich almashtiriladi); palitralar registry'dan; tayyor palitralar soni 10 ta (jiddiy/enterprise ranglar; yuqoridagi "5 light + 5 dark palitra" qarorini almashtiradi). T20 (o'z palitrasini yaratish) BEKOR QILINDI.
 
 ---
 
