@@ -52,7 +52,7 @@ class PaletteContrastTest {
     fun incomeAndExpense_areReadableAndDistinct_onEveryPalette() {
         for (palette in AppPalette.entries) for (dark in listOf(false, true)) {
             val s = getPaletteColorScheme(palette, dark)
-            val money = if (dark) DarkMoneyColors else LightMoneyColors
+            val money = if (dark || palette.darkOnly) DarkMoneyColors else LightMoneyColors
             val tag = "$palette dark=$dark"
             assertNotEquals("$tag income == expense", money.income, money.expense)
             for (bg in listOf(s.surface, s.surfaceContainerLowest, s.surfaceContainer)) {
@@ -90,7 +90,7 @@ class PaletteContrastTest {
     fun extendedColors_text_meetsAA_onEverySurface_fillMeetsUi_onDark() {
         for (palette in AppPalette.entries) for (dark in listOf(false, true)) {
             val s = getPaletteColorScheme(palette, dark)
-            val ext = if (dark) DarkExtendedColors else LightExtendedColors
+            val ext = if (dark || palette.darkOnly) DarkExtendedColors else LightExtendedColors
             val tag = "$palette dark=$dark"
             for ((name, c) in listOf("success" to ext.success, "warning" to ext.warning, "info" to ext.info)) {
                 check("$tag $name text/surface", c.text, s.surface)
