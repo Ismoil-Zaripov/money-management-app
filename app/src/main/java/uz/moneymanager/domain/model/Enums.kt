@@ -21,4 +21,17 @@ enum class AppPalette {
     }
 }
 
+/** Look of the top app bar and bottom navigation bar. */
+enum class BarStyle {
+    /** Opaque bar tinted with the palette color. */
+    TINTED,
+
+    /** Translucent bar; content blurs behind it where the device supports it. */
+    GLASS;
+
+    companion object {
+        val DEFAULT = TINTED
+    }
+}
+
 enum class AppLanguage(val tag: String) { EN("en"), UZ("uz"), RU("ru") }

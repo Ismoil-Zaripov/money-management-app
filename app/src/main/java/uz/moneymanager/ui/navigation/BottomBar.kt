@@ -1,8 +1,10 @@
 package uz.moneymanager.ui.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material3.HorizontalDivider
@@ -18,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.core.designsystem.component.MmPreviewHost
 import uz.moneymanager.core.designsystem.component.MmPreviews
+import uz.moneymanager.core.designsystem.theme.barBackground
 
 val AppBottomNavItems = listOf(
     BottomNavItem.Transactions,
@@ -31,7 +34,7 @@ fun BottomBar(
     onNavigate: (Screen) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val container = MaterialTheme.colorScheme.surfaceContainer
+    val container = MaterialTheme.colorScheme.barBackground()
     Column(modifier = modifier) {
         HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
         NavigationBar(
@@ -55,7 +58,8 @@ fun BottomBar(
                 )
             }
         }
-        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+        // Gesture/nav-bar inset below the bar is painted with the bar color, so no gap shows under it.
+        Spacer(Modifier.background(container).windowInsetsBottomHeight(WindowInsets.navigationBars).fillMaxWidth())
     }
 }
 

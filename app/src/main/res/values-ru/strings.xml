@@ -149,6 +149,9 @@
     <string name="settings_section_general">Общие</string>
     <string name="settings_section_management">Управление данными</string>
     <string name="setting_theme">Тема оформления</string>
+    <string name="setting_bar_style">Стиль панелей</string>
+    <string name="bar_style_tinted">Тонированный</string>
+    <string name="bar_style_glass">Стекло</string>
     <string name="setting_language">Язык</string>
     <string name="theme_system">Системная</string>
     <string name="theme_light">Светлая</string>

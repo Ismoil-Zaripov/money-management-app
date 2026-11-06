@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import uz.moneymanager.domain.model.AppLanguage
 import uz.moneymanager.domain.model.AppPalette
+import uz.moneymanager.domain.model.BarStyle
 import uz.moneymanager.domain.model.ThemeMode
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,6 +23,7 @@ data class AppSettings(
     val themeMode: ThemeMode,
     val palette: AppPalette,
     val contentFontSize: Int = SettingsRepository.DEFAULT_FONT_SIZE,
+    val barStyle: BarStyle = BarStyle.DEFAULT,
 )
 
 @Singleton
@@ -32,7 +34,8 @@ class SettingsRepository @Inject constructor(
         val mode = prefs[THEME]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM
         val pal = AppPalette.fromStored(prefs[PALETTE])
         val size = prefs[FONT_SIZE]?.let { clampFontSize(it) } ?: DEFAULT_FONT_SIZE
-        AppSettings(themeMode = mode, palette = pal, contentFontSize = size)
+        val barStyle = prefs[BAR_STYLE]?.let { runCatching { BarStyle.valueOf(it) }.getOrNull() } ?: BarStyle.DEFAULT
+        AppSettings(themeMode = mode, palette = pal, contentFontSize = size, barStyle = barStyle)
     }
 
     val themeMode: Flow<ThemeMode> = settings.map { it.themeMode }
@@ -45,6 +48,12 @@ class SettingsRepository @Inject constructor(
 
     suspend fun setPalette(palette: AppPalette) {
         dataStore.edit { it[PALETTE] = palette.name }
+    }
+
+    val barStyle: Flow<BarStyle> = settings.map { it.barStyle }
+
+    suspend fun setBarStyle(style: BarStyle) {
+        dataStore.edit { it[BAR_STYLE] = style.name }
     }
 
     val contentFontSize: Flow<Int> = settings.map { it.contentFontSize }
@@ -64,6 +73,7 @@ class SettingsRepository @Inject constructor(
         private val THEME = stringPreferencesKey("theme_mode")
         private val PALETTE = stringPreferencesKey("app_palette")
         private val FONT_SIZE = intPreferencesKey("content_font_size")
+        private val BAR_STYLE = stringPreferencesKey("bar_style")
     }
 }
 

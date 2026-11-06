@@ -14,6 +14,7 @@ import uz.moneymanager.data.repository.LanguageStore
 import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.domain.model.AppLanguage
 import uz.moneymanager.domain.model.AppPalette
+import uz.moneymanager.domain.model.BarStyle
 import uz.moneymanager.domain.model.ThemeMode
 
 @HiltViewModel
@@ -28,9 +29,16 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.themeMode,
         settingsRepository.palette,
         settingsRepository.contentFontSize,
+        settingsRepository.barStyle,
         currentLanguage,
-    ) { theme, palette, fontSize, language ->
-        SettingsUiState(language = language, themeMode = theme, palette = palette, contentFontSize = fontSize)
+    ) { theme, palette, fontSize, barStyle, language ->
+        SettingsUiState(
+            language = language,
+            themeMode = theme,
+            palette = palette,
+            contentFontSize = fontSize,
+            barStyle = barStyle,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsUiState(language = languageStore.current()))
 
     fun setThemeMode(mode: ThemeMode) {
@@ -39,6 +47,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setPalette(palette: AppPalette) {
         viewModelScope.launch { settingsRepository.setPalette(palette) }
+    }
+
+    fun setBarStyle(style: BarStyle) {
+        viewModelScope.launch { settingsRepository.setBarStyle(style) }
     }
 
     fun setContentFontSize(size: Int) {

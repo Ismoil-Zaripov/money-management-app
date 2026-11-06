@@ -19,6 +19,7 @@ fun SettingsRoute(
     val callbacks = SettingsCallbacks(
         onThemeChange = viewModel::setThemeMode,
         onPaletteChange = viewModel::setPalette,
+        onBarStyleChange = viewModel::setBarStyle,
         onFontSizeChange = viewModel::setContentFontSize,
         onFontSizeReset = { viewModel.setContentFontSize(SettingsRepository.DEFAULT_FONT_SIZE) },
         onLanguageChange = viewModel::setLanguage,

@@ -2,6 +2,7 @@ package uz.moneymanager.feature.settings.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,7 @@ import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.feature.settings.presentation.SettingsUiState
+import uz.moneymanager.feature.settings.ui.component.BarStyleSelector
 import uz.moneymanager.feature.settings.ui.component.DataManagementSection
 import uz.moneymanager.feature.settings.ui.component.FontSizeSetting
 import uz.moneymanager.feature.settings.ui.component.LanguageSelector
@@ -25,7 +27,11 @@ import uz.moneymanager.feature.settings.ui.component.ThemeSelector
 
 @Composable
 fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
-    Scaffold(topBar = { MmTopBar(title = stringResource(R.string.title_settings)) }) { padding ->
+    Scaffold(
+        topBar = { MmTopBar(title = stringResource(R.string.title_settings)) },
+        // The bottom bar (outer Scaffold) already owns the system-bar inset; avoid a second gap above it.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -36,6 +42,7 @@ fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
             SettingsCard {
                 ThemeSelector(state.themeMode, callbacks.onThemeChange)
                 PalettePicker(state.palette, callbacks.onPaletteChange)
+                BarStyleSelector(state.barStyle, callbacks.onBarStyleChange)
                 FontSizeSetting(state.contentFontSize, callbacks.onFontSizeChange, callbacks.onFontSizeReset)
                 LanguageSelector(state.language, callbacks.onLanguageChange)
             }

@@ -24,7 +24,7 @@ import uz.moneymanager.ui.navigation.AppNavHost
 import uz.moneymanager.ui.navigation.BottomBar
 import uz.moneymanager.core.designsystem.theme.MoneyManagerTheme
 import uz.moneymanager.core.designsystem.theme.SystemBarsEffect
-import uz.moneymanager.core.designsystem.theme.barContainer
+import uz.moneymanager.core.designsystem.theme.barSurface
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -43,7 +43,8 @@ class MainActivity : AppCompatActivity() {
                 MoneyManagerTheme(
                     themeMode = s.themeMode,
                     palette = s.palette,
-                    contentFontSize = s.contentFontSize
+                    contentFontSize = s.contentFontSize,
+                    barStyle = s.barStyle,
                 ) {
                     MainAppContent()
                 }
@@ -61,8 +62,8 @@ fun MainAppContent() {
     val showBottomBar = AppBottomNavItems.any { it.screen.route == currentRoute }
 
     // Dynamic system bars color
-    val barColor = MaterialTheme.colorScheme.barContainer
-    val navBarColor = if (showBottomBar) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surface
+    val barColor = MaterialTheme.colorScheme.barSurface
+    val navBarColor = if (showBottomBar) MaterialTheme.colorScheme.barSurface else MaterialTheme.colorScheme.surface
     SystemBarsEffect(statusBarBackground = barColor, navBarBackground = navBarColor)
 
     Scaffold(

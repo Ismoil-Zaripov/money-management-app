@@ -147,6 +147,9 @@
     <string name="settings_section_general">Umumiy</string>
     <string name="settings_section_management">Ma’lumotlar boshqaruvi</string>
     <string name="setting_theme">Mavzu</string>
+    <string name="setting_bar_style">Panel uslubi</string>
+    <string name="bar_style_tinted">Rangli</string>
+    <string name="bar_style_glass">Shisha</string>
     <string name="setting_language">Til</string>
     <string name="theme_system">Tizim bo‘yicha</string>
     <string name="theme_light">Yorug‘</string>

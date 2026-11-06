@@ -15,6 +15,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import uz.moneymanager.data.repository.SettingsRepository
 import uz.moneymanager.domain.model.AppPalette
+import uz.moneymanager.domain.model.BarStyle
 import uz.moneymanager.domain.model.ThemeMode
 
 // Income / Expense colors
@@ -47,6 +49,21 @@ val ExpenseColor: Color
  */
 val ColorScheme.barContainer: Color
     get() = if (surface.luminance() < 0.5f) primaryContainer else primary
+
+val LocalBarStyle = staticCompositionLocalOf { BarStyle.DEFAULT }
+
+/** Alpha of the glass bars' tint; the rest is the blurred (or plain) content showing through. */
+const val GlassBarAlpha = 0.72f
+
+/** Container color of the top/bottom bars for the current [BarStyle]. */
+@Composable
+@ReadOnlyComposable
+fun ColorScheme.barBackground(): Color =
+    if (LocalBarStyle.current == BarStyle.GLASS) barSurface.copy(alpha = GlassBarAlpha) else barSurface
+
+/** Tinted surface for the top app bar and bottom navigation bar, so they read as distinct from the screen background. */
+val ColorScheme.barSurface: Color
+    get() = primary.copy(alpha = 0.14f).compositeOver(surface)
 
 val ColorScheme.onBarContainer: Color
     get() = if (surface.luminance() < 0.5f) onPrimaryContainer else onPrimary
@@ -97,6 +114,7 @@ fun MoneyManagerTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
     palette: AppPalette = AppPalette.EMERALD,
     contentFontSize: Int = SettingsRepository.DEFAULT_FONT_SIZE,
+    barStyle: BarStyle = BarStyle.DEFAULT,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
@@ -120,6 +138,7 @@ fun MoneyManagerTheme(
     ) {
         CompositionLocalProvider(
             LocalContentFontSize provides contentFontSize,
+            LocalBarStyle provides barStyle,
             LocalMoneyColors provides if (darkTheme) DarkMoneyColors else LightMoneyColors,
             content = content,
         )
