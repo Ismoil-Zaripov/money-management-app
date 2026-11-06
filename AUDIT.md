@@ -5,7 +5,7 @@
 
 **Belgilar:** ⬜ boshlanmagan · 🟨 jarayonda / qisman · ✅ tugagan va tekshirilgan · ➖ bu ekranga tegishli emas · ⚠️ muammo bor (Izohlar'ga yoz)
 
-**Oxirgi yangilanish:** 2026-11-06 (T11 ✅: build success va light/dark ko'rish foydalanuvchi tomonidan tasdiqlandi; `RateFormatTest` natijasi hali aytilmagan, №22 ochiq)
+**Oxirgi yangilanish:** 2026-11-06 (T11 ✅: run-checks EXIT_CODE=0 (53 test yashil), light/dark ko'rish foydalanuvchi tomonidan tasdiqlandi; №22 yopildi)
 **Keyingi task:** `T12` (T00 da faqat qurilmadagi debug/release o'lchovi qoldi, 5-bo'lim №4; T03 da androidTest ishga tushirilmagan, №8)
 
 ---
@@ -46,8 +46,8 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | Edit Transaction | 🟨 | ⬜ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T07 |
 | Settings (576 → 17 fayl, ≤95 qator) | ✅ | ➖ | ✅ | ✅ | ➖ | ✅ | ✅ | ⬜ | T08 |
 | Currencies (332 → 12 fayl, ≤83 qator) | ✅ | ➖ | ✅ | ✅ | ➖ | ✅ | ✅ | ⬜ | T09 |
-| Exchange Rates (644 → 15 fayl, ≤127 qator) | 🟨 | ➖ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟨 | T10 |
-| Categories (258 → 12 fayl, ≤86 qator) | ✅ | ⬜ | ✅ | ✅ | ⬜ | ✅ | ✅ | 🟨 | T11 |
+| Exchange Rates (644 → 15 fayl, ≤127 qator) | 🟨 | ➖ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | T10 |
+| Categories (258 → 12 fayl, ≤86 qator) | ✅ | ⬜ | ✅ | ✅ | ⬜ | ✅ | ✅ | ✅ | T11 |
 | Payment Methods (353) | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | T12 |
 | Palette ekrani (ixtiyoriy) | ➖ | ➖ | ⬜ | ⬜ | ➖ | ⬜ | ➖ | ➖ | T13 |
 
@@ -116,8 +116,8 @@ Bloklar: **Split** = Route/Screen/komponentlarga ajratilgan (fayl ≤ ~300 qator
 | 19 | T08: (B) ekranda ko'rish foydalanuvchi tomonidan tasdiqlandi. Segment balandligi 40dp (<48dp). Yangi test qo'shilmadi. `font_size_reset` stringi endi ishlatilmaydi (o'chirilmadi). Dizayndagi 'Personal Account', 'System Dialogs Preview', 'Total Summary' QILINMADI (tasks.md bo'yicha) | T08 | ochiq |
 | 20 | T09: tasks.md talabiga ko'ra default valyutada edit tugmasi UI'da o'chirilgan (avval nomni tahrirlash mumkin edi); repository qoidasi o'zgarmadi. Dizayndagi 'Active/M3 Rule Sheets' tabi va uydirma tavsiflar QILINMADI; 'Data integrity' banneri qo'shildi (matni `err_currency_in_use` bilan mos). Yangi test qo'shilmadi | T09 | ma'lumot |
 | 21 | T10: foydalanuvchi qarori: kartada 'N transactions linked' QILINMADI (`ExchangeRateRow` da faqat `locked`; DAO tegilmadi). Dizayndagi 'Live CBU.uz / 09:30', 'Manual/Recent/Fixed' badge'lari, valyuta belgisi tile'lari QILINMADI. Import xatosi banner emas, snackbar + 'Retry' (`err_cbu_fetch_failed`); `MmDialog` da qizil 'Delete' tugmasi yo'q | T10 | ma'lumot |
-| 22 | T10: `RatesRoute` composable ~100 qator (>80), `AddRateDialog` ~85; Add va Edit dialog alohida qoldi (tasks.md `AddEditRateDialog`). Ekranni foydalanuvchi ko'rib chiqdi (2026-11-06, muammo aytilmadi) va T10 ni ✅ ga o'tkazishni so'radi: Light/Dark/States shu asosda ✅. Yangi `RateFormatTest` natijasi aytilmagan (Tests 🟨) | T10 | ochiq |
-| 23 | T11: dizayndagi tavsif qatori ('Household, supermarket…'), 'View Transactions' havolasi (№3 ixtiyoriy) va qizil FK banneri QILINMADI; FK xatosi snackbar'da `err_category_in_use` (delete qulf bilan o'chirilgan, amalda kam uchraydi). Qidiruv — nom bo'yicha 'contains' (`filterCategories`, DB so'rovi o'zgarmadi). Domain ⬜ (UI hali `CategoryWithUsage` Room modeli bilan ishlaydi). Light/Dark foydalanuvchi tomonidan ekranda ko'rildi, xato yo'q (2026-11-06) → ✅; States (bo'sh/qidiruv natijasiz) alohida aytilmagan → ⬜. `CategoryFilterTest` yozildi, run-checks 'build success', lekin test natijasi alohida aytilmagan (Tests 🟨). `category_tx_count` stringi endi ishlatilmaydi (o'chirilmadi) | T11 | ochiq |
+| 22 | T10: `RatesRoute` composable ~100 qator (>80), `AddRateDialog` ~85; Add va Edit dialog alohida qoldi (tasks.md `AddEditRateDialog`). Ekranni foydalanuvchi ko'rib chiqdi (2026-11-06, muammo aytilmadi) va T10 ni ✅ ga o'tkazishni so'radi: Light/Dark/States shu asosda ✅. `RateFormatTest` yashil (4/4, build-check.log EXIT_CODE=0, 2026-11-06) → Tests ✅. Qolgan: `RatesRoute` ~100 qator (>80), `AddRateDialog` ~85 (Split 🟨) | T10 | hal qilindi (test); Split → T14 |
+| 23 | T11: dizayndagi tavsif qatori ('Household, supermarket…'), 'View Transactions' havolasi (№3 ixtiyoriy) va qizil FK banneri QILINMADI; FK xatosi snackbar'da `err_category_in_use` (delete qulf bilan o'chirilgan, amalda kam uchraydi). Qidiruv — nom bo'yicha 'contains' (`filterCategories`, DB so'rovi o'zgarmadi). Domain ⬜ (UI hali `CategoryWithUsage` Room modeli bilan ishlaydi). Light/Dark foydalanuvchi tomonidan ekranda ko'rildi, xato yo'q (2026-11-06) → ✅; States (bo'sh/qidiruv natijasiz) alohida aytilmagan → ⬜. `CategoryFilterTest` yozildi, run-checks 'build success', lekin test natijasi alohida aytilmagan (Tests 🟨). `category_tx_count` stringi endi ishlatilmaydi (o'chirilmadi). `RateFormatTest` yashil (4/4, build-check.log, 2026-11-06). Foydalanuvchi ruxsati bilan `PaletteContrastTest` (income/expense) tuzatildi: `IncomeLight` 0xFF2E7D32 → 0xFF2A782E (surfaceContainer ustida kontrast 4.39–4.42 → ≥4.7; Ocean Teal, Graphite Mint, Royal Indigo, Warm Coral light'da yiqilgan edi). Qayta ishga tushirish: `EXIT_CODE=0`, 53 test yashil (`RateFormatTest` 4/4, `CategoryFilterTest` 4/4, `PaletteContrastTest` 2/2), foydalanuvchi tasdiqladi (2026-11-06) | T11 | hal qilindi (2026-11-06) |
 
 ---
 
