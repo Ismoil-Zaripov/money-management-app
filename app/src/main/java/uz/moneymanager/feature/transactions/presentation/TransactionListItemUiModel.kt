@@ -20,7 +20,6 @@ sealed interface TransactionListItemUiModel {
         val type: TransactionType,
         val date: LocalDate,
         val categoryKey: String = "",
-        val description: String = "",
         val timeText: String = "",
     ) : TransactionListItemUiModel
 }

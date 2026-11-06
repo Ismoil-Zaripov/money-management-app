@@ -13,6 +13,5 @@ internal fun TransactionListRow.toUiItem(): TransactionListItemUiModel.Item =
         type = type,
         date = date,
         categoryKey = categoryKey,
-        description = description,
         timeText = FormatUtils.formatTime(createdAt),
     )

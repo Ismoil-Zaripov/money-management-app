@@ -18,16 +18,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.core.designsystem.icon.categoryIcon
-import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.AmountKind
 import uz.moneymanager.core.designsystem.component.AmountText
-import uz.moneymanager.core.designsystem.component.MmBadge
 import uz.moneymanager.core.designsystem.component.MmCard
 import uz.moneymanager.core.designsystem.theme.contentText
 import uz.moneymanager.core.designsystem.theme.moneyColors
@@ -54,11 +51,9 @@ fun TransactionRow(
         ) {
             CategoryIconCircle(categoryKey = item.categoryKey, isIncome = isIncome)
             Column(modifier = Modifier.weight(1f)) {
-                TransactionTitleLine(title = item.title, isIncome = isIncome)
+                TransactionTitleLine(title = item.title)
                 Text(
-                    text = listOf(item.description, item.paymentMethodName)
-                        .filter { it.isNotBlank() }
-                        .joinToString(" · "),
+                    text = item.paymentMethodName,
                     style = MaterialTheme.contentText,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -85,23 +80,14 @@ fun TransactionRow(
 }
 
 @Composable
-private fun TransactionTitleLine(title: String, isIncome: Boolean) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold),
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f, fill = false)
-        )
-        if (isIncome) {
-            MmBadge(text = stringResource(R.string.type_income))
-        }
-    }
+private fun TransactionTitleLine(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold),
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable

@@ -33,7 +33,7 @@ fun TransactionSkeletonList(rows: Int = 6) {
                     Box(modifier = Modifier.size(44.dp).skeleton(alpha, CircleShape))
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
                         Box(modifier = Modifier.width(120.dp).height(14.dp).skeleton(alpha))
-                        Box(modifier = Modifier.width(180.dp).height(12.dp).skeleton(alpha))
+                        Box(modifier = Modifier.width(96.dp).height(12.dp).skeleton(alpha))
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.End) {
                         Box(modifier = Modifier.width(80.dp).height(14.dp).skeleton(alpha))
