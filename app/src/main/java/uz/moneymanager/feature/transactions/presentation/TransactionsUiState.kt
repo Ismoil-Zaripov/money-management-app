@@ -19,6 +19,8 @@ data class TransactionsUiState(
     val defaultCurrency: CurrencyEntity? = null,
     val totals: MonitoringTotals = MonitoringTotals(),
     val dailyTotals: Map<LocalDate, MonitoringTotals> = emptyMap(),
+    /** Number of transactions matching the filter draft being edited; null when the filter screen is closed. */
+    val previewCount: Int? = null,
 ) {
     val displayCurrency: CurrencyEntity?
         get() = currencies.firstOrNull { it.id == filter.displayCurrencyId } ?: defaultCurrency

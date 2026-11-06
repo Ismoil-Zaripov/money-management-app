@@ -501,31 +501,37 @@ class PaymentMethodsComposeUiTest {
         composeTestRule.onNodeWithText("Cash").assertIsDisplayed()
         composeTestRule.onNodeWithText("Transfer").assertIsDisplayed()
 
-        // 2. Filter panel: click "Payment Method: All" chip -> select "Transfer"
-        val filterPmLabel = context.getString(R.string.filter_payment_method)
-        val filterAllLabel = context.getString(R.string.filter_all)
-        val initialChipText = "$filterPmLabel: $filterAllLabel"
-        val transferChipText = "$filterPmLabel: Transfer"
+        // 2. More (⋮) -> Filter -> pick "Transfer" -> "Show 1 result"
+        fun openFilterScreen() {
+            composeTestRule.onNodeWithContentDescription(context.getString(R.string.action_more)).performClick()
+            composeTestRule.onNodeWithText(context.getString(R.string.title_filter)).performClick()
+            composeTestRule.waitForIdle()
+        }
 
-        composeTestRule.onNodeWithText(initialChipText).performScrollTo().assertIsDisplayed().performClick()
+        fun showResults(count: Int) {
+            val label = context.resources.getQuantityString(R.plurals.filter_show_results, count, count)
+            composeTestRule.waitUntil(5_000) {
+                composeTestRule.onAllNodesWithText(label).fetchSemanticsNodes().isNotEmpty()
+            }
+            composeTestRule.onNodeWithText(label).performClick()
+            composeTestRule.waitForIdle()
+        }
 
-        // The chip opens the Payment/Currency sheet: pick "Transfer" (last node = inside the sheet), then Apply (1)
+        openFilterScreen()
+        // Last "Transfer" node = the chip inside the filter sheet (the list row is behind it)
         val transferNodes = composeTestRule.onAllNodesWithText("Transfer")
         transferNodes[transferNodes.fetchSemanticsNodes().size - 1].performClick()
-        composeTestRule.onNodeWithText(context.getString(R.string.action_apply_count, 1)).performClick()
-        composeTestRule.waitForIdle()
+        showResults(1)
 
-        // Filter chip now shows "Payment Method: Transfer" and only "Taksi" remains in the list
-        composeTestRule.onNodeWithText(transferChipText).assertIsDisplayed().assertIsSelected()
+        // Only "Taksi" remains in the list
         composeTestRule.onNodeWithText("Taksi").assertIsDisplayed()
         composeTestRule.onNodeWithText("Ovqat").assertDoesNotExist()
 
-        // 3. Reset filter via top bar Reset button
-        val resetDesc = context.getString(R.string.action_reset)
-        composeTestRule.onNodeWithContentDescription(resetDesc).performClick()
-        composeTestRule.waitForIdle()
+        // 3. More -> Filter -> "Clear all" -> "Show 2 results": both transactions are back
+        openFilterScreen()
+        composeTestRule.onNodeWithText(context.getString(R.string.filter_clear_all)).performClick()
+        showResults(2)
 
-        composeTestRule.onNodeWithText(initialChipText).assertIsDisplayed()
         composeTestRule.onNodeWithText("Ovqat").assertIsDisplayed()
         composeTestRule.onNodeWithText("Taksi").assertIsDisplayed()
     }

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -89,6 +90,21 @@ class TransactionsViewModel @Inject constructor(
             }
     }
 
+    private val previewDraft = MutableStateFlow<TransactionFilterDraft?>(null)
+
+    /** Count for "Show N Results": totals of the draft applied on top of the current filter. */
+    val previewCount: StateFlow<Int?> = combine(previewDraft, _filter, defaultCurrency) { draft, f, def ->
+        Triple(draft, f, def?.id ?: 1L)
+    }.flatMapLatest { (draft, f, fallbackId) ->
+        if (draft == null) {
+            flowOf(null)
+        } else {
+            val displayId = f.displayCurrencyId ?: fallbackId
+            transactionRepository.totals(draft.toFilter(f), displayId, fallbackId)
+                .map { it.display.count + it.fallback.count }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     val totals: StateFlow<MonitoringTotals> = queryParams.flatMapLatest { (f, displayId, fallbackId) ->
         transactionRepository.totals(f, displayId, fallbackId)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MonitoringTotals())
@@ -105,19 +121,16 @@ class TransactionsViewModel @Inject constructor(
         },
         totals,
         dailyTotals,
-    ) { base, t, d -> base.copy(totals = t, dailyTotals = d) }
+        previewCount,
+    ) { base, t, d, count -> base.copy(totals = t, dailyTotals = d, previewCount = count) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TransactionsUiState())
 
     fun onEvent(event: TransactionsEvent) {
         when (event) {
-            is TransactionsEvent.CategorySelected -> setCategory(event.id)
-            is TransactionsEvent.CurrencyFilterSelected -> setCurrencyFilter(event.id)
-            is TransactionsEvent.PaymentMethodSelected -> setPaymentMethodFilter(event.id)
+            is TransactionsEvent.FilterApplied -> _filter.value = event.draft.toFilter(_filter.value)
+            is TransactionsEvent.FilterPreviewChanged -> previewDraft.value = event.draft
             is TransactionsEvent.DisplayCurrencySelected -> setDisplayCurrency(event.id)
-            is TransactionsEvent.TypeSelected -> setType(event.type)
-            is TransactionsEvent.DateRangeSelected -> setDateRange(event.from, event.to)
             is TransactionsEvent.DeleteConfirmed -> deleteTransaction(event.id)
-            TransactionsEvent.ResetFilters -> resetFilters()
         }
     }
 
