@@ -309,4 +309,7 @@
         <item quantity="many">Показать %d результатов</item>
         <item quantity="other">Показать %d результата</item>
     </plurals>
+    <string name="bar_style_transparency">Прозрачность</string>
+    <string name="bar_transparency_value">%1$d%%</string>
+    <string name="bar_style_blur_note">Размытие работает на Android 12 и новее; на старых устройствах виден только полупрозрачный оттенок.</string>
 </resources>

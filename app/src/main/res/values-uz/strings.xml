@@ -285,4 +285,7 @@
         <item quantity="one">%d ta natijani ko‘rsatish</item>
         <item quantity="other">%d ta natijani ko‘rsatish</item>
     </plurals>
+    <string name="bar_style_transparency">Shaffoflik</string>
+    <string name="bar_transparency_value">%1$d%%</string>
+    <string name="bar_style_blur_note">Xiralashtirish Android 12 va undan yangisida ishlaydi; eski qurilmalarda faqat shaffof rang ko‘rinadi.</string>
 </resources>

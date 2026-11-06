@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -15,7 +19,8 @@ import uz.moneymanager.core.designsystem.component.MmScaffold
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.feature.settings.presentation.SettingsUiState
-import uz.moneymanager.feature.settings.ui.component.BarStyleSelector
+import uz.moneymanager.feature.settings.ui.component.BarStyleSetting
+import uz.moneymanager.feature.settings.ui.sheet.BarStyleSheet
 import uz.moneymanager.feature.settings.ui.component.DataManagementSection
 import uz.moneymanager.feature.settings.ui.component.FontSizeSetting
 import uz.moneymanager.feature.settings.ui.component.LanguageSelector
@@ -25,6 +30,7 @@ import uz.moneymanager.feature.settings.ui.component.ThemeSelector
 
 @Composable
 fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
+    var showBarStyleSheet by rememberSaveable { mutableStateOf(false) }
     MmScaffold(
         topBar = { MmTopBar(title = stringResource(R.string.title_settings)) },
     ) { padding ->
@@ -38,7 +44,7 @@ fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
             SettingsCard {
                 ThemeSelector(state.themeMode, callbacks.onThemeChange)
                 PalettePicker(state.palette, callbacks.onPaletteChange)
-                BarStyleSelector(state.barStyle, callbacks.onBarStyleChange)
+                BarStyleSetting(state.barStyle, state.glassTransparency) { showBarStyleSheet = true }
                 FontSizeSetting(state.contentFontSize, callbacks.onFontSizeChange, callbacks.onFontSizeReset)
                 LanguageSelector(state.language, callbacks.onLanguageChange)
             }
@@ -54,5 +60,15 @@ fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
             }
             Spacer(modifier = Modifier.height(16.dp + padding.calculateBottomPadding()))
         }
+    }
+
+    if (showBarStyleSheet) {
+        BarStyleSheet(
+            style = state.barStyle,
+            glassTransparency = state.glassTransparency,
+            onStyleChange = callbacks.onBarStyleChange,
+            onTransparencyChange = callbacks.onGlassTransparencyChange,
+            onDismiss = { showBarStyleSheet = false }
+        )
     }
 }

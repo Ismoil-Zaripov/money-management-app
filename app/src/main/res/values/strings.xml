@@ -294,4 +294,7 @@
         <item quantity="one">Show %d result</item>
         <item quantity="other">Show %d results</item>
     </plurals>
+    <string name="bar_style_transparency">Transparency</string>
+    <string name="bar_transparency_value">%1$d%%</string>
+    <string name="bar_style_blur_note">Blur works on Android 12 and newer; older devices show the translucent tint only.</string>
 </resources>
