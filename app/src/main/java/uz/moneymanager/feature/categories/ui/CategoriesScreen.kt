@@ -17,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmScaffold
+import uz.moneymanager.core.designsystem.component.MmPage
+import uz.moneymanager.core.designsystem.component.MmCardListSkeleton
 import uz.moneymanager.core.designsystem.component.MmEmptyState
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
 import uz.moneymanager.core.designsystem.component.MmTopBar
@@ -46,44 +48,49 @@ fun CategoriesScreen(
         topBar = { MmTopBar(title = stringResource(R.string.title_categories), onBack = onBack) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        if (total == 0) {
-            MmEmptyState(
-                title = stringResource(R.string.empty_categories),
-                message = stringResource(R.string.categories_empty_hint),
-                modifier = Modifier.padding(padding)
-            )
-            return@MmScaffold
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                top = padding.calculateTopPadding() + 8.dp,
-                bottom = padding.calculateBottomPadding() + 24.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        MmPage(
+            loaded = state.loaded,
+            skeleton = { MmCardListSkeleton(PaddingValues(top = padding.calculateTopPadding() + 8.dp)) },
         ) {
-            item(key = "info", contentType = "info") { CategoriesInfoBanner(ItemPadding) }
-            item(key = "search", contentType = "search") {
-                CategorySearchField(query = query, onQueryChange = onQueryChange, modifier = ItemPadding)
-            }
-            item(key = "header", contentType = "header") {
-                MmSectionHeader(
-                    title = stringResource(R.string.categories_section_title),
-                    trailing = pluralStringResource(R.plurals.categories_active_count, total, total)
+            if (total == 0) {
+                MmEmptyState(
+                    title = stringResource(R.string.empty_categories),
+                    message = stringResource(R.string.categories_empty_hint),
+                    modifier = Modifier.padding(padding)
                 )
+                return@MmPage
             }
-            if (visible.isEmpty()) {
-                item(key = "no_results", contentType = "no_results") {
-                    MmEmptyState(title = stringResource(R.string.sheet_no_results), modifier = Modifier.padding(vertical = 24.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    top = padding.calculateTopPadding() + 8.dp,
+                    bottom = padding.calculateBottomPadding() + 24.dp,
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item(key = "info", contentType = "info") { CategoriesInfoBanner(ItemPadding) }
+                item(key = "search", contentType = "search") {
+                    CategorySearchField(query = query, onQueryChange = onQueryChange, modifier = ItemPadding)
                 }
-            }
-            items(visible, key = { it.category.id }, contentType = { "category" }) { item ->
-                CategoryCard(
-                    item = item,
-                    onRename = { onRename(item) },
-                    onDelete = { onDelete(item) },
-                    modifier = ItemPadding
-                )
+                item(key = "header", contentType = "header") {
+                    MmSectionHeader(
+                        title = stringResource(R.string.categories_section_title),
+                        trailing = pluralStringResource(R.plurals.categories_active_count, total, total)
+                    )
+                }
+                if (visible.isEmpty()) {
+                    item(key = "no_results", contentType = "no_results") {
+                        MmEmptyState(title = stringResource(R.string.sheet_no_results), modifier = Modifier.padding(vertical = 24.dp))
+                    }
+                }
+                items(visible, key = { it.category.id }, contentType = { "category" }) { item ->
+                    CategoryCard(
+                        item = item,
+                        onRename = { onRename(item) },
+                        onDelete = { onDelete(item) },
+                        modifier = ItemPadding
+                    )
+                }
             }
         }
     }

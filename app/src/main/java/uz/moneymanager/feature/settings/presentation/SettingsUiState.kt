@@ -12,4 +12,7 @@ data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val palette: AppPalette = AppPalette.DEFAULT,
     val contentFontSize: Int? = null,
-)
+) {
+    /** The first DataStore read has arrived. */
+    val loaded: Boolean get() = contentFontSize != null
+}

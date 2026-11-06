@@ -16,6 +16,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmScaffold
+import uz.moneymanager.core.designsystem.component.MmPage
+import uz.moneymanager.core.designsystem.component.MmCardListSkeleton
 import uz.moneymanager.core.designsystem.component.MmEmptyState
 import uz.moneymanager.core.designsystem.component.MmExtendedFab
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
@@ -44,36 +46,41 @@ fun PaymentMethodsScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        if (total == 0) {
-            MmEmptyState(
-                title = stringResource(R.string.empty_payment_methods),
-                message = stringResource(R.string.payment_methods_empty_hint),
-                modifier = Modifier.padding(padding)
-            )
-            return@MmScaffold
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                top = padding.calculateTopPadding() + 8.dp,
-                bottom = padding.calculateBottomPadding() + 88.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        MmPage(
+            loaded = state.loaded,
+            skeleton = { MmCardListSkeleton(PaddingValues(top = padding.calculateTopPadding() + 8.dp)) },
         ) {
-            item(key = "info", contentType = "info") { PaymentMethodsInfoCard(ItemPadding) }
-            item(key = "header", contentType = "header") {
-                MmSectionHeader(
-                    title = stringResource(R.string.payment_methods_section_title),
-                    trailing = pluralStringResource(R.plurals.payment_methods_registered_count, total, total)
+            if (total == 0) {
+                MmEmptyState(
+                    title = stringResource(R.string.empty_payment_methods),
+                    message = stringResource(R.string.payment_methods_empty_hint),
+                    modifier = Modifier.padding(padding)
                 )
+                return@MmPage
             }
-            items(state.paymentMethods, key = { it.paymentMethod.id }, contentType = { "method" }) { item ->
-                PaymentMethodCard(
-                    item = item,
-                    onRename = { onRename(item) },
-                    onDelete = { onDelete(item) },
-                    modifier = ItemPadding
-                )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    top = padding.calculateTopPadding() + 8.dp,
+                    bottom = padding.calculateBottomPadding() + 88.dp,
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item(key = "info", contentType = "info") { PaymentMethodsInfoCard(ItemPadding) }
+                item(key = "header", contentType = "header") {
+                    MmSectionHeader(
+                        title = stringResource(R.string.payment_methods_section_title),
+                        trailing = pluralStringResource(R.plurals.payment_methods_registered_count, total, total)
+                    )
+                }
+                items(state.paymentMethods, key = { it.paymentMethod.id }, contentType = { "method" }) { item ->
+                    PaymentMethodCard(
+                        item = item,
+                        onRename = { onRename(item) },
+                        onDelete = { onDelete(item) },
+                        modifier = ItemPadding
+                    )
+                }
             }
         }
     }

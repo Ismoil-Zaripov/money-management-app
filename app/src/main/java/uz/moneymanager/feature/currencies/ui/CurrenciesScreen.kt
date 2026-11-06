@@ -15,6 +15,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmScaffold
+import uz.moneymanager.core.designsystem.component.MmPage
+import uz.moneymanager.core.designsystem.component.MmCardListSkeleton
 import uz.moneymanager.core.designsystem.component.MmExtendedFab
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.data.local.CurrencyWithUsage
@@ -38,23 +40,28 @@ fun CurrenciesScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = ScreenHorizontalPadding,
-                top = padding.calculateTopPadding() + 8.dp,
-                end = ScreenHorizontalPadding,
-                bottom = padding.calculateBottomPadding() + 88.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        MmPage(
+            loaded = state.loaded,
+            skeleton = { MmCardListSkeleton(PaddingValues(top = padding.calculateTopPadding() + 8.dp)) },
         ) {
-            item(key = "integrity_note") { CurrencyIntegrityNote() }
-            items(state.currencies, key = { it.currency.id }) { item ->
-                CurrencyCard(
-                    item = item,
-                    onEdit = { onEdit(item) },
-                    onDelete = { onDelete(item) }
-                )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = ScreenHorizontalPadding,
+                    top = padding.calculateTopPadding() + 8.dp,
+                    end = ScreenHorizontalPadding,
+                    bottom = padding.calculateBottomPadding() + 88.dp,
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item(key = "integrity_note") { CurrencyIntegrityNote() }
+                items(state.currencies, key = { it.currency.id }) { item ->
+                    CurrencyCard(
+                        item = item,
+                        onEdit = { onEdit(item) },
+                        onDelete = { onDelete(item) }
+                    )
+                }
             }
         }
     }

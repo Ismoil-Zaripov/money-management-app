@@ -21,7 +21,7 @@ class PaymentMethodsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<PaymentMethodsUiState> = paymentMethodRepository.observeWithUsage()
-        .map { PaymentMethodsUiState(it) }
+        .map { PaymentMethodsUiState(it, loaded = true) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PaymentMethodsUiState())
 
     private val _events = MutableSharedFlow<PaymentMethodEvent>()

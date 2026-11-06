@@ -16,6 +16,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmScaffold
+import uz.moneymanager.core.designsystem.component.MmPage
+import uz.moneymanager.feature.settings.ui.component.SettingsSkeleton
 import uz.moneymanager.core.designsystem.component.MmSectionHeader
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.feature.settings.presentation.SettingsUiState
@@ -33,30 +35,35 @@ fun SettingsScreen(state: SettingsUiState, callbacks: SettingsCallbacks) {
     MmScaffold(
         topBar = { MmTopBar(title = stringResource(R.string.title_settings)) },
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+        MmPage(
+            loaded = state.loaded,
+            skeleton = { SettingsSkeleton(padding.calculateTopPadding()) },
         ) {
-            Spacer(modifier = Modifier.height(padding.calculateTopPadding()))
-            MmSectionHeader(stringResource(R.string.settings_section_general))
-            SettingsCard {
-                ThemeSelector(state.themeMode, callbacks.onThemeChange)
-                PaletteSetting(state.palette) { showPaletteSheet = true }
-                FontSizeSetting(state.contentFontSize, callbacks.onFontSizeChange, callbacks.onFontSizeReset)
-                LanguageSelector(state.language, callbacks.onLanguageChange)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Spacer(modifier = Modifier.height(padding.calculateTopPadding()))
+                MmSectionHeader(stringResource(R.string.settings_section_general))
+                SettingsCard {
+                    ThemeSelector(state.themeMode, callbacks.onThemeChange)
+                    PaletteSetting(state.palette) { showPaletteSheet = true }
+                    FontSizeSetting(state.contentFontSize, callbacks.onFontSizeChange, callbacks.onFontSizeReset)
+                    LanguageSelector(state.language, callbacks.onLanguageChange)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                MmSectionHeader(stringResource(R.string.settings_section_management))
+                SettingsCard {
+                    DataManagementSection(
+                        onNavigateCurrencies = callbacks.onNavigateCurrencies,
+                        onNavigateRates = callbacks.onNavigateRates,
+                        onNavigateCategories = callbacks.onNavigateCategories,
+                        onNavigatePaymentMethods = callbacks.onNavigatePaymentMethods,
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp + padding.calculateBottomPadding()))
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            MmSectionHeader(stringResource(R.string.settings_section_management))
-            SettingsCard {
-                DataManagementSection(
-                    onNavigateCurrencies = callbacks.onNavigateCurrencies,
-                    onNavigateRates = callbacks.onNavigateRates,
-                    onNavigateCategories = callbacks.onNavigateCategories,
-                    onNavigatePaymentMethods = callbacks.onNavigatePaymentMethods,
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp + padding.calculateBottomPadding()))
         }
     }
 

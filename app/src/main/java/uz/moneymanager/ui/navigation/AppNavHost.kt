@@ -5,6 +5,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavGraphBuilder
@@ -13,6 +14,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import uz.moneymanager.core.designsystem.component.LocalPageReady
 import uz.moneymanager.feature.categories.ui.CategoriesRoute
 import uz.moneymanager.feature.currencies.ui.CurrenciesRoute
 import uz.moneymanager.feature.paymentmethods.ui.PaymentMethodsRoute
@@ -67,5 +69,7 @@ private fun NavGraphBuilder.slideComposable(
         exitTransition = { ExitTransition.None },
         popEnterTransition = { EnterTransition.None },
         popExitTransition = { slideOutOfContainer(down, animationSpec = tween(SLIDE_MS)) },
-    ) { content() }
+    ) {
+        CompositionLocalProvider(LocalPageReady provides rememberEnterFinished()) { content() }
+    }
 }

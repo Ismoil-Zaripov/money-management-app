@@ -21,7 +21,7 @@ class CategoriesViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<CategoriesUiState> = categoryRepository.observeWithUsage()
-        .map { CategoriesUiState(it) }
+        .map { CategoriesUiState(it, loaded = true) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CategoriesUiState())
 
     private val _events = MutableSharedFlow<CategoryEvent>()

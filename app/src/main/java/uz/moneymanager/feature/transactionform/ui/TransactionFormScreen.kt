@@ -3,11 +3,12 @@ package uz.moneymanager.feature.transactionform.ui
 import androidx.compose.ui.res.stringResource
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmScaffold
-import androidx.compose.foundation.layout.Box
+import uz.moneymanager.core.designsystem.component.LocalPageReady
+import uz.moneymanager.core.designsystem.component.MmPage
+import uz.moneymanager.feature.transactionform.ui.component.TransactionFormSkeleton
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -18,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -44,8 +44,9 @@ internal fun TransactionFormScreen(
     val categoryFocus = remember { FocusRequester() }
 
     // Yangi tranzaksiyada summa avtomatik fokusda va klaviatura ochiq (tahrirlashda emas)
-    LaunchedEffect(state.isNew, state.isLoading) {
-        if (state.isNew && !state.isLoading && !initialFocusRequested) {
+    val pageReady = LocalPageReady.current
+    LaunchedEffect(state.isNew, state.isLoading, pageReady) {
+        if (state.isNew && !state.isLoading && pageReady && !initialFocusRequested) {
             initialFocusRequested = true
             withFrameNanos { }
             amountFocus.requestFocus()
@@ -67,16 +68,10 @@ internal fun TransactionFormScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
+        MmPage(
+            loaded = state.loaded,
+            skeleton = { TransactionFormSkeleton(Modifier.fillMaxSize().padding(padding)) },
+        ) {
             TransactionFormContent(
                 state = state,
                 callbacks = callbacks,

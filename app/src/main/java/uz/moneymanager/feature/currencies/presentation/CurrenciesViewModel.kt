@@ -21,7 +21,7 @@ class CurrenciesViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<CurrenciesUiState> = currencyRepository.observeWithUsage()
-        .map { CurrenciesUiState(it) }
+        .map { CurrenciesUiState(it, loaded = true) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CurrenciesUiState())
 
     private val _events = MutableSharedFlow<CurrencyEvent>()

@@ -35,4 +35,7 @@ data class FormUiState(
     val createdAt: Long = 0L,
     /** nameKey -> number of transactions using that category (edit mode only). */
     val categoryUsage: Map<String, Int> = emptyMap(),
-)
+) {
+    /** Edit mode: the original transaction has been read; a new transaction is ready at once. */
+    val loaded: Boolean get() = !isLoading
+}

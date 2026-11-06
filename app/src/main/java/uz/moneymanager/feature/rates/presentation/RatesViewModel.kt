@@ -44,7 +44,7 @@ class RatesViewModel @Inject constructor(
     val uiState: StateFlow<RatesUiState> = combine(
         _selectedDate, currencies, rates, _isLoading
     ) { date, currencyList, rateList, loading ->
-        RatesUiState(date = date, currencies = currencyList, rates = rateList, isLoading = loading)
+        RatesUiState(date = date, currencies = currencyList, rates = rateList, isLoading = loading, loaded = true)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RatesUiState())
 
     private val _events = MutableSharedFlow<RateEvent>()

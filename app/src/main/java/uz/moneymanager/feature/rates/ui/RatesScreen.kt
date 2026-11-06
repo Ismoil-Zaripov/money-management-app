@@ -16,6 +16,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
 import uz.moneymanager.core.designsystem.component.MmScaffold
+import uz.moneymanager.core.designsystem.component.MmPage
+import uz.moneymanager.core.designsystem.component.MmCardListSkeleton
 import uz.moneymanager.core.designsystem.component.MmExtendedFab
 import uz.moneymanager.core.designsystem.component.MmTopBar
 import uz.moneymanager.data.local.ExchangeRateRow
@@ -46,25 +48,32 @@ fun RatesScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding())) {
-            RatesDateRow(date = state.date, onDateChange = onDateChange, onPickDate = onPickDate)
-            RatesImportRow(isLoading = state.isLoading, onImport = onImport)
-            if (state.rates.isEmpty() && !state.isLoading) {
-                RatesEmptyState(date = state.date, onFetch = onImport)
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = ScreenHorizontalPadding,
-                        top = 8.dp,
-                        end = ScreenHorizontalPadding,
-                        bottom = padding.calculateBottomPadding() + 88.dp,
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    item(key = "header", contentType = "header") { RatesListHeader(state.rates.size) }
-                    items(state.rates, key = { it.id }, contentType = { "rate" }) { item ->
-                        RateCard(item = item, onEdit = { onEdit(item) }, onDelete = { onDelete(item) })
+        MmPage(
+            loaded = state.loaded,
+            skeleton = {
+                MmCardListSkeleton(PaddingValues(top = padding.calculateTopPadding() + 8.dp), showBanner = false)
+            },
+        ) {
+            Column(modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding())) {
+                RatesDateRow(date = state.date, onDateChange = onDateChange, onPickDate = onPickDate)
+                RatesImportRow(isLoading = state.isLoading, onImport = onImport)
+                if (state.rates.isEmpty() && !state.isLoading) {
+                    RatesEmptyState(date = state.date, onFetch = onImport)
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = ScreenHorizontalPadding,
+                            top = 8.dp,
+                            end = ScreenHorizontalPadding,
+                            bottom = padding.calculateBottomPadding() + 88.dp,
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        item(key = "header", contentType = "header") { RatesListHeader(state.rates.size) }
+                        items(state.rates, key = { it.id }, contentType = { "rate" }) { item ->
+                            RateCard(item = item, onEdit = { onEdit(item) }, onDelete = { onDelete(item) })
+                        }
                     }
                 }
             }

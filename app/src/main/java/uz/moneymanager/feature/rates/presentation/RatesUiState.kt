@@ -11,4 +11,6 @@ data class RatesUiState(
     val currencies: List<CurrencyEntity> = emptyList(),
     val rates: List<ExchangeRateRow> = emptyList(),
     val isLoading: Boolean = false,
+    /** False until the first emission from the data layer; the screen shows its skeleton meanwhile. */
+    val loaded: Boolean = false,
 )
