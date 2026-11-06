@@ -298,6 +298,13 @@
         <item quantity="many">Показать %d результатов</item>
         <item quantity="other">Показать %d результата</item>
     </plurals>
+    <string name="filter_range_empty">Выберите период</string>
+    <plurals name="filter_range_days">
+        <item quantity="one">%d день</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="many">%d дней</item>
+        <item quantity="other">%d дня</item>
+    </plurals>
     <string name="palette_corporate_blue">Корпоративный синий</string>
     <string name="palette_navy_professional">Тёмно-синий профессиональный</string>
     <string name="palette_slate_neutral">Нейтральный сланец</string>

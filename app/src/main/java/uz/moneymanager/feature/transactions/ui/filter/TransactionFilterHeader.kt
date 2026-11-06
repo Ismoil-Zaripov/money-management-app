@@ -1,6 +1,7 @@
 package uz.moneymanager.feature.transactions.ui.filter
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -8,6 +9,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -17,11 +19,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import uz.moneymanager.R
+import uz.moneymanager.core.designsystem.theme.contentText
 
-/** Title with a close (X) button on the left and "Clear all" on the right. */
+/** Close (X), bold title with the active-filter count, and "Clear all" on the right. */
 @Composable
 internal fun TransactionFilterHeader(
-    canClear: Boolean,
+    activeCount: Int,
     onClose: () -> Unit,
     onClearAll: () -> Unit,
 ) {
@@ -34,12 +37,26 @@ internal fun TransactionFilterHeader(
         }
         Text(
             text = stringResource(R.string.title_filter),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
         )
-        TextButton(onClick = onClearAll, enabled = canClear) {
-            Text(stringResource(R.string.filter_clear_all))
+        if (activeCount > 0) {
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Text(
+                    text = activeCount.toString(),
+                    style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        TextButton(onClick = onClearAll, enabled = activeCount > 0) {
+            Text(stringResource(R.string.filter_clear_all), style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold))
         }
     }
 }

@@ -41,7 +41,7 @@ fun TransactionFilterScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxHeight()) {
-        TransactionFilterHeader(canClear = draft.activeCount > 0, onClose = onClose, onClearAll = onClearAll)
+        TransactionFilterHeader(activeCount = draft.activeCount, onClose = onClose, onClearAll = onClearAll)
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Column(
             modifier = Modifier

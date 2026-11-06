@@ -7,14 +7,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import uz.moneymanager.core.designsystem.theme.contentText
+import androidx.compose.ui.unit.sp
 
+/** Small spaced caps label above a filter section. */
 @Composable
-internal fun FilterSectionTitle(text: String) {
+internal fun FilterSectionTitle(text: String, modifier: Modifier = Modifier) {
     Text(
-        text = text,
-        style = MaterialTheme.contentText.copy(fontWeight = FontWeight.SemiBold),
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.padding(bottom = 8.dp)
+        text = text.uppercase(),
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.8.sp),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier.padding(bottom = 12.dp)
     )
 }

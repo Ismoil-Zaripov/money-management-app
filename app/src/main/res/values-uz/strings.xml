@@ -274,6 +274,11 @@
         <item quantity="one">%d ta natijani ko‘rsatish</item>
         <item quantity="other">%d ta natijani ko‘rsatish</item>
     </plurals>
+    <string name="filter_range_empty">Sanalar oralig‘ini tanlang</string>
+    <plurals name="filter_range_days">
+        <item quantity="one">%d kun</item>
+        <item quantity="other">%d kun</item>
+    </plurals>
     <string name="palette_corporate_blue">Korporativ ko\'k</string>
     <string name="palette_navy_professional">Dengiz floti</string>
     <string name="palette_slate_neutral">Slate neytral</string>

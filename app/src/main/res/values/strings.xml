@@ -283,6 +283,11 @@
         <item quantity="one">Show %d result</item>
         <item quantity="other">Show %d results</item>
     </plurals>
+    <string name="filter_range_empty">Select a date range</string>
+    <plurals name="filter_range_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
     <string name="palette_corporate_blue">Corporate Blue</string>
     <string name="palette_navy_professional">Navy Professional</string>
     <string name="palette_slate_neutral">Slate Neutral</string>
